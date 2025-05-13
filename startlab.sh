@@ -6,7 +6,7 @@ export DOCKER_CLI_HINTS=false
 # --- Constants ---
 KALI_CONTAINER="kali"
 BADWEB_CONTAINER="badweb"
-HTTP_PORT="8088"
+HTTP_PORT="8069"
 HTML_FILE="/tmp/index.html"
 
 # --- Functions ---
@@ -28,6 +28,7 @@ setup_environment() {
   docker run -d --privileged --network demo -h attackmachine -it --rm --name "$KALI_CONTAINER" kalilinux/kali-last-release
 
   echo "Creating Badweb container..."
+  # TODO: This container is AMD64, not sure how well it'll execute on a Pi
   docker run -d -h victimmachine --network demo -it --rm --name "$BADWEB_CONTAINER" asecurityguru/abccorpdockerapp:v1
 }
 
@@ -59,6 +60,7 @@ update_kali_and_install_tools() {
     chmod +x updateFiles.sh &&
     ./updateFiles.sh
   "
+  # TODO: I think nmap vulners should be `git clone https://github.com/scipag/vulscan.git vulscan`
 }
 
 get_container_ip() {
@@ -120,5 +122,4 @@ main() {
   start_http_server
 }
 
-# Run the main function
 main
