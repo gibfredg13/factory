@@ -5,6 +5,7 @@ export DOCKER_CLI_HINTS=false
 
 # --- Constants ---
 KALI_CONTAINER="kali"
+KALI_PORT="8008"
 BADWEB_CONTAINER="badweb"
 HTTP_PORT="8069"
 HTML_FILE="/tmp/index.html"
@@ -25,11 +26,12 @@ setup_environment() {
   docker network create demo
 
   echo "Creating Kali container..."
+  # privileged for airmon-ng
   docker run -d --privileged --network demo -h attackmachine -it --rm --name "$KALI_CONTAINER" kalilinux/kali-last-release
 
   echo "Creating Badweb container..."
   # TODO: This container is AMD64, not sure how well it'll execute on a Pi
-  docker run -d -h victimmachine --network demo -it --rm --name "$BADWEB_CONTAINER" asecurityguru/abccorpdockerapp:v1
+  docker run -d -h victimmachine --network demo -it -p $KALI_PORT:80 --rm --name "$BADWEB_CONTAINER" asecurityguru/abccorpdockerapp:v1
 }
 
 configure_badweb_services() {
@@ -53,14 +55,13 @@ update_kali_and_install_tools() {
     apt-get install -y ca-certificates &&
     sed -i 's/http:/https:/' /etc/apt/sources.list &&
     apt-get update &&
-    apt-get install -y aircrack-ng metasploit-framework nmap hydra vim crunch iputils-ping &&
+    apt-get install -y aircrack-ng metasploit-framework nmap hydra vim crunch iputils-ping tnftp rsmangler &&
     cd /usr/share/nmap/scripts/ &&
     git clone https://github.com/vulnersCom/nmap-vulners.git &&
     cd vulscan/utilities/updater/ &&
     chmod +x updateFiles.sh &&
     ./updateFiles.sh
   "
-  # TODO: I think nmap vulners should be `git clone https://github.com/scipag/vulscan.git vulscan`
 }
 
 get_container_ip() {
@@ -71,7 +72,7 @@ run_nmap_scan() {
   local attacker_container="$1"
   local target_ip="$2"
   echo "Running Nmap scan on $target_ip from $attacker_container..."
-  docker exec "$attacker_container" nmap -sV -p 21 "$target_ip"
+  docker exec "$attacker_container" nmap -sV -p -100 "$target_ip"
 }
 
 generate_html_report() {
