@@ -7,10 +7,19 @@ export DOCKER_CLI_HINTS=false
 KALI_CONTAINER="kali"
 KALI_PORT="8008"
 BADWEB_CONTAINER="badweb"
-HTTP_PORT="8069"
+HTTP_PORT="8088"
 HTML_FILE="/tmp/index.html"
 
 # --- Functions ---
+
+stop_http_server() {
+  echo "Stopping HTTP server on port $HTTP_PORT..."
+  pids=$(ps aux | grep "[h]ttp.server" | awk '{print $2}')
+  for pid in $pids; do
+    kill $pid
+  done
+  echo "HTTP server stopped."
+}
 
 cleanup_environment() {
   echo "Cleaning up previous containers and network..."
@@ -19,6 +28,7 @@ cleanup_environment() {
   docker rm "$KALI_CONTAINER" --force
   docker rm "$BADWEB_CONTAINER" --force
   docker network rm demo
+  stop_http_server
 }
 
 setup_environment() {
@@ -30,19 +40,13 @@ setup_environment() {
   docker run -d --privileged --network demo -h attackmachine -it --rm --name "$KALI_CONTAINER" kalilinux/kali-last-release
 
   echo "Creating Badweb container..."
-  # TODO: This container is AMD64, not sure how well it'll execute on a Pi
-  docker run -d -h victimmachine --network demo -it -p $KALI_PORT:80 --rm --name "$BADWEB_CONTAINER" asecurityguru/abccorpdockerapp:v1
+  docker run -d -h victimmachine --network demo -it -p $KALI_PORT:80 --rm --name "$BADWEB_CONTAINER" shoaloak/vuln_vsftpd_httpd
 }
 
 configure_badweb_services() {
   echo "Configuring services on Badweb..."
   docker exec "$BADWEB_CONTAINER" bash -c "
-    sed -i 's/listen=NO/listen=YES/' /etc/vsftpd.conf &&
     vsftpd /etc/vsftpd.conf &
-    useradd -m -g admin admin -s /bin/bash &&
-    echo 'admin:aaabb' | chpasswd &&
-    echo '<html><head><title>Hello</title></head><body><h1>Hello World!</h1></body></html>' > /home/admin/index.html &&
-    chown admin:admin /home/admin/index.html &&
     cd /home/admin &&
     nohup python -m SimpleHTTPServer 80 &>/dev/null &
   "
@@ -62,6 +66,7 @@ update_kali_and_install_tools() {
     chmod +x updateFiles.sh &&
     ./updateFiles.sh
   "
+  # TODO bash: line 9: cd: vulscan/utilities/updater/: No such file or directory
 }
 
 get_container_ip() {
@@ -121,6 +126,10 @@ main() {
   # --- Generate Report and Serve ---
   generate_html_report "$kali_ip" "$badweb_ip" "$badweb_hostname" "$nmap_result" "$nmap_status"
   start_http_server
+
+  echo "If you are done with the labs, continue to shutdown AND wipe"
+  read -p "Press enter to continue"
+  cleanup_environment
 }
 
 main
