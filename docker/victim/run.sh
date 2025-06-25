@@ -1,0 +1,1 @@
+docker run -d -p 21:21 -p 80:80 --name evil_vsftpd_multi_stage vsftpd-lighttpd:multi-stage
