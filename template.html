@@ -112,9 +112,10 @@
     <h2>Nmap Scan Results</h2>
     <p>Nmap, 'the Network Mapper', is a network scanner. It allows you to see what hosts are on a network and what ports
       are opened. <br />
-      We've performed a scan using <code>nmap -sV -p -100 $kali_ip</code>, where
+      We've performed a scan using <code>nmap -sV -p -100 --script vulners $kali_ip</code>, where
       <code>-sV is to probe open ports to determine service/version info</code> and
-      <code>-p -100</code> specifies the port to scan, in this case equal or below 100.
+      <code>-p -100</code> specifies the port to scan, in this case equal or below 100
+      <code>--script vulners</code> tries to automatically find CVEs for open ports...
     </p>
     <pre class="pre-wrap">$nmap_result</pre>
   </div>
