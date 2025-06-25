@@ -38,7 +38,8 @@ RUN dpkg -i /tmp/vsftpd-backdoor*.deb || apt-get install -f -y \
 RUN useradd -m -d /home/admin -s /bin/bash admin \
     && echo "admin:aaabb" | chpasswd \
     && mkdir -p /home/admin \
-    && echo '<html><head><title>Hello</title></head><body><h1>Hello World!</h1></body></html>' > /home/admin/index.html
+    && echo '<html><head><title>Hello</title></head><body><h1>Hello World!</h1></body></html>' > /home/admin/index.html \
+    && mkdir /usr/share/empty
 
 # Copy configs
 COPY lighttpd.conf /etc/lighttpd/lighttpd.conf

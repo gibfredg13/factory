@@ -37,10 +37,10 @@ setup_environment() {
 
   echo "Creating Kali container..."
   # privileged for airmon-ng
-  docker run -d --privileged --network demo -h attackmachine -it --rm --name "$KALI_CONTAINER" kalilinux/kali-last-release
+  docker run -d --privileged --network demo -h attackmachine -it --rm --name "$KALI_CONTAINER" shoaloak/attack
 
   echo "Creating Badweb container..."
-  docker run -d -h victimmachine --network demo -it -p $KALI_PORT:80 --rm --name "$BADWEB_CONTAINER" shoaloak/vuln_vsftpd_httpd
+  docker run -d -h victimmachine --network demo -it -p $KALI_PORT:80 --rm --name "$BADWEB_CONTAINER" shoaloak/victim
 }
 
 configure_badweb_services() {
@@ -59,14 +59,8 @@ update_kali_and_install_tools() {
     apt-get install -y ca-certificates &&
     sed -i 's/http:/https:/' /etc/apt/sources.list &&
     apt-get update &&
-    apt-get install -y aircrack-ng metasploit-framework nmap hydra vim crunch iputils-ping tnftp rsmangler &&
-    cd /usr/share/nmap/scripts/ &&
-    git clone https://github.com/vulnersCom/nmap-vulners.git &&
-    cd vulscan/utilities/updater/ &&
-    chmod +x updateFiles.sh &&
-    ./updateFiles.sh
+    apt-get install -y aircrack-ng metasploit-framework nmap hydra vim crunch iputils-ping tnftp rsmangler
   "
-  # TODO bash: line 9: cd: vulscan/utilities/updater/: No such file or directory
 }
 
 get_container_ip() {
@@ -77,7 +71,7 @@ run_nmap_scan() {
   local attacker_container="$1"
   local target_ip="$2"
   echo "Running Nmap scan on $target_ip from $attacker_container..."
-  docker exec "$attacker_container" nmap -sV -p -100 "$target_ip"
+  docker exec "$attacker_container" nmap -sV -p -100 --script vulners "$target_ip"
 }
 
 generate_html_report() {
@@ -103,7 +97,7 @@ generate_html_report() {
 
 start_http_server() {
   echo "Starting HTTP server on port $HTTP_PORT..."
-  python3 -m http.server "$HTTP_PORT" -d /tmp/ &
+  python3 -m http.server "$HTTP_PORT" -d /tmp/ >/dev/null 2>&1 &
   echo "HTTP server running. Open http://127.0.0.1:$HTTP_PORT in your browser."
 }
 
@@ -112,7 +106,7 @@ main() {
   cleanup_environment
   setup_environment
   configure_badweb_services
-  update_kali_and_install_tools
+  #update_kali_and_install_tools
 
   # --- Gather Information ---
   local kali_ip=$(get_container_ip "$KALI_CONTAINER")
