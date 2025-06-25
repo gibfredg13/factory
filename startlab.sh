@@ -52,17 +52,6 @@ configure_badweb_services() {
   "
 }
 
-update_kali_and_install_tools() {
-  echo "Updating Kali and installing tools..."
-  docker exec -it "$KALI_CONTAINER" bash -c "
-    apt-get update &&
-    apt-get install -y ca-certificates &&
-    sed -i 's/http:/https:/' /etc/apt/sources.list &&
-    apt-get update &&
-    apt-get install -y aircrack-ng metasploit-framework nmap hydra vim crunch iputils-ping tnftp rsmangler
-  "
-}
-
 get_container_ip() {
   docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$1"
 }
@@ -106,7 +95,6 @@ main() {
   cleanup_environment
   setup_environment
   configure_badweb_services
-  #update_kali_and_install_tools
 
   # --- Gather Information ---
   local kali_ip=$(get_container_ip "$KALI_CONTAINER")
