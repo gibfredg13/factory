@@ -436,7 +436,7 @@ wc -l mangled_wordlist.txt</code></pre>
       </text>
 
       <text x="75" y="55" text-anchor="middle" font-size="10">
-        Tools: airmon-ng, hashcat , Nmap
+        Tools: airmon-ng, hashcat
       </text>
 
       <rect x="5" y="75" width="140" height="7" fill="#4CAF50" rx="3" ry="3" />
@@ -450,7 +450,7 @@ wc -l mangled_wordlist.txt</code></pre>
       </text>
 
       <text x="75" y="40" text-anchor="middle" font-size="10">
-        Wifi: Wifi-1
+        Wifi: hackme
       </text>
 
       <text x="75" y="55" text-anchor="middle" font-size="10">
@@ -467,12 +467,11 @@ wc -l mangled_wordlist.txt</code></pre>
   </svg>
 
   <p>Here we demonstrate the risks of weak WiFi passwords and the techniques used to compromise wireless networks.
-    The
-    attacking machine is Kali Linux, and the target is a vulnerable WiFi network with a weak password.</p>
+    We attack from the Raspberry Pi itself, and the target is a vulnerable WiFi network with a weak password.</p>
 
   <h2>Understanding WiFi Security Vulnerabilities</h2>
 
-  <p>Wireless networks are particularly vulnerable to attacks due to their broadcast nature. Weak passwords can be
+  <p>WPA-2 Wireless networks are particularly vulnerable to attacks due to their broadcast nature. Weak passwords can be
     cracked using various techniques, including:</p>
   <ul>
     <li><strong>Brute Force Attacks:</strong> Systematically trying all possible password combinations</li>
@@ -494,11 +493,6 @@ wc -l mangled_wordlist.txt</code></pre>
   <h2>Step-by-Step WiFi Hacking Demonstration</h2>
 
   <ol>
-    <!-- <li>
-      <strong>Prepare the Kali Linux Environment:</strong>
-      <p>Connect to the Kali machine:</p>
-      <pre class="pre-wrap"><code>docker exec -it kali bash</code></pre>
-    </li> -->
 
     <li>
       <strong>WiFi Network Reconnaissance:</strong>
