@@ -235,11 +235,17 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     }
+    
+    .hint-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
 
     .hint-button.setup { background: linear-gradient(45deg, #9C27B0, #7B1FA2); }
     .hint-button.explain { background: linear-gradient(45deg, #2196F3, #1976D2); }
     .hint-button.command { background: linear-gradient(45deg, #FF9800, #F57C00); }
     .hint-button.answer { background: linear-gradient(45deg, #ff6b6b, #e55555); }
+    .hint-button.ING { background: linear-gradient(45deg, #ff6600, #ff9933); }
 
     .hint-content {
       background: rgba(0, 150, 0, 0.1);
@@ -332,7 +338,7 @@
 
     .completed {
       opacity: 0.7;
-      border-color: #4CAF50;
+      border-color: #4CAF50 !important;
     }
 
     .completed .challenge-title::after {
@@ -358,9 +364,9 @@
         <button onclick="setLanguage('nl')" id="btn-nl">🇳🇱 NL</button>
       </div>
       <div class="header-content">
-        <div class="ing-factory-badge">ING Factory • ideas worth building</div>
-        <h1>🔐 Cybersecurity Awareness Lab</h1>
-        <p class="subtitle">"Building Security Knowledge Through Safe, Hands-On Learning"</p>
+        <div class="ing-factory-badge" data-key="header.badge">ING Factory • ideas worth building</div>
+        <h1 data-key="header.title">🔐 Cybersecurity Awareness Lab</h1>
+        <p class="subtitle" data-key="header.subtitle">"Building Security Knowledge Through Safe, Hands-On Learning"</p>
         <div class="progress-bar">
           <div class="progress-fill" id="progressBar"></div>
         </div>
@@ -368,11 +374,11 @@
     </div>
 
     <div class="score">
-      <div>Progress: <span id="score">0</span>/125</div>
-      <div>Steps: <span id="completed">0</span>/5</div>
+      <div><span data-key="score.progress">Progress</span>: <span id="score">0</span>/125</div>
+      <div><span data-key="score.steps">Steps</span>: <span id="completed">0</span>/5</div>
     </div>
 
-    <div class="important-note">
+    <div class="important-note" data-key-html="welcome">
       🎯 <strong>Welcome!</strong> This lab teaches cybersecurity awareness through controlled, educational exercises. 
       No prior technical experience needed - we'll guide you step by step!
     </div>
@@ -380,29 +386,31 @@
     <!-- Challenge 0: Lab Setup -->
     <div class="challenge-card" id="challenge0">
       <div class="challenge-title">
-        🚀 Step 0: Connecting to Your Lab Environment
-        <span class="difficulty beginner">START HERE</span>
+        <span data-key="challenge0.title">🚀 Step 0: Connecting to Your Lab Environment</span>
+        <span class="difficulty beginner" data-key="challenge0.difficulty">START HERE</span>
       </div>
       
-      <div class="challenge-description">
+      <div class="challenge-description" data-key-html="challenge0.description">
         <strong>What you're doing:</strong> Before we can start learning about security, we need to connect to our practice environment. 
         Think of this like logging into a computer that's specially set up for safe learning.
+        We have set up two Containers on your machine for you to play with.
       </div>
 
       <div class="lab-setup">
-        <h3>🖥️ Your Lab Setup</h3>
+        <h3><span data-key="challenge0.setupTitle">🖥️ Your Lab Setup</span></h3>
         <div class="docker-diagram">
-          <div>🖥️ <strong>Kali Linux</strong> (Your Attack Machine)</div>
+          <div>🖥️ <strong data-key="challenge0.kali">Kali Linux</strong> (<span data-key="challenge0.attack">Your Attack Machine</span>) $kali_ip </div>
           <div>↕️</div>
-          <div>🎯 <strong>Vulnerable Target</strong> (Practice Machine)</div>
+          <div>🎯 <strong data-key="challenge0.target">Vulnerable Target</strong> (<span data-key="challenge0.practice">Practice Machine</span>) $badweb_ip</div>
         </div>
       </div>
 
       <div class="hint-section">
-        <button class="hint-button setup" onclick="toggleHint('hint0-1')">🔧 What is Docker?</button>
-        <button class="hint-button explain" onclick="toggleHint('hint0-2')">📚 How to Connect</button>
-        <button class="hint-button command" onclick="toggleHint('hint0-3')">💻 Connection Command</button>
-        <button class="hint-button answer" onclick="toggleAnswer('answer0')">🚨 Complete Solution</button>
+        <button class="hint-button setup" onclick="toggleHint('hint0-1')" data-key="challenge0.hints.docker">🔧 What is Docker?</button>
+        <button class="hint-button ING" onclick="toggleHint('hint0-4')" data-key="challenge0.hints.ing">🔧 How is Docker used in ING?</button>
+        <button class="hint-button explain" onclick="toggleHint('hint0-2')" data-key="challenge0.hints.connect">📚 How to Connect</button>
+        <button class="hint-button command" onclick="toggleHint('hint0-3')" data-key="challenge0.hints.command">💻 Connection Command</button>
+        <button class="hint-button answer" onclick="toggleAnswer('answer0')" data-key="challenge0.hints.solution">🚨 Complete Solution</button>
       </div>
 
       <div class="hint-content" id="hint0-1">
@@ -431,6 +439,22 @@
         <div class="command-line">docker exec -it kali bash</div>
       </div>
 
+      <div class="hint-content" id="hint0-4">
+        <h4>🏭 How does ING use Docker?</h4>
+        <p><strong>Docker is used in the ICHP Environment</strong></p>
+        <p>This is the mechanism that controls many of ING's services and offerings to our valued customers and allows us to be agile in our service offerings while offering world class security.</p>
+        <br>
+        <div class="security-tip">
+          <strong>🏦 ING's Container Strategy:</strong>
+          <ul>
+            <li>🔄 <strong>Microservices:</strong> Breaking applications into smaller, manageable pieces</li>
+            <li>🚀 <strong>Rapid Deployment:</strong> Quick updates and rollbacks for better customer experience</li>
+            <li>🛡️ <strong>Isolation:</strong> Each service runs independently for enhanced security</li>
+            <li>📈 <strong>Scalability:</strong> Handle varying customer loads efficiently</li>
+          </ul>
+        </div>
+      </div>
+
       <div class="answer-content" id="answer0">
         <div class="step-by-step">
           <div class="step">
@@ -445,28 +469,28 @@
             <div class="terminal-output">root@kali:~# </div>
           </div>
         </div>
-        <button class="hint-button" onclick="completeChallenge(0, 20)">✅ I'm Connected!</button>
+        <button class="hint-button" onclick="completeChallenge(0, 20)" data-key="challenge0.complete">✅ I'm Connected!</button>
       </div>
     </div>
 
     <!-- Challenge 1: Network Discovery -->
     <div class="challenge-card" id="challenge1">
       <div class="challenge-title">
-        🔍 Step 1: Discovering What's on the Network
-        <span class="difficulty beginner">BEGINNER</span>
+        <span data-key="challenge1.title">🔍 Step 1: Discovering What's on the Network</span>
+        <span class="difficulty beginner" data-key="challenge1.difficulty">BEGINNER</span>
       </div>
       
-      <div class="challenge-description">
+      <div class="challenge-description" data-key-html="challenge1.description">
         <strong>What you're learning:</strong> How attackers discover what computers and services are available on a network.
         <br><br>
         <strong>Your mission:</strong> Find out what services are running on the target machine and identify any security vulnerabilities.
       </div>
 
       <div class="hint-section">
-        <button class="hint-button explain" onclick="toggleHint('hint1-1')">🤔 What is Network Scanning?</button>
-        <button class="hint-button setup" onclick="toggleHint('hint1-2')">🛠️ The Right Tool</button>
-        <button class="hint-button command" onclick="toggleHint('hint1-3')">📋 Understanding the Command</button>
-        <button class="hint-button answer" onclick="toggleAnswer('answer1')">🚨 Complete Solution</button>
+        <button class="hint-button explain" onclick="toggleHint('hint1-1')" data-key="challenge1.hints.scanning">🤔 What is Network Scanning?</button>
+        <button class="hint-button setup" onclick="toggleHint('hint1-2')" data-key="challenge1.hints.tool">🛠️ The Right Tool</button>
+        <button class="hint-button command" onclick="toggleHint('hint1-3')" data-key="challenge1.hints.command">📋 Understanding the Command</button>
+        <button class="hint-button answer" onclick="toggleAnswer('answer1')" data-key="challenge1.hints.solution">🚨 Complete Solution</button>
       </div>
 
       <div class="hint-content" id="hint1-1">
@@ -475,52 +499,68 @@
       </div>
 
       <div class="hint-content" id="hint1-2">
+        <h4>Ping: The First Step</h4>
+        <p>Before scanning, it's good practice to 'ping' the target to see if it's online and reachable. Think of it as asking "Are you there?".</p>
+        <div class="command-line">ping -c 3 $badweb_ip</div>
+        <hr style="margin: 20px 0; border-color: #333;">
         <h4>🔧 Meet Nmap</h4>
-        <p><strong>Nmap:</strong> The "Network Mapper" - the most famous network scanning tool in the world!</p>
+        <p><strong>Nmap:</strong> The "Network Mapper" - the most famous network scanning tool in the world! This is the primary tool for discovering open ports and services.</p>
       </div>
 
       <div class="hint-content" id="hint1-3">
         <h4>📚 The Complete Command</h4>
-        <div class="command-line">nmap -sV -p 1-100 --script vulners victimmachine</div>
+        <div class="command-line">nmap -sV -p 1-100 --script vulners $badweb_ip</div>
         <p>This scans ports 1-100, identifies services, and checks for vulnerabilities.</p>
       </div>
 
       <div class="answer-content" id="answer1">
         <div class="step-by-step">
           <div class="step">
+            <strong>Ping the machine to see if it's online</strong>
+            <div class="command-line">ping -c 3 $badweb_ip</div>
+          </div>
+          <div class="step">
             <strong>Run the network scan</strong>
-            <div class="command-line">nmap -sV -p 1-100 --script vulners victimmachine</div>
+            <div class="command-line">nmap -sV -p 1-100 --script vulners $badweb_ip</div>
           </div>
           <div class="step">
             <strong>Results will show</strong>
-            <div class="terminal-output">PORT   STATE SERVICE VERSION
+            <div class="terminal-output">Nmap scan report for badweb.demo (172.19.0.3)
+Host is up (0.0000050s latency).
+Not shown: 98 closed tcp ports (reset)
+PORT   STATE SERVICE VERSION
 21/tcp open  ftp     vsftpd 2.3.4
-|_vulners: CVE-2011-2523 (Backdoor Command Execution)
-80/tcp open  http    Apache httpd 2.2.8</div>
+| vulners:
+|   vsftpd 2.3.4:
+|       CVE-2011-2523 10.0 https://vulners.com/cve/CVE-2011-2523
+80/tcp open  http    lighttpd 1.4.59
+|_http-server-header: lighttpd/1.4.59
+
+Nmap done: 1 IP address (1 host up) scanned in 6.80 seconds</div>
           </div>
         </div>
-        <button class="hint-button" onclick="completeChallenge(1, 25)">✅ I Found the Vulnerability!</button>
+        <button class="hint-button" onclick="completeChallenge(1, 25)" data-key="challenge1.complete">✅ I Found the Vulnerability!</button>
       </div>
     </div>
 
     <!-- Challenge 2: Exploitation -->
     <div class="challenge-card" id="challenge2">
       <div class="challenge-title">
-        💥 Step 2: Exploiting the Vulnerability
-        <span class="difficulty intermediate">INTERMEDIATE</span>
+        <span data-key="challenge2.title">💥 Step 2: Exploiting the Vulnerability</span>
+        <span class="difficulty intermediate" data-key="challenge2.difficulty">INTERMEDIATE</span>
       </div>
       
-      <div class="challenge-description">
+      <div class="challenge-description" data-key-html="challenge2.description">
         <strong>What you're learning:</strong> How to exploit the backdoor vulnerability you found.
         <br><br>
         <strong>Your mission:</strong> Use Metasploit to exploit CVE-2011-2523 and gain control of the target.
       </div>
 
       <div class="hint-section">
-        <button class="hint-button explain" onclick="toggleHint('hint2-1')">🎭 What is a Backdoor?</button>
-        <button class="hint-button setup" onclick="toggleHint('hint2-2')">🛠️ Meet Metasploit</button>
-        <button class="hint-button command" onclick="toggleHint('hint2-3')">🔍 Finding the Exploit</button>
-        <button class="hint-button answer" onclick="toggleAnswer('answer2')">🚨 Complete Solution</button>
+        <button class="hint-button explain" onclick="toggleHint('hint2-1')" data-key="challenge2.hints.backdoor">🎭 What is a Backdoor?</button>
+        <button class="hint-button setup" onclick="toggleHint('hint2-2')" data-key="challenge2.hints.metasploit">🛠️ Meet Metasploit</button>
+        <button class="hint-button command" onclick="toggleHint('hint2-3')" data-key="challenge2.hints.exploit">🔍 Finding the Exploit</button>
+        <button class="hint-button answer" onclick="toggleAnswer('answer2')" data-key="challenge2.hints.solution">🚨 Complete Solution</button>
       </div>
 
       <div class="hint-content" id="hint2-1">
@@ -553,7 +593,7 @@
           </div>
           <div class="step">
             <strong>Configure and attack</strong>
-            <div class="command-line">set RHOSTS victimmachine</div>
+            <div class="command-line">set RHOSTS $badweb_ip</div>
             <div class="command-line">exploit</div>
           </div>
           <div class="step">
@@ -562,28 +602,28 @@
             <div class="terminal-output">root</div>
           </div>
         </div>
-        <button class="hint-button" onclick="completeChallenge(2, 30)">✅ I Owned the System!</button>
+        <button class="hint-button" onclick="completeChallenge(2, 30)" data-key="challenge2.complete">✅ I Owned the System!</button>
       </div>
     </div>
 
     <!-- Challenge 3: Password Cracking -->
     <div class="challenge-card" id="challenge3">
       <div class="challenge-title">
-        🔓 Step 3: Password Cracking
-        <span class="difficulty advanced">ADVANCED</span>
+        <span data-key="challenge3.title">🔓 Step 3: Password Cracking</span>
+        <span class="difficulty advanced" data-key="challenge3.difficulty">ADVANCED</span>
       </div>
       
-      <div class="challenge-description">
+      <div class="challenge-description" data-key-html="challenge3.description">
         <strong>What you're learning:</strong> How weak passwords can be cracked using automated tools.
         <br><br>
         <strong>Your mission:</strong> Crack the FTP password for the 'admin' user using brute force techniques.
       </div>
 
       <div class="hint-section">
-        <button class="hint-button explain" onclick="toggleHint('hint3-1')">🤔 How Password Attacks Work</button>
-        <button class="hint-button setup" onclick="toggleHint('hint3-2')">🛠️ Password Cracking Tools</button>
-        <button class="hint-button command" onclick="toggleHint('hint3-3')">💻 Smart Approach</button>
-        <button class="hint-button answer" onclick="toggleAnswer('answer3')">🚨 Complete Solution</button>
+        <button class="hint-button explain" onclick="toggleHint('hint3-1')" data-key="challenge3.hints.attacks">🤔 How Password Attacks Work</button>
+        <button class="hint-button setup" onclick="toggleHint('hint3-2')" data-key="challenge3.hints.tools">🛠️ Password Cracking Tools</button>
+        <button class="hint-button command" onclick="toggleHint('hint3-3')" data-key="challenge3.hints.approach">💻 Smart Approach</button>
+        <button class="hint-button answer" onclick="toggleAnswer('answer3')" data-key="challenge3.hints.solution">🚨 Complete Solution</button>
       </div>
 
       <div class="hint-content" id="hint3-1">
@@ -605,33 +645,33 @@
         <div class="step-by-step">
           <div class="step">
             <strong>Try the obvious password first</strong>
-            <div class="command-line">hydra -l admin -p admin ftp://victimmachine</div>
+            <div class="command-line">hydra -l admin -p admin ftp://$badweb_ip</div>
           </div>
           <div class="step">
             <strong>Success!</strong>
-            <div class="terminal-output">[21][ftp] host: victimmachine   login: admin   password: admin</div>
+            <div class="terminal-output">[21][ftp] host: $badweb_ip   login: admin   password: admin</div>
           </div>
           <div class="step">
             <strong>Test the credentials</strong>
-            <div class="command-line">ftp victimmachine</div>
+            <div class="command-line">ftp $badweb_ip</div>
             <p>Username: admin, Password: admin</p>
           </div>
         </div>
         <div class="security-tip">
           <strong>🛡️ Key takeaway:</strong> The password "admin" was cracked instantly! This shows why strong, unique passwords are critical.
         </div>
-        <button class="hint-button" onclick="completeChallenge(3, 25)">✅ Password Cracked!</button>
+        <button class="hint-button" onclick="completeChallenge(3, 25)" data-key="challenge3.complete">✅ Password Cracked!</button>
       </div>
     </div>
 
     <!-- Challenge 4: WiFi Security -->
     <div class="challenge-card" id="challenge4">
       <div class="challenge-title">
-        📡 Step 4: WiFi Network Security
-        <span class="difficulty advanced">ADVANCED</span>
+        <span data-key="challenge4.title">📡 Step 4: WiFi Network Security</span>
+        <span class="difficulty advanced" data-key="challenge4.difficulty">ADVANCED</span>
       </div>
       
-      <div class="challenge-description">
+      <div class="challenge-description" data-key-html="challenge4.description">
         <strong>What you're learning:</strong> How wireless networks can be compromised and why WiFi security matters.
         This demonstrates the risks of weak WiFi passwords and unsecured networks.
         <br><br>
@@ -641,21 +681,21 @@
       </div>
 
       <div class="lab-setup">
-        <h3>📡 WiFi Lab Setup</h3>
+        <h3><span data-key="challenge4.setupTitle">📡 WiFi Lab Setup</span></h3>
         <div class="docker-diagram">
-          <div>📱 <strong>Raspberry Pi</strong> (WiFi Attack Machine)</div>
+          <div>📱 <strong><span data-key="challenge4.pi">Raspberry Pi</span></strong> (<span data-key="challenge4.attack">WiFi Attack Machine</span>)</div>
           <div>🌐 ~ ~ ~ ~ ~ ~ ~</div>
-          <div>📶 <strong>WiFi Access Point</strong> (Target Network: "hackme")</div>
+          <div>📶 <strong><span data-key="challenge4.ap">WiFi Access Point</span></strong> (<span data-key="challenge4.target">Target Network: "hackme"</span>)</div>
         </div>
-        <p>This exercise simulates attacking a vulnerable WiFi network with a weak password.</p>
+        <p data-key="challenge4.setup">This exercise simulates attacking a vulnerable WiFi network with a weak password.</p>
       </div>
 
       <div class="hint-section">
-        <button class="hint-button explain" onclick="toggleHint('hint4-1')">🤔 How WiFi Hacking Works</button>
-        <button class="hint-button setup" onclick="toggleHint('hint4-2')">🛠️ WiFi Security Tools</button>
-        <button class="hint-button command" onclick="toggleHint('hint4-3')">📡 Monitor Mode & Scanning</button>
-        <button class="hint-button command" onclick="toggleHint('hint4-4')">🔑 Handshake Capture</button>
-        <button class="hint-button answer" onclick="toggleAnswer('answer4')">🚨 Complete Solution</button>
+        <button class="hint-button explain" onclick="toggleHint('hint4-1')" data-key="challenge4.hints.hacking">🤔 How WiFi Hacking Works</button>
+        <button class="hint-button setup" onclick="toggleHint('hint4-2')" data-key="challenge4.hints.tools">🛠️ WiFi Security Tools</button>
+        <button class="hint-button command" onclick="toggleHint('hint4-3')" data-key="challenge4.hints.monitor">📡 Monitor Mode & Scanning</button>
+        <button class="hint-button command" onclick="toggleHint('hint4-4')" data-key="challenge4.hints.handshake">🔑 Handshake Capture</button>
+        <button class="hint-button answer" onclick="toggleAnswer('answer4')" data-key="challenge4.hints.solution">🚨 Complete Solution</button>
       </div>
 
       <div class="hint-content" id="hint4-1">
@@ -830,20 +870,20 @@ Transient Key  : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</div>
             <li>Strong passwords (20+ random characters) take centuries to crack</li>
           </ul>
         </div>
-        <button class="hint-button" onclick="completeChallenge(4, 25)">✅ WiFi Hacked!</button>
+        <button class="hint-button" onclick="completeChallenge(4, 25)" data-key="challenge4.complete">✅ WiFi Hacked!</button>
       </div>
     </div>
 
     <!-- Completion -->
     <div class="challenge-card" id="completion" style="display: none;">
-      <div class="challenge-title">
+      <div class="challenge-title" data-key="completion.title">
         🏆 ING Factory Security Training Complete!
       </div>
       <div class="challenge-description">
-        <div class="ing-factory-badge">Congratulations - You've Built Security Knowledge!</div>
+        <div class="ing-factory-badge" data-key="completion.badge">Congratulations - You've Built Security Knowledge!</div>
         <br>
-        <strong>🎓 What you've learned:</strong>
-        <ul>
+        <strong data-key="completion.learned">🎓 What you've learned:</strong>
+        <ul data-key-list="completion.points">
           <li>🔍 Network reconnaissance and vulnerability discovery</li>
           <li>💥 How security flaws are exploited by attackers</li>
           <li>🔓 Why strong passwords are absolutely critical</li>
@@ -851,8 +891,8 @@ Transient Key  : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</div>
           <li>🛡️ How to think like both attacker and defender</li>
         </ul>
         <br>
-        <strong>🏭 Apply this in your daily work:</strong>
-        <ul>
+        <strong data-key="completion.apply">🏭 Apply this in your daily work:</strong>
+        <ul data-key-list="completion.tips">
           <li>✅ Use unique, strong passwords with a password manager</li>
           <li>✅ Keep software updated to patch vulnerabilities</li>
           <li>✅ Use WPA3 WiFi encryption with complex passwords</li>
@@ -864,12 +904,15 @@ Transient Key  : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</div>
     </div>
   </div>
 
-  <script>
+<script>
+    // --- State Management ---
     let totalScore = 0;
-    let completedChallenges = 0;
+    let completedChallengesCount = 0;
+    const totalChallenges = 5;
+    const challengeCompletionStatus = [false, false, false, false, false];
     let currentLanguage = 'en';
 
-    // Language translations
+    // --- Translations Object ---
     const translations = {
       en: {
         header: {
@@ -877,15 +920,12 @@ Transient Key  : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</div>
           title: "🔐 Cybersecurity Awareness Lab",
           subtitle: "Building Security Knowledge Through Safe, Hands-On Learning"
         },
-        score: {
-          progress: "Progress:",
-          steps: "Steps:"
-        },
+        score: { progress: "Progress", steps: "Steps" },
         welcome: "🎯 <strong>Welcome!</strong> This lab teaches cybersecurity awareness through controlled, educational exercises. No prior technical experience needed - we'll guide you step by step!",
         challenge0: {
           title: "🚀 Step 0: Connecting to Your Lab Environment",
           difficulty: "START HERE",
-          description: "<strong>What you're doing:</strong> Before we can start learning about security, we need to connect to our practice environment. Think of this like logging into a computer that's specially set up for safe learning.",
+          description: "<strong>What you're doing:</strong> Before we can start learning about security, we need to connect to our practice environment. Think of this like logging into a computer that's specially set up for safe learning. We have set up two Containers on your machine for you to play with.",
           setupTitle: "🖥️ Your Lab Setup",
           kali: "Kali Linux",
           target: "Vulnerable Target",
@@ -893,6 +933,7 @@ Transient Key  : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</div>
           practice: "Practice Machine",
           hints: {
             docker: "🔧 What is Docker?",
+            ing: "🔧 How is Docker used in ING?",
             connect: "📚 How to Connect", 
             command: "💻 Connection Command",
             solution: "🚨 Complete Solution"
@@ -943,7 +984,7 @@ Transient Key  : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</div>
           pi: "Raspberry Pi",
           ap: "WiFi Access Point",
           attack: "WiFi Attack Machine",
-          target: "Target Network: \"hackme\"",
+          target: 'Target Network: "hackme"',
           setup: "This exercise simulates attacking a vulnerable WiFi network with a weak password.",
           hints: {
             hacking: "🤔 How WiFi Hacking Works",
@@ -982,15 +1023,12 @@ Transient Key  : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</div>
           title: "🔐 Cybersecurity Bewustzijn Lab",
           subtitle: "Veiligheidskennis Opbouwen Door Veilig, Hands-On Leren"
         },
-        score: {
-          progress: "Voortgang:",
-          steps: "Stappen:"
-        },
+        score: { progress: "Voortgang", steps: "Stappen" },
         welcome: "🎯 <strong>Welkom!</strong> Dit lab leert cybersecurity bewustzijn door gecontroleerde, educatieve oefeningen. Geen technische ervaring nodig - wij begeleiden je stap voor stap!",
         challenge0: {
           title: "🚀 Stap 0: Verbinding Maken met je Lab Omgeving",
           difficulty: "BEGIN HIER",
-          description: "<strong>Wat je doet:</strong> Voordat we kunnen beginnen met leren over beveiliging, moeten we verbinden met onze oefen omgeving. Zie dit als inloggen op een computer die speciaal is opgezet voor veilig leren.",
+          description: "<strong>Wat je doet:</strong> Voordat we kunnen beginnen met leren over beveiliging, moeten we verbinden met onze oefen omgeving. Zie dit als inloggen op een computer die speciaal is opgezet voor veilig leren. We hebben twee Containers op je machine gezet om mee te spelen.",
           setupTitle: "🖥️ Jouw Lab Setup",
           kali: "Kali Linux",
           target: "Kwetsbaar Doelwit",
@@ -998,6 +1036,7 @@ Transient Key  : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</div>
           practice: "Oefen Machine",
           hints: {
             docker: "🔧 Wat is Docker?",
+            ing: "🔧 Hoe gebruikt ING Docker?",
             connect: "📚 Hoe te Verbinden",
             command: "💻 Verbindings Commando", 
             solution: "🚨 Volledige Oplossing"
@@ -1083,194 +1122,107 @@ Transient Key  : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</div>
       }
     };
 
-    function setLanguage(lang) {
-      currentLanguage = lang;
-      
-      // Update button states
-      document.getElementById('btn-en').classList.toggle('active', lang === 'en');
-      document.getElementById('btn-nl').classList.toggle('active', lang === 'nl');
-      
-      updateContent();
-    }
-
-    function updateContent() {
-      const t = translations[currentLanguage];
-      
-      // Update header
-      document.querySelector('.ing-factory-badge').textContent = t.header.badge;
-      document.querySelector('.header h1').textContent = t.header.title;
-      document.querySelector('.subtitle').textContent = t.header.subtitle;
-      
-      // Update score
-      document.querySelector('.score div:first-child').innerHTML = `${t.score.progress} <span id="score">${totalScore}</span>/125`;
-      document.querySelector('.score div:last-child').innerHTML = `${t.score.steps} <span id="completed">${completedChallenges}</span>/5`;
-      
-      // Update welcome message
-      document.querySelector('.important-note').innerHTML = t.welcome;
-      
-      // Update Challenge 0
-      updateChallenge('challenge0', t.challenge0);
-      updateChallenge('challenge1', t.challenge1);
-      updateChallenge('challenge2', t.challenge2);
-      updateChallenge('challenge3', t.challenge3);
-      updateChallenge('challenge4', t.challenge4);
-      
-      // Update completion
-      const completion = document.getElementById('completion');
-      if (completion.style.display !== 'none') {
-        updateCompletion(t.completion);
-      }
-    }
-
-    function updateChallenge(id, content) {
-      const challenge = document.getElementById(id);
-      const title = challenge.querySelector('.challenge-title');
-      const description = challenge.querySelector('.challenge-description');
-      const buttons = challenge.querySelectorAll('.hint-button');
-      
-      // Update title and difficulty
-      const titleText = title.childNodes[0];
-      const difficultySpan = title.querySelector('.difficulty');
-      titleText.textContent = content.title.split(' ').slice(0, -1).join(' ') + ' ';
-      difficultySpan.textContent = content.difficulty;
-      
-      // Update description
-      description.innerHTML = content.description;
-      
-      // Update setup sections if they exist
-      const setupTitle = challenge.querySelector('.lab-setup h3, .docker-diagram + p');
-      if (setupTitle && content.setupTitle) {
-        setupTitle.textContent = content.setupTitle;
-      }
-      
-      // Update hint buttons
-      const hintKeys = Object.keys(content.hints);
-      buttons.forEach((button, index) => {
-        if (hintKeys[index]) {
-          button.textContent = content.hints[hintKeys[index]];
-        }
-      });
-      
-      // Update complete button
-      const completeButton = challenge.querySelector('.hint-button:last-child');
-      if (completeButton && content.complete) {
-        completeButton.textContent = content.complete;
-      }
-    }
-
-    function updateCompletion(content) {
-      const completion = document.getElementById('completion');
-      completion.querySelector('.challenge-title').textContent = content.title;
-      completion.querySelector('.ing-factory-badge').textContent = content.badge;
-      
-      const learned = completion.querySelector('strong:first-of-type');
-      learned.textContent = content.learned;
-      
-      const points = completion.querySelectorAll('ul:first-of-type li');
-      content.points.forEach((point, index) => {
-        if (points[index]) points[index].textContent = point;
-      });
-      
-      const apply = completion.querySelector('strong:last-of-type');
-      apply.textContent = content.apply;
-      
-      const tips = completion.querySelectorAll('ul:last-of-type li');
-      content.tips.forEach((tip, index) => {
-        if (tips[index]) tips[index].textContent = tip;
-      });
-    }
+    // --- DOM Interaction Functions ---
 
     function toggleHint(hintId) {
-      const hint = document.getElementById(hintId);
-      if (hint) {
-        if (hint.style.display === 'none' || hint.style.display === '') {
-          hint.style.display = 'block';
-          hint.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        } else {
-          hint.style.display = 'none';
+        const hint = document.getElementById(hintId);
+        if (!hint) return;
+        const isVisible = hint.style.display === 'block';
+        hint.style.display = isVisible ? 'none' : 'block';
+        if (!isVisible) {
+            hint.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
-      } else {
-        console.error('Hint element not found:', hintId);
-      }
     }
 
     function toggleAnswer(answerId) {
-      const answer = document.getElementById(answerId);
-      if (answer) {
-        if (answer.style.display === 'none' || answer.style.display === '') {
-          answer.style.display = 'block';
-          answer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        } else {
-          answer.style.display = 'none';
+        const answer = document.getElementById(answerId);
+        if (!answer) return;
+        const isVisible = answer.style.display === 'block';
+        answer.style.display = isVisible ? 'none' : 'block';
+        if (!isVisible) {
+            answer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
-      } else {
-        console.error('Answer element not found:', answerId);
-      }
     }
 
-    function completeChallenge(challengeNumber, points) {
-      const challenge = document.getElementById(`challenge${challengeNumber}`);
-      if (challenge && !challenge.classList.contains('completed')) {
-        challenge.classList.add('completed');
-        
+    function completeChallenge(challengeId, points) {
+        if (challengeCompletionStatus[challengeId]) {
+            return; // Already completed
+        }
+
+        challengeCompletionStatus[challengeId] = true;
+        const challengeCard = document.getElementById(`challenge${challengeId}`);
+        if (challengeCard) {
+            challengeCard.classList.add('completed');
+            const button = challengeCard.querySelector(`.answer-content .hint-button`);
+            if (button) button.disabled = true;
+        }
+
         totalScore += points;
-        completedChallenges++;
-        
-        document.getElementById('score').textContent = totalScore;
-        document.getElementById('completed').textContent = completedChallenges;
-        
-        // Update progress bar
-        const progress = (completedChallenges / 5) * 100;
-        document.getElementById('progressBar').style.width = progress + '%';
-        
-        // Show completion message when all challenges are done
-        if (completedChallenges === 5) {
-          setTimeout(() => {
-            const completion = document.getElementById('completion');
-            if (completion) {
-              completion.style.display = 'block';
-              completion.scrollIntoView({ behavior: 'smooth' });
-            }
-          }, 1000);
-        }
-      }
+        completedChallengesCount++;
+        updateProgressUI();
     }
 
-    // Test all functions on page load
-    document.addEventListener('DOMContentLoaded', function() {
-      console.log('🔧 Testing all functions...');
-      
-      // Initialize with English
-      setLanguage('en');
-      
-      // Test hint toggles
-      console.log('✅ toggleHint function loaded');
-      console.log('✅ toggleAnswer function loaded');
-      console.log('✅ completeChallenge function loaded');
-      console.log('✅ Language system loaded');
-      
-      // Verify all required elements exist
-      const requiredElements = [
-        'progressBar', 'score', 'completed', 'completion',
-        'hint0-1', 'hint0-2', 'hint0-3', 'answer0',
-        'hint1-1', 'hint1-2', 'hint1-3', 'answer1',
-        'hint2-1', 'hint2-2', 'hint2-3', 'answer2',
-        'hint3-1', 'hint3-2', 'hint3-3', 'answer3',
-        'hint4-1', 'hint4-2', 'hint4-3', 'hint4-4', 'answer4'
-      ];
-      
-      requiredElements.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) {
-          console.log(`✅ Found element: ${id}`);
-        } else {
-          console.error(`❌ Missing element: ${id}`);
+    function updateProgressUI() {
+        document.getElementById('score').textContent = totalScore;
+        document.getElementById('completed').textContent = completedChallengesCount;
+
+        const progressPercentage = (totalScore / 125) * 100;
+        document.getElementById('progressBar').style.width = `${progressPercentage}%`;
+        
+        if (completedChallengesCount === totalChallenges) {
+            const completionEl = document.getElementById('completion');
+            if(completionEl) {
+                completionEl.style.display = 'block';
+                completionEl.scrollIntoView({ behavior: 'smooth' });
+            }
         }
-      });
-      
-      console.log('🚀 Lab ready for testing!');
-      console.log('🇳🇱 Nederlandse taal beschikbaar!');
-    });
-  </script>
+    }
+
+    // --- Language and Content Update Functions ---
+
+    function setLanguage(lang) {
+        currentLanguage = lang;
+        document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+        document.getElementById('btn-nl').classList.toggle('active', lang === 'nl');
+        updateAllText();
+    }
+
+    function getTranslation(key) {
+        const keys = key.split('.');
+        let result = translations[currentLanguage];
+        for (const k of keys) {
+            result = result[k];
+            if (result === undefined) return key; // Return key if not found
+        }
+        return result;
+    }
+
+    function updateAllText() {
+        document.querySelectorAll('[data-key]').forEach(element => {
+            const key = element.getAttribute('data-key');
+            element.textContent = getTranslation(key);
+        });
+
+        document.querySelectorAll('[data-key-html]').forEach(element => {
+            const key = element.getAttribute('data-key-html');
+            element.innerHTML = getTranslation(key);
+        });
+        
+        document.querySelectorAll('[data-key-list]').forEach(ul => {
+            const key = ul.getAttribute('data-key-list');
+            const listItems = getTranslation(key);
+            if(Array.isArray(listItems)) {
+                ul.innerHTML = listItems.map(item => `<li>${item}</li>`).join('');
+            }
+        });
+    }
+
+    // --- Initialisation ---
+    // Since the script is at the end of the body, the DOM is ready.
+    // We call setLanguage directly to populate the page on initial load.
+    setLanguage('en');
+
+</script>
+
 </body>
-</html> 
+</html>
