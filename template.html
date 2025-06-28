@@ -393,24 +393,32 @@
       <div class="challenge-description" data-key-html="challenge0.description">
         <strong>What you're doing:</strong> Before we can start learning about security, we need to connect to our practice environment. 
         Think of this like logging into a computer that's specially set up for safe learning.
-        We have set up two Containers on your machine for you to play with.
-      </div>
-
-      <div class="lab-setup">
-        <h3><span data-key="challenge0.setupTitle">🖥️ Your Lab Setup</span></h3>
-        <div class="docker-diagram">
-          <div>🖥️ <strong data-key="challenge0.kali">Kali Linux</strong> (<span data-key="challenge0.attack">Your Attack Machine</span>) $kali_ip </div>
-          <div>↕️</div>
-          <div>🎯 <strong data-key="challenge0.target">Vulnerable Target</strong> (<span data-key="challenge0.practice">Practice Machine</span>) $badweb_ip</div>
-        </div>
+        We have set up two Containers using Docker on your machine for you to play with.<br><br>
+        <strong>Always login to your Kali Linux container to do the excersises.</strong>
       </div>
 
       <div class="hint-section">
-        <button class="hint-button setup" onclick="toggleHint('hint0-1')" data-key="challenge0.hints.docker">🔧 What is Docker?</button>
-        <button class="hint-button ING" onclick="toggleHint('hint0-4')" data-key="challenge0.hints.ing">🔧 How is Docker used in ING?</button>
-        <button class="hint-button explain" onclick="toggleHint('hint0-2')" data-key="challenge0.hints.connect">📚 How to Connect</button>
-        <button class="hint-button command" onclick="toggleHint('hint0-3')" data-key="challenge0.hints.command">💻 Connection Command</button>
-        <button class="hint-button answer" onclick="toggleAnswer('answer0')" data-key="challenge0.hints.solution">🚨 Complete Solution</button>
+        <button class="hint-button explain" onclick="toggleHint('hint0-5', this)" data-color="#2196F3" data-key="challenge0.hints.kaliLinux">🤔 What is Kali Linux?</button>
+        <button class="hint-button setup" onclick="toggleHint('hint0-1', this)" data-color="#9C27B0" data-key="challenge0.hints.docker">🔧 What is Docker?</button>
+        <button class="hint-button ING" onclick="toggleHint('hint0-4', this)" data-color="#ff6600" data-key="challenge0.hints.ing">🔧 How is Docker used in ING?</button>
+        <button class="hint-button explain" onclick="toggleHint('hint0-2', this)" data-color="#2196F3" data-key="challenge0.hints.connect">📚 How to Connect</button>
+        <button class="hint-button command" onclick="toggleHint('hint0-3', this)" data-color="#FF9800" data-key="challenge0.hints.command">💻 Connection Command</button>
+        <button class="hint-button answer" onclick="toggleAnswer('answer0', this)" data-color="#ff6b6b" data-key="challenge0.hints.solution">🚨 Complete Solution</button>
+      </div>
+      
+      <div class="hint-content" id="hint0-5">
+        <h4>🤔 What is Kali Linux?</h4>
+        <p><strong>Kali Linux is a special version of the Linux operating system designed for cybersecurity professionals and enthusiasts.</strong> Think of it as a digital toolbox packed with hundreds of pre-installed tools for penetration testing, security research, computer forensics, and reverse engineering.</p>
+        <div class="security-tip">
+          <strong>Key Features:</strong>
+          <ul>
+            <li><strong>Pre-installed Tools:</strong> Comes with over 600 penetration testing tools like Nmap, Wireshark, Metasploit, and Aircrack-ng.</li>
+            <li><strong>Secure Environment:</strong> Built on a solid foundation, it's a reliable platform for security tasks.</li>
+            <li><strong>Customizable:</strong> Highly flexible, allowing users to tailor it to their specific needs.</li>
+            <li><strong>Industry Standard:</strong> Widely recognized and used by security professionals worldwide.</li>
+          </ul>
+        </div>
+        <p>In this lab, you are using Kali Linux as your "attack machine" to learn how these powerful tools are used in a safe, controlled environment.</p>
       </div>
 
       <div class="hint-content" id="hint0-1">
@@ -471,6 +479,16 @@
         </div>
         <button class="hint-button" onclick="completeChallenge(0, 20)" data-key="challenge0.complete">✅ I'm Connected!</button>
       </div>
+
+       <div class="lab-setup">
+        <h3><span data-key="challenge0.setupTitle">🖥️ Your Lab Setup</span></h3>
+        <div class="docker-diagram">
+          <div>🖥️ <strong data-key="challenge0.kali">Kali Linux</strong> (<span data-key="challenge0.attack">Your Attack Machine</span>) $kali_ip </div>
+          <div>↕️</div>
+          <div>🎯 <strong data-key="challenge0.target">Vulnerable Target</strong> (<span data-key="challenge0.practice">Practice Machine</span>) $badweb_ip</div>
+        </div>
+      </div>
+
     </div>
 
     <!-- Challenge 1: Network Discovery -->
@@ -487,10 +505,10 @@
       </div>
 
       <div class="hint-section">
-        <button class="hint-button explain" onclick="toggleHint('hint1-1')" data-key="challenge1.hints.scanning">🤔 What is Network Scanning?</button>
-        <button class="hint-button setup" onclick="toggleHint('hint1-2')" data-key="challenge1.hints.tool">🛠️ The Right Tool</button>
-        <button class="hint-button command" onclick="toggleHint('hint1-3')" data-key="challenge1.hints.command">📋 Understanding the Command</button>
-        <button class="hint-button answer" onclick="toggleAnswer('answer1')" data-key="challenge1.hints.solution">🚨 Complete Solution</button>
+        <button class="hint-button explain" onclick="toggleHint('hint1-1', this)" data-color="#2196F3" data-key="challenge1.hints.scanning">🤔 What is Network Scanning?</button>
+        <button class="hint-button setup" onclick="toggleHint('hint1-2', this)" data-color="#9C27B0" data-key="challenge1.hints.tool">🛠️ The Right Tool</button>
+        <button class="hint-button command" onclick="toggleHint('hint1-3', this)" data-color="#FF9800" data-key="challenge1.hints.command">📋 Understanding the Command</button>
+        <button class="hint-button answer" onclick="toggleAnswer('answer1', this)" data-color="#ff6b6b" data-key="challenge1.hints.solution">🚨 Complete Solution</button>
       </div>
 
       <div class="hint-content" id="hint1-1">
@@ -499,32 +517,41 @@
       </div>
 
       <div class="hint-content" id="hint1-2">
-        <h4>Ping: The First Step</h4>
-        <p>Before scanning, it's good practice to 'ping' the target to see if it's online and reachable. Think of it as asking "Are you there?".</p>
-        <div class="command-line">ping -c 3 $badweb_ip</div>
-        <hr style="margin: 20px 0; border-color: #333;">
         <h4>🔧 Meet Nmap</h4>
-        <p><strong>Nmap:</strong> The "Network Mapper" - the most famous network scanning tool in the world! This is the primary tool for discovering open ports and services.</p>
+        <p><strong>Nmap:</strong> The "Network Mapper" - the most famous network scanning tool in the world! Our first step is to find which machines are active on the network. We can do this with a simple "ping scan".</p>
+        <div class="command-line">nmap -sn $network_range</div>
+        <p>This command sends a ping to every possible address in the range and lists the ones that respond.</p>
+        <div class="terminal-output">Starting Nmap 7.92 ( https://nmap.org ) at 2023-10-27 10:30 UTC
+Nmap scan report for kali.demo (172.19.0.2)
+Host is up (0.000010s latency).
+Nmap scan report for badweb.demo (172.19.0.3)
+Host is up (0.000020s latency).
+Nmap done: 256 IP addresses (2 hosts up) scanned in 2.50 seconds</div>
+        <p>The scan found two machines. One is our own machine (kali), and the other is our target ($badweb_ip). Now that we have the target's IP, we can perform a more detailed scan to find open services.</p>
       </div>
 
       <div class="hint-content" id="hint1-3">
         <h4>📚 The Complete Command</h4>
         <div class="command-line">nmap -sV -p 1-100 --script vulners $badweb_ip</div>
-        <p>This scans ports 1-100, identifies services, and checks for vulnerabilities.</p>
+        <p>This scans ports 1-100 on our specific target, identifies the services running (<code>-sV</code>), and checks for known vulnerabilities using the `vulners` script.</p>
       </div>
 
       <div class="answer-content" id="answer1">
         <div class="step-by-step">
           <div class="step">
-            <strong>Ping the machine to see if it's online</strong>
-            <div class="command-line">ping -c 3 $badweb_ip</div>
+            <strong>Discover active machines on the network</strong>
+            <div class="command-line">nmap -sn $network_range</div>
+            <div class="terminal-output">...
+Nmap scan report for badweb.demo (172.19.0.3)
+Host is up...
+...</div>
           </div>
           <div class="step">
-            <strong>Run the network scan</strong>
+            <strong>Run a detailed scan on the target</strong>
             <div class="command-line">nmap -sV -p 1-100 --script vulners $badweb_ip</div>
           </div>
           <div class="step">
-            <strong>Results will show</strong>
+            <strong>Results show the vsftpd vulnerability</strong>
             <div class="terminal-output">Nmap scan report for badweb.demo (172.19.0.3)
 Host is up (0.0000050s latency).
 Not shown: 98 closed tcp ports (reset)
@@ -554,13 +581,16 @@ Nmap done: 1 IP address (1 host up) scanned in 6.80 seconds</div>
         <strong>What you're learning:</strong> How to exploit the backdoor vulnerability you found.
         <br><br>
         <strong>Your mission:</strong> Use Metasploit to exploit CVE-2011-2523 and gain control of the target.
+        <br><br>
+        On the server $badweb there is the <strong>bank account credentials</strong> used for login, see if you can <strong>find</strong> them. Maybe a user has them?
       </div>
 
       <div class="hint-section">
-        <button class="hint-button explain" onclick="toggleHint('hint2-1')" data-key="challenge2.hints.backdoor">🎭 What is a Backdoor?</button>
-        <button class="hint-button setup" onclick="toggleHint('hint2-2')" data-key="challenge2.hints.metasploit">🛠️ Meet Metasploit</button>
-        <button class="hint-button command" onclick="toggleHint('hint2-3')" data-key="challenge2.hints.exploit">🔍 Finding the Exploit</button>
-        <button class="hint-button answer" onclick="toggleAnswer('answer2')" data-key="challenge2.hints.solution">🚨 Complete Solution</button>
+        <button class="hint-button explain" onclick="toggleHint('hint2-1', this)" data-color="#2196F3" data-key="challenge2.hints.backdoor">🎭 What is a Backdoor?</button>
+        <button class="hint-button setup" onclick="toggleHint('hint2-2', this)" data-color="#9C27B0" data-key="challenge2.hints.metasploit">🛠️ Meet Metasploit</button>
+        <button class="hint-button command" onclick="toggleHint('hint2-3', this)" data-color="#FF9800" data-key="challenge2.hints.exploit">🔍 Finding the Exploit</button>
+        <button class="hint-button answer" onclick="toggleAnswer('answer2', this)" data-color="#ff6b6b" data-key="challenge2.hints.solution">🚨 Complete Solution</button>
+        <button class="hint-button ING" onclick="toggleHint('hint2-4', this)" data-color="#ff6600" data-key="challenge2.hints.flag">🚩 Get The Flag</button>
       </div>
 
       <div class="hint-content" id="hint2-1">
@@ -579,6 +609,38 @@ Nmap done: 1 IP address (1 host up) scanned in 6.80 seconds</div>
         <div class="command-line">msfconsole</div>
         <div class="command-line">search vsftpd</div>
       </div>
+      
+      <div class="hint-content" id="hint2-4">
+        <h4>🚩 Getting the Flag</h4>
+        <p>Once you have a root shell, you need to navigate the file system to find sensitive information. User home directories are a good place to start looking for files.</p>
+        
+        <div class="step-by-step">
+            <div class="step">
+                <strong>Navigate to a user's home directory.</strong>
+                <p>The <code>cd</code> command (Change Directory) allows you to move between folders. Let's check a user's 'Documents' folder.</p>
+                <div class="command-line">cd /home/socrates/Documents</div>
+            </div>
+            <div class="step">
+                <strong>List the files in the directory.</strong>
+                <p>Use the <code>ls</code> command to see what's inside.</p>
+                <div class="command-line">ls</div>
+                 <div class="terminal-output">
+                    bank.txt
+                    notes.txt
+                </div>
+            </div>
+            <div class="step">
+                <strong>Display the file content.</strong>
+                <p>The <code>cat</code> command reads and displays the content of a file. Let's see what's in `bank.txt`.</p>
+                <div class="command-line">cat bank.txt</div>
+                <div class="terminal-output">
+                    FLAG{B4nk_D3t41l_F0und_GG}
+                    Username: ing_user
+                    Password: SecurePassword123!
+                </div>
+            </div>
+        </div>
+    </div>
 
       <div class="answer-content" id="answer2">
         <div class="step-by-step">
@@ -620,10 +682,10 @@ Nmap done: 1 IP address (1 host up) scanned in 6.80 seconds</div>
       </div>
 
       <div class="hint-section">
-        <button class="hint-button explain" onclick="toggleHint('hint3-1')" data-key="challenge3.hints.attacks">🤔 How Password Attacks Work</button>
-        <button class="hint-button setup" onclick="toggleHint('hint3-2')" data-key="challenge3.hints.tools">🛠️ Password Cracking Tools</button>
-        <button class="hint-button command" onclick="toggleHint('hint3-3')" data-key="challenge3.hints.approach">💻 Smart Approach</button>
-        <button class="hint-button answer" onclick="toggleAnswer('answer3')" data-key="challenge3.hints.solution">🚨 Complete Solution</button>
+        <button class="hint-button explain" onclick="toggleHint('hint3-1', this)" data-color="#2196F3" data-key="challenge3.hints.attacks">🤔 How Password Attacks Work</button>
+        <button class="hint-button setup" onclick="toggleHint('hint3-2', this)" data-color="#9C27B0" data-key="challenge3.hints.tools">🛠️ Password Cracking Tools</button>
+        <button class="hint-button command" onclick="toggleHint('hint3-3', this)" data-color="#FF9800" data-key="challenge3.hints.approach">💻 Smart Approach</button>
+        <button class="hint-button answer" onclick="toggleAnswer('answer3', this)" data-color="#ff6b6b" data-key="challenge3.hints.solution">🚨 Complete Solution</button>
       </div>
 
       <div class="hint-content" id="hint3-1">
@@ -691,11 +753,11 @@ Nmap done: 1 IP address (1 host up) scanned in 6.80 seconds</div>
       </div>
 
       <div class="hint-section">
-        <button class="hint-button explain" onclick="toggleHint('hint4-1')" data-key="challenge4.hints.hacking">🤔 How WiFi Hacking Works</button>
-        <button class="hint-button setup" onclick="toggleHint('hint4-2')" data-key="challenge4.hints.tools">🛠️ WiFi Security Tools</button>
-        <button class="hint-button command" onclick="toggleHint('hint4-3')" data-key="challenge4.hints.monitor">📡 Monitor Mode & Scanning</button>
-        <button class="hint-button command" onclick="toggleHint('hint4-4')" data-key="challenge4.hints.handshake">🔑 Handshake Capture</button>
-        <button class="hint-button answer" onclick="toggleAnswer('answer4')" data-key="challenge4.hints.solution">🚨 Complete Solution</button>
+        <button class="hint-button explain" onclick="toggleHint('hint4-1', this)" data-color="#2196F3" data-key="challenge4.hints.hacking">🤔 How WiFi Hacking Works</button>
+        <button class="hint-button setup" onclick="toggleHint('hint4-2', this)" data-color="#9C27B0" data-key="challenge4.hints.tools">🛠️ WiFi Security Tools</button>
+        <button class="hint-button command" onclick="toggleHint('hint4-3', this)" data-color="#FF9800" data-key="challenge4.hints.monitor">📡 Monitor Mode & Scanning</button>
+        <button class="hint-button command" onclick="toggleHint('hint4-4', this)" data-color="#FF9800" data-key="challenge4.hints.handshake">🔑 Handshake Capture</button>
+        <button class="hint-button answer" onclick="toggleAnswer('answer4', this)" data-color="#ff6b6b" data-key="challenge4.hints.solution">🚨 Complete Solution</button>
       </div>
 
       <div class="hint-content" id="hint4-1">
@@ -925,13 +987,14 @@ Transient Key  : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</div>
         challenge0: {
           title: "🚀 Step 0: Connecting to Your Lab Environment",
           difficulty: "START HERE",
-          description: "<strong>What you're doing:</strong> Before we can start learning about security, we need to connect to our practice environment. Think of this like logging into a computer that's specially set up for safe learning. We have set up two Containers on your machine for you to play with.",
+          description: "<strong>What you're doing:</strong> Before we can start learning about security, we need to connect to our practice environment. Think of this like logging into a computer that's specially set up for safe learning. We have set up two Containers using Docker on your machine for you to play with.<br><br><strong>Always login to your Kali Linux container to do the excersises.</strong>",
           setupTitle: "🖥️ Your Lab Setup",
           kali: "Kali Linux",
           target: "Vulnerable Target",
           attack: "Your Attack Machine",
           practice: "Practice Machine",
           hints: {
+            kaliLinux: "🤔 What is Kali Linux?",
             docker: "🔧 What is Docker?",
             ing: "🔧 How is Docker used in ING?",
             connect: "📚 How to Connect", 
@@ -955,12 +1018,13 @@ Transient Key  : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</div>
         challenge2: {
           title: "💥 Step 2: Exploiting the Vulnerability", 
           difficulty: "INTERMEDIATE",
-          description: "<strong>What you're learning:</strong> How to exploit the backdoor vulnerability you found.<br><br><strong>Your mission:</strong> Use Metasploit to exploit CVE-2011-2523 and gain control of the target.",
+          description: "<strong>What you're learning:</strong> How to exploit the backdoor vulnerability you found.<br><br><strong>Your mission:</strong> Use Metasploit to exploit CVE-2011-2523 and gain control of the target.<br><br>On the server $badweb there is the <strong>bank account credentials</strong> used for login, see if you can <strong>find</strong> them. Maybe a user has them?",
           hints: {
             backdoor: "🎭 What is a Backdoor?",
             metasploit: "🛠️ Meet Metasploit",
             exploit: "🔍 Finding the Exploit",
-            solution: "🚨 Complete Solution"
+            solution: "🚨 Complete Solution",
+            flag: "🚩 Get The Flag"
           },
           complete: "✅ I Owned the System!"
         },
@@ -1028,13 +1092,14 @@ Transient Key  : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</div>
         challenge0: {
           title: "🚀 Stap 0: Verbinding Maken met je Lab Omgeving",
           difficulty: "BEGIN HIER",
-          description: "<strong>Wat je doet:</strong> Voordat we kunnen beginnen met leren over beveiliging, moeten we verbinden met onze oefen omgeving. Zie dit als inloggen op een computer die speciaal is opgezet voor veilig leren. We hebben twee Containers op je machine gezet om mee te spelen.",
+          description: "<strong>Wat je doet:</strong> Voordat we kunnen beginnen met leren over beveiliging, moeten we verbinden met onze oefen omgeving. Zie dit als inloggen op een computer die speciaal is opgezet voor veilig leren. We hebben twee Containers met Docker op je machine gezet om mee te spelen.<br><br><strong>Log altijd in op je Kali Linux-container om de oefeningen te doen.</strong>",
           setupTitle: "🖥️ Jouw Lab Setup",
           kali: "Kali Linux",
           target: "Kwetsbaar Doelwit",
           attack: "Jouw Aanval Machine",
           practice: "Oefen Machine",
           hints: {
+            kaliLinux: "🤔 Wat is Kali Linux?",
             docker: "🔧 Wat is Docker?",
             ing: "🔧 Hoe gebruikt ING Docker?",
             connect: "📚 Hoe te Verbinden",
@@ -1058,12 +1123,13 @@ Transient Key  : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</div>
         challenge2: {
           title: "💥 Stap 2: De Kwetsbaarheid Uitbuiten",
           difficulty: "GEMIDDELD", 
-          description: "<strong>Wat je leert:</strong> Hoe je de backdoor kwetsbaarheid die je vond kunt uitbuiten.<br><br><strong>Jouw missie:</strong> Gebruik Metasploit om CVE-2011-2523 uit te buiten en controle over het doelwit te krijgen.",
+          description: "<strong>Wat je leert:</strong> Hoe je de backdoor kwetsbaarheid die je vond kunt uitbuiten.<br><br><strong>Jouw missie:</strong> Gebruik Metasploit om CVE-2011-2523 uit te buiten en controle over het doelwit te krijgen.<br><br>Op de server $badweb staan de <strong>bankrekening-inloggegevens</strong> die voor het inloggen worden gebruikt, kijk of je ze kunt <strong>vinden</strong>. Misschien heeft een gebruiker ze?",
           hints: {
             backdoor: "🎭 Wat is een Backdoor?",
-            metasploit: "🛠️ Kennismaken met Metasploit",
-            exploit: "🔍 De Exploit Vinden",
-            solution: "🚨 Volledige Oplossing"
+            metasploit: "Kennismaken met Metasploit",
+            exploit: "De Exploit Vinden",
+            solution: "🚨 Volledige Oplossing",
+            flag: "🚩 Pak de Vlag"
           },
           complete: "✅ Ik Heb het Systeem Overgenomen!"
         },
@@ -1124,22 +1190,34 @@ Transient Key  : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</div>
 
     // --- DOM Interaction Functions ---
 
-    function toggleHint(hintId) {
+    function toggleHint(hintId, buttonElement) {
         const hint = document.getElementById(hintId);
         if (!hint) return;
+
         const isVisible = hint.style.display === 'block';
         hint.style.display = isVisible ? 'none' : 'block';
-        if (!isVisible) {
+
+        if (!isVisible && buttonElement) {
+            const color = buttonElement.getAttribute('data-color');
+            if (color) {
+                hint.style.borderColor = color;
+            }
             hint.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
     }
 
-    function toggleAnswer(answerId) {
+    function toggleAnswer(answerId, buttonElement) {
         const answer = document.getElementById(answerId);
         if (!answer) return;
+
         const isVisible = answer.style.display === 'block';
         answer.style.display = isVisible ? 'none' : 'block';
-        if (!isVisible) {
+        
+        if (!isVisible && buttonElement) {
+            const color = buttonElement.getAttribute('data-color');
+            if (color) {
+                answer.style.borderColor = color;
+            }
             answer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
     }
