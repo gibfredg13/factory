@@ -9,6 +9,14 @@ KALI_PORT="8008"
 BADWEB_CONTAINER="badweb"
 HTTP_PORT="8088"
 HTML_FILE="/tmp/index.html"
+FLAG_1_FILE="flag1gen.sh"
+FLAG_2_FILE="flag2gen.sh"
+FLAG_3_FILE="flag3gen.sh"
+
+
+
+
+
 
 # --- Functions ---
 
@@ -96,7 +104,15 @@ banner_exists() {
     local container="$1"
     docker exec "$container" bash -c 'grep -q "# ING Factory Banner" ~/.bashrc 2>/dev/null'
 }
-
+install_flags() {
+  chmod +x "$FLAG_1_FILE"
+  chmod +x "$FLAG_2_FILE"
+  chmod +x "$FLAG_3_FILE"
+  ./"$FLAG_1_FILE"
+  ./"$FLAG_2_FILE"
+  ./"$FLAG_3_FILE"
+  
+}
 # Install banner if it doesn't exist
 install_banner() {
     local container="$1"
@@ -150,8 +166,10 @@ main() {
   generate_html_report "$kali_ip" "$badweb_ip" "$badweb_hostname" "$nmap_result" "$nmap_status"
   start_http_server
 
-  # --- Install Banners on containers ---
+  # --- Install Banners and labs on containers ---
   configure_container_banners
+  install_flags
+
 
   echo "If you are done with the labs, continue to shutdown AND wipe"
   read -p "Press enter to continue"
