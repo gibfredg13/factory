@@ -2,6 +2,10 @@
 
 This is the repo for the Factory workshop.
 
+## Dashboard Server
+
+To install dashboard `chmod +x dashboardctf/installdahs.sh` and run it 
+
 ## copying the images to the pi
 
 Thanks to [unregistry](https://github.com/psviderski/unregistry), we can copy using `ssh`. Don't forget to enable using `systemctl start ssh` on the pi.
