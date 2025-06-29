@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ING Factory CTF</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #0f0;
+            overflow: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Matrix Rain Effect */
+        #matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        /* Main Container */
+        .main-container {
+            padding: 20px;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .title {
+            font-size: 4em;
+            text-shadow: 0 0 20px #0f0;
+            margin-bottom: 10px;
+        }
+
+        /* Pi Symbol (Hidden Admin Access) */
+        .pi-symbol {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 20px;
+            color: #0a0;
+            cursor: pointer;
+            opacity: 0.3;
+            transition: opacity 0.3s;
+        }
+
+        .pi-symbol:hover {
+            opacity: 0.8;
+        }
+
+        /* Connection Status */
+        .connection-status {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 12px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            background: rgba(0, 255, 0, 0.2);
+        }
+
+        .connected {
+            color: #0f0;
+            border: 1px solid #0f0;
+        }
+
+        .disconnected {
+            color: #f00;
+            border: 1px solid #f00;
+            background: rgba(255, 0, 0, 0.2);
+        }
+
+        /* Message Display */
+        .message-display {
+            text-align: center;
+            font-size: 2em;
+            margin: 20px 0;
+            min-height: 60px;
+            color: #ff0;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Teams Grid */
+        .teams-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .team-card {
+            background: rgba(0, 255, 0, 0.1);
+            border: 2px solid #0f0;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            transition: all 0.3s;
+        }
+
+        .team-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 30px rgba(0, 255, 0, 0.7);
+        }
+
+        .team-name {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: #0ff;
+        }
+
+        .flag-status {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 5px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+        }
+
+        .flag-icon {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+
+        .flag-captured {
+            color: #0f0;
+        }
+
+        .flag-pending {
+            color: #666;
+        }
+
+        /* Admin Panel */
+        #admin-panel {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #000;
+            border: 2px solid #0f0;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 50px rgba(0, 255, 0, 0.8);
+            z-index: 1000;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        #admin-panel h2 {
+            color: #0ff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .admin-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #0f0;
+            border-radius: 5px;
+        }
+
+        .admin-section h3 {
+            color: #ff0;
+            margin-bottom: 10px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            background: #111;
+            border: 1px solid #0f0;
+            color: #0f0;
+            border-radius: 5px;
+            font-family: inherit;
+        }
+
+        button {
+            background: #0f0;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #0ff;
+            box-shadow: 0 0 20px #0ff;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #f00;
+            color: #fff;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* Effects */
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .rainbow {
+            animation: rainbow 2s linear infinite;
+        }
+
+        @keyframes rainbow {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        /* Password Dialog */
+        #password-dialog {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #000;
+            border: 2px solid #0f0;
+            padding: 30px;
+            border-radius: 10px;
+            z-index: 2000;
+        }
+
+        /* Fun Effects Overlay */
+        .effect-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 900;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrix-bg"></canvas>
+    <div class="effect-overlay" id="effect-overlay"></div>
+    
+    <div class="main-container" id="main-container">
+        <div class="header">
+            <h1 class="title">ING Factory CTF</h1>
+            <div class="pi-symbol" onclick="showPasswordDialog()">π</div>
+            <div class="connection-status" id="connection-status">
+                <span id="status-text">Connecting...</span>
+            </div>
+        </div>
+        
+        <div class="message-display" id="message-display">
+            <!-- Messages will appear here -->
+        </div>
+        
+        <div class="teams-grid" id="teams-grid">
+            <!-- Teams will be dynamically added here -->
+        </div>
+    </div>
+
+    <!-- Password Dialog -->
+    <div id="password-dialog">
+        <h3 style="color: #0ff; margin-bottom: 15px;">RESTRICTED ACCESS</h3>
+        <input type="password" id="admin-password" placeholder="Enter Password" onkeypress="if(event.key==='Enter') checkPassword()">
+        <button onclick="checkPassword()">ACCESS</button>
+        <button onclick="closePasswordDialog()" style="background: #f00;">CANCEL</button>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="admin-panel">
+        <div class="close-btn" onclick="closeAdminPanel()">×</div>
+        <h2>ADMIN CONSOLE</h2>
+        
+        <div class="admin-section">
+            <h3>CREATE TEAM</h3>
+            <input type="text" id="team-name" placeholder="Team Name">
+            <button onclick="createTeam()">CREATE TEAM</button>
+        </div>
+        
+        <div class="admin-section">
+            <h3>UPDATE FLAGS</h3>
+            <select id="team-select">
+                <option value="">Select Team</option>
+            </select>
+            <label><input type="checkbox" id="flag1"> Flag 1 Captured</label><br>
+            <label><input type="checkbox" id="flag2"> Flag 2 Captured</label><br>
+            <label><input type="checkbox" id="flag3"> Flag 3 Captured</label><br>
+            <button onclick="updateFlags()">UPDATE FLAGS</button>
+        </div>
+        
+        <div class="admin-section">
+            <h3>BROADCAST MESSAGE</h3>
+            <textarea id="broadcast-message" rows="3" placeholder="Enter message to display..."></textarea>
+            <button onclick="broadcastMessage()">SEND MESSAGE</button>
+        </div>
+        
+        <div class="admin-section">
+            <h3>CHAOS CONTROLS</h3>
+            <button onclick="playSound('rickroll')">🎵 RICKROLL</button>
+            <button onclick="playSound('alert')">🚨 ALERT</button>
+            <button onclick="playSound('hack')">💀 HACKED</button>
+            <button onclick="triggerEffect('shake')">🫨 SHAKE SCREEN</button>
+            <button onclick="triggerEffect('rainbow')">🌈 RAINBOW MODE</button>
+            <button onclick="triggerEffect('matrix')">💊 MATRIX INTENSIFY</button>
+            <button onclick="triggerEffect('glitch')">📺 GLITCH OUT</button>
+            <button onclick="triggerEffect('blackout')">🌑 BLACKOUT</button>
+            <button onclick="triggerEffect('snow')">❄️ SNOW CRASH</button>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // WebSocket connection
+        const socket = io();
+        let isAdmin = false;
+        let gameState = {
+            teams: [],
+            message: ''
+        };
+        
+        // Connection status
+        socket.on('connect', () => {
+            updateConnectionStatus(true);
+            console.log('Connected to CTF server');
+        });
+        
+        socket.on('disconnect', () => {
+            updateConnectionStatus(false);
+            console.log('Disconnected from CTF server');
+        });
+        
+        function updateConnectionStatus(connected) {
+            const statusEl = document.getElementById('connection-status');
+            const statusText = document.getElementById('status-text');
+            if (connected) {
+                statusEl.className = 'connection-status connected';
+                statusText.textContent = 'CONNECTED';
+            } else {
+                statusEl.className = 'connection-status disconnected';
+                statusText.textContent = 'DISCONNECTED';
+            }
+        }
+        
+        // Matrix rain effect
+        const canvas = document.getElementById('matrix-bg');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%+-/~{[|`]}";
+        const matrixArray = matrix.split("");
+        const fontSize = 10;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+        
+        for(let x = 0; x < columns; x++) {
+            drops[x] = 1;
+        }
+        
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#0F0';
+            ctx.font = fontSize + 'px monospace';
+            
+            for(let i = 0; i < drops.length; i++) {
+                const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                
+                if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        
+        setInterval(drawMatrix, 35);
+        
+        // Socket event handlers
+        socket.on('state_update', (state) => {
+            gameState = state;
+            renderTeams();
+            document.getElementById('message-display').textContent = state.message || '';
+        });
+        
+        socket.on('auth_success', () => {
+            isAdmin = true;
+            document.getElementById('admin-panel').style.display = 'block';
+            closePasswordDialog();
+        });
+        
+        socket.on('auth_failed', () => {
+            alert('ACCESS DENIED');
+            document.getElementById('admin-password').value = '';
+        });
+        
+        socket.on('trigger_sound', (data) => {
+            executeSound(data.type);
+        });
+        
+        socket.on('trigger_effect', (data) => {
+            executeEffect(data.type);
+        });
+        
+        // Render teams
+        function renderTeams() {
+            const grid = document.getElementById('teams-grid');
+            grid.innerHTML = '';
+            
+            gameState.teams.forEach(team => {
+                const card = document.createElement('div');
+                card.className = 'team-card';
+                card.innerHTML = `
+                    <h3 class="team-name">${team.name}</h3>
+                    <div class="flag-status">
+                        <span class="flag-icon ${team.flag1 ? 'flag-captured' : 'flag-pending'}">🚩</span>
+                        <span>Flag 1: ${team.flag1 ? 'CAPTURED' : 'PENDING'}</span>
+                    </div>
+                    <div class="flag-status">
+                        <span class="flag-icon ${team.flag2 ? 'flag-captured' : 'flag-pending'}">🚩</span>
+                        <span>Flag 2: ${team.flag2 ? 'CAPTURED' : 'PENDING'}</span>
+                    </div>
+                    <div class="flag-status">
+                        <span class="flag-icon ${team.flag3 ? 'flag-captured' : 'flag-pending'}">🚩</span>
+                        <span>Flag 3: ${team.flag3 ? 'CAPTURED' : 'PENDING'}</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            
+            updateTeamSelect();
+        }
+        
+        // Password dialog
+        function showPasswordDialog() {
+            document.getElementById('password-dialog').style.display = 'block';
+            document.getElementById('admin-password').focus();
+        }
+        
+        function closePasswordDialog() {
+            document.getElementById('password-dialog').style.display = 'none';
+            document.getElementById('admin-password').value = '';
+        }
+        
+        function checkPassword() {
+            const password = document.getElementById('admin-password').value;
+            socket.emit('admin_auth', password);
+        }
+        
+        function closeAdminPanel() {
+            document.getElementById('admin-panel').style.display = 'none';
+        }
+        
+        // Team management
+        function createTeam() {
+            const name = document.getElementById('team-name').value.trim();
+            if (name && isAdmin) {
+                socket.emit('create_team', { name: name });
+                document.getElementById('team-name').value = '';
+            }
+        }
+        
+        function updateTeamSelect() {
+            const select = document.getElementById('team-select');
+            select.innerHTML = '<option value="">Select Team</option>';
+            gameState.teams.forEach(team => {
+                const option = document.createElement('option');
+                option.value = team.id;
+                option.textContent = team.name;
+                select.appendChild(option);
+            });
+        }
+        
+        function updateFlags() {
+            const teamId = parseInt(document.getElementById('team-select').value);
+            if (teamId && isAdmin) {
+                socket.emit('update_flags', {
+                    teamId: teamId,
+                    flag1: document.getElementById('flag1').checked,
+                    flag2: document.getElementById('flag2').checked,
+                    flag3: document.getElementById('flag3').checked
+                });
+            }
+        }
+        
+        // Message broadcasting
+        function broadcastMessage() {
+            const message = document.getElementById('broadcast-message').value.trim();
+            if (message && isAdmin) {
+                socket.emit('broadcast_message', message);
+                document.getElementById('broadcast-message').value = '';
+            }
+        }
+        
+        // Sound effects
+        function playSound(type) {
+            if (isAdmin) {
+                socket.emit('play_sound', type);
+            }
+        }
+        
+        function executeSound(type) {
+            const audio = new Audio();
+            switch(type) {
+                case 'rickroll':
+                    // Use local audio file
+                    audio.src = '/sounds/rickroll.mp3';
+                    // Fallback to CDN if local file not found
+                    audio.onerror = () => {
+                        audio.src = 'https://www.myinstants.com/media/sounds/rick-roll.mp3';
+                        audio.onerror = () => {
+                            console.log('Rickroll audio not available');
+                        };
+                        audio.play().catch(e => console.log('Audio play failed:', e));
+                    };
+                    break;
+                case 'alert':
+                    // Use local audio file
+                    audio.src = '/sounds/alert.mp3';
+                    audio.onerror = () => {
+                        // Fallback to generated tone
+                        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        oscillator.frequency.value = 1000;
+                        oscillator.type = 'sine';
+                        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                        oscillator.start();
+                        setTimeout(() => {
+                            oscillator.stop();
+                            audioContext.close();
+                        }, 2000);
+                    };
+                    break;
+                case 'hack':
+                    // Use local audio file
+                    audio.src = '/sounds/hack.mp3';
+                    audio.onerror = () => {
+                        // Fallback to generated glitch sound
+                        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        oscillator.type = 'square';
+                        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                        
+                        // Create glitchy sound by rapidly changing frequency
+                        let time = audioContext.currentTime;
+                        for (let i = 0; i < 20; i++) {
+                            oscillator.frequency.setValueAtTime(
+                                Math.random() * 1000 + 200, 
+                                time + i * 0.1
+                            );
+                        }
+                        oscillator.start();
+                        setTimeout(() => {
+                            oscillator.stop();
+                            audioContext.close();
+                        }, 2000);
+                    };
+                    break;
+            }
+            
+            // Try to play the audio
+            audio.play().catch(e => {
+                console.log('Audio play failed:', e);
+                // If autoplay is blocked, show a notification
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: #ff0;
+                    color: #000;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    z-index: 10000;
+                    font-weight: bold;
+                `;
+                notification.textContent = '🔊 Click anywhere to enable sound';
+                document.body.appendChild(notification);
+                
+                document.addEventListener('click', () => {
+                    audio.play();
+                    notification.remove();
+                }, { once: true });
+                
+                setTimeout(() => notification.remove(), 5000);
+            });
+        }
+        
+        // Visual effects
+        function triggerEffect(type) {
+            if (isAdmin) {
+                socket.emit('trigger_effect', type);
+            }
+        }
+        
+        function executeEffect(effect) {
+            const container = document.getElementById('main-container');
+            const overlay = document.getElementById('effect-overlay');
+            
+            switch(effect) {
+                case 'shake':
+                    container.classList.add('shake');
+                    setTimeout(() => container.classList.remove('shake'), 500);
+                    break;
+                    
+                case 'rainbow':
+                    document.body.classList.add('rainbow');
+                    setTimeout(() => document.body.classList.remove('rainbow'), 5000);
+                    break;
+                    
+                case 'matrix':
+                    canvas.style.opacity = '0.8';
+                    setTimeout(() => canvas.style.opacity = '0.1', 3000);
+                    break;
+                    
+                case 'glitch':
+                    let glitchCount = 0;
+                    const glitchInterval = setInterval(() => {
+                        document.body.style.filter = `hue-rotate(${Math.random() * 360}deg) contrast(${Math.random() * 2 + 0.5})`;
+                        glitchCount++;
+                        if (glitchCount > 10) {
+                            clearInterval(glitchInterval);
+                            document.body.style.filter = '';
+                        }
+                    }, 100);
+                    break;
+                    
+                case 'blackout':
+                    overlay.style.background = 'black';
+                    overlay.style.opacity = '1';
+                    setTimeout(() => {
+                        overlay.style.opacity = '0';
+                        setTimeout(() => overlay.style.background = '', 1000);
+                    }, 2000);
+                    break;
+                    
+                case 'snow':
+                    createSnowEffect();
+                    break;
+                    
+                case 'flash':
+                    overlay.style.background = '#0f0';
+                    overlay.style.opacity = '0.5';
+                    setTimeout(() => {
+                        overlay.style.opacity = '0';
+                        setTimeout(() => overlay.style.background = '', 500);
+                    }, 100);
+                    break;
+                    
+                case 'victory':
+                    createVictoryEffect();
+                    break;
+            }
+        }
+        
+        function createSnowEffect() {
+            const snowContainer = document.createElement('div');
+            snowContainer.style.position = 'fixed';
+            snowContainer.style.top = '0';
+            snowContainer.style.left = '0';
+            snowContainer.style.width = '100%';
+            snowContainer.style.height = '100%';
+            snowContainer.style.pointerEvents = 'none';
+            snowContainer.style.zIndex = '999';
+            
+            for (let i = 0; i < 100; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.innerHTML = '❄';
+                snowflake.style.position = 'absolute';
+                snowflake.style.left = Math.random() * 100 + '%';
+                snowflake.style.animationDelay = Math.random() * 10 + 's';
+                snowflake.style.fontSize = Math.random() * 20 + 10 + 'px';
+                snowflake.style.color = '#fff';
+                snowflake.style.animation = 'fall 10s linear infinite';
+                snowContainer.appendChild(snowflake);
+            }
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fall {
+                    from { top: -10%; }
+                    to { top: 110%; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(snowContainer);
+            setTimeout(() => {
+                snowContainer.remove();
+                style.remove();
+            }, 10000);
+        }
+        
+        function createVictoryEffect() {
+            const colors = ['#f00', '#0f0', '#00f', '#ff0', '#f0f', '#0ff'];
+            let colorIndex = 0;
+            const interval = setInterval(() => {
+                document.body.style.background = colors[colorIndex];
+                colorIndex = (colorIndex + 1) % colors.length;
+            }, 200);
+            
+            setTimeout(() => {
+                clearInterval(interval);
+                document.body.style.background = '#000';
+            }, 5000);
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
