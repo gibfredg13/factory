@@ -12,13 +12,14 @@ HTML_FILE="/tmp/index.html"
 FLAG_1_FILE="flag1gen.sh"
 FLAG_2_FILE="flag2gen.sh"
 FLAG_3_FILE="flag3gen.sh"
-
-
-
-
-
+BONUS_HTML="bonus.html"
 
 # --- Functions ---
+
+copy_bonus() {
+  echo "Copying Bonus"
+  cp "$BONUS_HTML" "/tmp/" 
+}
 
 stop_http_server() {
   echo "Stopping HTTP server on port $HTTP_PORT..."
@@ -169,6 +170,7 @@ main() {
   # --- Install Banners and labs on containers ---
   configure_container_banners
   install_flags
+  copy_bonus
 
 
   echo "If you are done with the labs, continue to shutdown AND wipe"
