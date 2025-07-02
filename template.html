@@ -35,6 +35,10 @@
       opacity: 0.3;
     }
 
+    hr {
+      border: 1px solid green
+    }
+
     @keyframes matrix-rain {
       0% { transform: translateY(-100%); }
       100% { transform: translateY(100vh); }
@@ -624,7 +628,7 @@ Nmap done: 1 IP address (1 host up) scanned in 6.80 seconds</div>
                 <strong>List the files in the directory.</strong>
                 <p>Use the <code>ls</code> command to see what's inside.</p>
                 <div class="command-line">ls</div>
-                 <div class="terminal-output">
+                <div class="terminal-output">
                     bank.txt
                     notes.txt
                 </div>
@@ -684,57 +688,168 @@ Nmap done: 1 IP address (1 host up) scanned in 6.80 seconds</div>
       <div class="hint-section">
         <button class="hint-button explain" onclick="toggleHint('hint3-1', this)" data-color="#2196F3" data-key="challenge3.hints.attacks">🤔 How Password Attacks Work</button>
         <button class="hint-button setup" onclick="toggleHint('hint3-2', this)" data-color="#9C27B0" data-key="challenge3.hints.tools">🛠️ Password Cracking Tools</button>
-        <button class="hint-button command" onclick="toggleHint('hint3-3', this)" data-color="#FF9800" data-key="challenge3.hints.approach">💻 Smart Approach</button>
+        <button class="hint-button command" onclick="toggleHint('hint3-3', this)" data-color="#FF9800" data-key="challenge3.hints.approach">💻 Approach</button>
         <button class="hint-button answer" onclick="toggleAnswer('answer3', this)" data-color="#ff6b6b" data-key="challenge3.hints.solution">🚨 Complete Solution</button>
       </div>
 
       <div class="hint-content" id="hint3-1">
         <h4>🎯 Understanding Password Attacks</h4>
-        <p>Brute force attacks try many passwords automatically. Common techniques include dictionary attacks and trying every possible combination.</p>
+        <p>
+          Brute-force attacks involve repeatedly guessing passwords until the correct one is found.
+          Common strategies include dictionary attacks (using known words or phrases) and exhaustive attempts with every
+          possible character combination.
+        </p>
       </div>
 
       <div class="hint-content" id="hint3-2">
-        <h4>🧰 Meet Hydra</h4>
-        <p>Hydra is a fast network login cracker that supports many protocols including FTP, SSH, and HTTP.</p>
-      </div>
-
-      <div class="hint-content" id="hint3-3">
-        <h4>💡 Smart Strategy</h4>
-        <p>Before generating huge wordlists, try common passwords first. Admin users often use simple passwords like "admin" or "password".</p>
-      </div>
-
-      <div class="answer-content" id="answer3">
-        <div class="step-by-step">
-          <div class="step">
-            <strong>Try the obvious password first</strong>
-            <div class="command-line">hydra -l admin -p admin ftp://$badweb_ip</div>
+        <h4>🧰 Meet Hydra & Crunch</h4>
+        <p>
+          Hydra is a fast network login cracker. It supports a wide range of protocols like FTP,
+          SSH, HTTP, RDP, and more. Hydra is ideal for online brute-force attempts against exposed login services.
+        </p>
+        <br>
+        <p>
+          Crunch is a wordlist generator that creates custom dictionaries by combining and permutating
+          characters. You can define the exact charset, length, and pattern of the words it produces, making it perfect for
+          generating targeted lists based on
+          known password structures.
+        </p>
+        <br>
+        <details>
+          <summary>🔎 Bonus Tools (Not covered in this workshop)</summary>
+          <p>
+            John the Ripper is a powerful offline password cracker designed to target hashed credentials. It
+            supports a wide variety of hash types and uses smart wordlist mangling and rule-based attacks.
+          </p>
+          <br>
+          <p>
+            Hashcat is a GPU-accelerated password recovery tool that's extremely efficient for cracking
+            complex
+            hashes at scale. It's commonly used for offline brute force and dictionary attacks on large datasets.
+            </p>
+            </details>
+            
+            </div>
+            <div class="hint-content" id="hint3-3">
+              <h4>💡 From Brute Force to Strategy</h4>
+            
+              <p>
+                To understand how quickly brute-force attacks scale, let's generate some wordlists using Crunch.
+                You’ll create lists of all lowercase character permutations for 3, 4, and 5-character passwords.
+              </p>
+            
+              <p>Start with 3 characters:</p>
+              <pre><code>crunch 3 3 abcdefghijklmnopqrstuvwxyz -o 3letter.txt</code></pre>
+            
+              <p>Then generate 4-character permutations:</p>
+              <pre><code>crunch 4 4 abcdefghijklmnopqrstuvwxyz -o 4letter.txt</code></pre>
+            
+              <p>And finally, 5-character permutations:</p>
+              <pre><code>crunch 5 5 abcdefghijklmnopqrstuvwxyz -o 5letter.txt</code></pre>
+              <br>
+            
+              <p>
+                Once generated, compare the file sizes and number of lines (passwords) for each:
+              </p>
+            
+              <pre><code>ls -lh 3letter.txt 4letter.txt 5letter.txt
+            wc -l 3letter.txt 4letter.txt 5letter.txt</code></pre>
+              <br>
+              <br>
+            
+              <p>
+                With 26 lowercase letters, here's what's happening under the hood:
+              </p>
+              <ul>
+                <li>3-letter: 26³ = 17,576 permutations</li>
+                <li>4-letter: 26⁴ = 456,976 permutations</li>
+                <li>5-letter: 26⁵ = 11,881,376 permutations</li>
+              </ul>
+            
+              <p>
+                That's exponential growth for only lowercase letters. Add uppercase, numbers, or symbols and the space
+                expands even faster.
+              </p>
+              <br>
+            
+              <p>
+                This is why exhaustive brute-force lists are rarely practical. Instead, a smarter strategy is to start with common
+                or
+                default passwords. Many accounts still use simple values like <code>admin</code>, <code>password</code>, or
+                <code>welcome123</code>.
+                Trying these first is often faster and far more effective than crunching millions of possibilities.
+              </p>
+            
+              <hr>
+            
+              <h4>🔧 Creating Smart Permutations</h4>
+            
+              <p>
+                Instead of blindly generating every possible permutation, you can create smarter wordlists by modifying existing
+                words
+                with common patterns, prefixes, and suffixes. Tools like <code>rsmangler</code> automate this process.
+              </p>
+            
+              <ul>
+                <li>
+                  Generate a smart wordlist using rsmangler:
+                  <p>
+                    <code>rsmangler</code> creates permutations by intelligently modifying words from an existing wordlist. For
+                    example, to
+                    prepend or append specific values to a base wordlist:
+                  </p>
+                  <pre><code>rsmangler --file wordlist.txt --prefixes foo,bar,foobar --suffixes xor --output mangled_wordlist.txt</code></pre>
+                  <p>This command achieves:</p>
+                  <ul>
+                    <li>Prepending <code>foo</code>, <code>bar</code>, and <code>foobar</code> to each word</li>
+                    <li>Appending <code>xor</code> to each word</li>
+                    <li>Saving the result to a file named <code>mangled_wordlist.txt</code></li>
+                  </ul>
+                </li>
+                <li>
+                  Examine the mangled wordlist:
+                  <p>Verify the contents and size of the generated wordlist:</p>
+                  <pre><code>cat mangled_wordlist.txt</code></pre>
+                </li>
+              </ul>
+            </div>
+            
+            
+            
+            <div class="answer-content" id="answer3">
+          <div class="step-by-step">
+            <div class="step">
+              <strong>Try the obvious password first</strong>
+              <div class="command-line">hydra -l admin -p admin ftp://$badweb_ip</div>
+            </div>
+            <div class="step">
+              <strong>Success!</strong>
+              <div class="terminal-output">[21][ftp] host: $badweb_ip login: admin password: admin</div>
+            </div>
+            <div class="step">
+              <strong>Test the credentials</strong>
+              <div class="command-line">ftp $badweb_ip</div>
+              <p>Username: admin, Password: admin</p>
+            </div>
           </div>
-          <div class="step">
-            <strong>Success!</strong>
-            <div class="terminal-output">[21][ftp] host: $badweb_ip   login: admin   password: admin</div>
+          <div class="security-tip">
+            <strong>🛡️ Key takeaway:</strong> The password "admin" was cracked instantly! This shows why strong, unique
+            passwords are critical.
           </div>
-          <div class="step">
-            <strong>Test the credentials</strong>
-            <div class="command-line">ftp $badweb_ip</div>
-            <p>Username: admin, Password: admin</p>
-          </div>
+          <button class="hint-button" onclick="completeChallenge(3, 25)" data-key="challenge3.complete">✅ Password
+            Cracked!</button>
         </div>
-        <div class="security-tip">
-          <strong>🛡️ Key takeaway:</strong> The password "admin" was cracked instantly! This shows why strong, unique passwords are critical.
         </div>
-        <button class="hint-button" onclick="completeChallenge(3, 25)" data-key="challenge3.complete">✅ Password Cracked!</button>
-      </div>
-    </div>
-
-    <!-- Challenge 4: WiFi Security -->
-    <div class="challenge-card" id="challenge4">
-      <div class="challenge-title">
-        <span data-key="challenge4.title">📡 Step 4: WiFi Network Security</span>
-        <span class="difficulty advanced" data-key="challenge4.difficulty">ADVANCED</span>
-      </div>
-      
-      <div class="challenge-description" data-key-html="challenge4.description">
-        <strong>What you're learning:</strong> How wireless networks can be compromised and why WiFi security matters.
+        
+        <!-- Challenge 4: WiFi Security -->
+        <div class="challenge-card" id="challenge4">
+          <div class="challenge-title">
+            <span data-key="challenge4.title">📡 Step 4: WiFi Network Security</span>
+            <span class="difficulty advanced" data-key="challenge4.difficulty">ADVANCED</span>
+          </div>
+        
+          <div class="challenge-description" data-key-html="challenge4.description">
+            <strong>What you're learning:</strong> How wireless networks can be compromised and why WiFi security matters.
         This demonstrates the risks of weak WiFi passwords and unsecured networks.
         <br><br>
         <strong>Your mission:</strong> Discover wireless networks, capture authentication data, and crack a WiFi password.
@@ -1035,7 +1150,7 @@ Transient Key  : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</div>
           hints: {
             attacks: "🤔 How Password Attacks Work",
             tools: "🛠️ Password Cracking Tools", 
-            approach: "💻 Smart Approach",
+            approach: "💻 Approach",
             solution: "🚨 Complete Solution"
           },
           complete: "✅ Password Cracked!"
@@ -1140,7 +1255,7 @@ Transient Key  : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</div>
           hints: {
             attacks: "🤔 Hoe Wachtwoord Aanvallen Werken",
             tools: "🛠️ Wachtwoord Kraak Tools",
-            approach: "💻 Slimme Aanpak", 
+            approach: "💻 Aanpak", 
             solution: "🚨 Volledige Oplossing"
           },
           complete: "✅ Wachtwoord Gekraakt!"
