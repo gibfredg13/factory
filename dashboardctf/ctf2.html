@@ -275,6 +275,16 @@
             gap: 10px;
         }
 
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group button {
+            width: 100%;
+        }
+
 
         .close-btn {
             position: absolute;
@@ -434,17 +444,20 @@
                     <button onclick="playSound('rickroll')">🎵 RICKROLL</button>
                     <button onclick="playSound('alert')">🚨 ALERT</button>
                     <button onclick="playSound('hack')">💀 HACKED</button>
-                    <button onclick="triggerEffect('shake')">🫨 SHAKE SCREEN</button>
-                    <button onclick="triggerEffect('rainbow')">🌈 RAINBOW MODE</button>
-                    <button onclick="triggerEffect('matrix')">💊 MATRIX INTENSIFY</button>
-                    <button onclick="triggerEffect('glitch')">📺 GLITCH OUT</button>
-                    <button onclick="triggerEffect('blackout')">🌑 BLACKOUT</button>
-                    <button onclick="triggerEffect('snow')">❄️ SNOW CRASH</button>
-                    <button onclick="triggerEffect('invert')">🔄 INVERT COLORS</button>
-                    <button onclick="triggerEffect('spin')">😵‍💫 SPIN ME ROUND</button>
-                    <button onclick="triggerEffect('typewriter')">⌨️ TYPEWRITER HIJACK</button>
-                    <button onclick="triggerEffect('redacted')">⬛ REDACTED</button>
-                    <button onclick="triggerEffect('flood')">😂 FLOOD</button>
+                    <button onclick="triggerEffect({type:'shake'})">🫨 SHAKE SCREEN</button>
+                    <button onclick="triggerEffect({type:'rainbow'})">🌈 RAINBOW MODE</button>
+                    <button onclick="triggerEffect({type:'matrix'})">💊 MATRIX INTENSIFY</button>
+                    <button onclick="triggerEffect({type:'glitch'})">📺 GLITCH OUT</button>
+                    <button onclick="triggerEffect({type:'blackout'})">🌑 BLACKOUT</button>
+                    <button onclick="triggerEffect({type:'snow'})">❄️ SNOW CRASH</button>
+                    <button onclick="triggerEffect({type:'invert'})">🔄 INVERT COLORS</button>
+                    <button onclick="triggerEffect({type:'spin'})">😵‍💫 SPIN ME ROUND</button>
+                    <button onclick="triggerEffect({type:'redacted'})">⬛ REDACTED</button>
+                    <button onclick="triggerEffect({type:'flood'})">😂 FLOOD</button>
+                    <div class="control-group" style="grid-column: 1 / -1;">
+                        <input type="text" id="typewriter-text" placeholder="Custom hijack text...">
+                        <button onclick="triggerEffect({type:'typewriter'})">⌨️ TYPEWRITER HIJACK</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -452,72 +465,20 @@
 
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script>
-        // NOTE: This is a frontend-only demonstration. 
-        // A real implementation requires a Node.js backend to handle the socket events.
-        
-        // Mock Socket.IO for demonstration purposes
-        const mockSocket = {
-            on: (event, callback) => {
-                console.log(`Mock socket: listening for '${event}'`);
-                if (event === 'connect') {
-                    setTimeout(() => callback(), 500);
-                }
-            },
-            emit: (event, data) => {
-                console.log(`Mock socket: emitting '${event}' with data:`, data);
-                // Simulate admin auth
-                if (event === 'admin_auth' && data === 'hacktheplanet') {
-                    setTimeout(() => mockSocket.on_listeners.auth_success(), 500);
-                } else if (event === 'admin_auth') {
-                    setTimeout(() => mockSocket.on_listeners.auth_failed(), 500);
-                }
-                 // Simulate effects for all clients
-                if (event === 'play_sound') {
-                    setTimeout(() => mockSocket.on_listeners.trigger_sound({ type: data }), 100);
-                }
-                if (event === 'trigger_effect') {
-                     setTimeout(() => mockSocket.on_listeners.trigger_effect({ type: data }), 100);
-                }
-            },
-            on_listeners: {},
-        };
-        
-        window.io = () => {
-            const socket = {
-                on: (event, callback) => {
-                    console.log(`[Socket.IO] Registered listener for '${event}'`);
-                    mockSocket.on_listeners[event] = callback;
-                },
-                emit: mockSocket.emit,
-            };
-            // Automatically trigger connect
-            setTimeout(() => {
-                if(mockSocket.on_listeners.connect) mockSocket.on_listeners.connect();
-            }, 100);
-            return socket;
-        };
-
-
-        // WebSocket connection
-        const socket = io();
+        // Use a real Socket.IO connection. The mock is removed.
+        // A local server is now required. See the "Local Hosting Setup" document.
+        const socket = io({
+            // In a preview environment without a server, this will prevent endless reconnection attempts.
+            reconnectionAttempts: 3
+        });
         let isAdmin = false;
+        
+        // This will be populated by the server on connection, or use defaults for preview.
         let gameState = {
-            teams: [
-                {id: 1, name: "Blue Team", flag1: true, flag2: false, flag3: false},
-                {id: 2, name: "Red Team", flag1: false, flag2: true, flag3: false},
-                {id: 3, name: "Green Team", flag1: false, flag2: false, flag3: false},
-            ],
-            message: 'Welcome to the CTF!'
+            teams: [],
+            message: 'Connecting to server...'
         };
         
-        // Initial Render
-        setTimeout(() => {
-             if(mockSocket.on_listeners.state_update) {
-                mockSocket.on_listeners.state_update(gameState);
-             }
-        }, 200);
-
-
         // Connection status
         socket.on('connect', () => {
             updateConnectionStatus(true);
@@ -527,6 +488,23 @@
         socket.on('disconnect', () => {
             updateConnectionStatus(false);
             console.log('Disconnected from CTF server');
+        });
+
+        socket.on('connect_error', () => {
+             // Handle connection error for previewing without a server
+            console.log("Connection failed. Running in offline mode.");
+            updateConnectionStatus(false);
+            // Load default state for preview
+            gameState = {
+                teams: [
+                    {id: 1, name: "Blue Team", flag1: true, flag2: false, flag3: false},
+                    {id: 2, name: "Red Team", flag1: false, flag2: true, flag3: false},
+                    {id: 3, name: "Green Team", flag1: false, flag2: false, flag3: false},
+                ],
+                message: 'Running in Offline Preview Mode'
+            };
+            renderTeams();
+            document.getElementById('message-display').textContent = gameState.message;
         });
         
         function updateConnectionStatus(connected) {
@@ -601,7 +579,7 @@
         });
         
         socket.on('trigger_effect', (data) => {
-            executeEffect(data.type);
+            executeEffect(data);
         });
         
         // Render teams
@@ -657,9 +635,7 @@
         function createTeam() {
             const name = document.getElementById('team-name').value.trim();
             if (name && isAdmin) {
-                const newId = gameState.teams.length > 0 ? Math.max(...gameState.teams.map(t => t.id)) + 1 : 1;
-                gameState.teams.push({id: newId, name: name, flag1: false, flag2: false, flag3: false });
-                mockSocket.on_listeners.state_update(gameState);
+                socket.emit('create_team', { name: name });
                 document.getElementById('team-name').value = '';
             }
         }
@@ -680,8 +656,7 @@
         function deleteTeam() {
             const teamId = parseInt(document.getElementById('team-select-manage').value);
             if (teamId && isAdmin) {
-                gameState.teams = gameState.teams.filter(t => t.id !== teamId);
-                mockSocket.on_listeners.state_update(gameState);
+                 socket.emit('delete_team', { teamId: teamId });
             }
         }
 
@@ -691,10 +666,12 @@
             if (teamId && isAdmin) {
                 const team = gameState.teams.find(t => t.id === teamId);
                 if(team){
-                    team.flag1 = document.getElementById('flag1').checked;
-                    team.flag2 = document.getElementById('flag2').checked;
-                    team.flag3 = document.getElementById('flag3').checked;
-                    mockSocket.on_listeners.state_update(gameState);
+                    socket.emit('update_flags', {
+                        teamId: teamId,
+                        flag1: document.getElementById('flag1').checked,
+                        flag2: document.getElementById('flag2').checked,
+                        flag3: document.getElementById('flag3').checked
+                    });
                 }
             }
         }
@@ -703,47 +680,110 @@
         function broadcastMessage() {
             const message = document.getElementById('broadcast-message').value.trim();
             if (message && isAdmin) {
-                gameState.message = message;
-                mockSocket.on_listeners.state_update(gameState);
+                socket.emit('broadcast_message', message);
                 document.getElementById('broadcast-message').value = '';
             }
         }
         
-        // Sound effects
+        // --- OFFLINE SOUND GENERATION ---
+        let audioCtx;
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            return audioCtx;
+        }
+
         function playSound(type) {
             if (isAdmin) {
-                socket.emit('play_sound', type);
+                socket.emit('play_sound', { type });
+            }
+             // Allow sound to be tested in offline preview
+            else if (!socket.connected) {
+                executeSound(type);
             }
         }
         
         function executeSound(type) {
-            const audio = new Audio();
-            // Using royalty-free sounds for demonstration
+            const ctx = getAudioContext();
+            const now = ctx.currentTime;
+            
+            // Universal gain to prevent clipping
+            const masterGain = ctx.createGain();
+            masterGain.gain.setValueAtTime(0.2, now);
+            masterGain.connect(ctx.destination);
+
             switch(type) {
                 case 'rickroll':
-                    audio.src = 'https://cdn.pixabay.com/audio/2022/03/15/audio_742363a13d.mp3'; // A generic upbeat tune
+                    const notes = [293.66, 329.63, 392.00, 329.63, 493.88, 493.88, 466.16, 293.66, 329.63, 392.00, 329.63, 440.00, 440.00, 415.30];
+                    const durations = [0.15, 0.15, 0.15, 0.15, 0.3, 0.15, 0.3, 0.15, 0.15, 0.15, 0.15, 0.3, 0.15, 0.3];
+                    let time = now;
+                    notes.forEach((note, index) => {
+                        const osc = ctx.createOscillator();
+                        osc.type = 'square';
+                        osc.frequency.setValueAtTime(note, time);
+                        osc.connect(masterGain);
+                        osc.start(time);
+                        osc.stop(time + durations[index]);
+                        time += durations[index] + 0.05;
+                    });
                     break;
+
                 case 'alert':
-                     audio.src = 'https://cdn.pixabay.com/audio/2021/08/04/audio_5415ee7962.mp3'; // Sci-fi alarm
+                    const alertOsc = ctx.createOscillator();
+                    alertOsc.type = 'sawtooth';
+                    alertOsc.frequency.setValueAtTime(800, now);
+                    alertOsc.frequency.linearRampToValueAtTime(1200, now + 0.5);
+                    alertOsc.frequency.linearRampToValueAtTime(800, now + 1);
+                    alertOsc.connect(masterGain);
+                    alertOsc.start(now);
+                    alertOsc.stop(now + 1);
                     break;
+
                 case 'hack':
-                    audio.src = 'https://cdn.pixabay.com/audio/2022/02/07/audio_368868a8a4.mp3'; // Digital glitch sound
+                    const hackGain = ctx.createGain();
+                    hackGain.gain.setValueAtTime(0.5, now);
+                    hackGain.connect(masterGain);
+                    for (let i = 0; i < 10; i++) {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'square';
+                        osc.connect(gain);
+                        gain.connect(hackGain);
+                        const freq = Math.random() * 2000 + 200;
+                        const startTime = now + i * 0.1;
+                        osc.frequency.setValueAtTime(freq, startTime);
+                        gain.gain.setValueAtTime(1, startTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.1);
+                        osc.start(startTime);
+                        osc.stop(startTime + 0.1);
+                    }
                     break;
             }
-             audio.play().catch(e => console.error("Audio playback failed:", e));
         }
         
         // Visual effects
-        function triggerEffect(type) {
+        function triggerEffect(data) {
             if (isAdmin) {
-                socket.emit('trigger_effect', type);
+                if (data.type === 'typewriter') {
+                    data.text = document.getElementById('typewriter-text').value;
+                }
+                socket.emit('trigger_effect', data);
+            } 
+            // Allow effects to be tested in offline preview
+            else if (!socket.connected) {
+                 if (data.type === 'typewriter') {
+                    data.text = document.getElementById('typewriter-text').value;
+                }
+                executeEffect(data);
             }
         }
         
-        function executeEffect(effect) {
+        function executeEffect(data) {
             const container = document.getElementById('main-container');
             const overlay = document.getElementById('effect-overlay');
             const body = document.body;
+            const effect = data.type;
             
             switch(effect) {
                 case 'shake':
@@ -752,15 +792,18 @@
                     break;
                     
                 case 'rainbow':
-                    body.classList.toggle('rainbow');
+                    body.classList.add('rainbow');
+                    setTimeout(() => body.classList.remove('rainbow'), 10000);
                     break;
 
                 case 'invert':
-                    body.style.filter = body.style.filter.includes('invert(1)') ? '' : 'invert(1)';
+                    body.style.filter = 'invert(1)';
+                    setTimeout(() => body.style.filter = '', 10000);
                     break;
 
                 case 'spin':
-                     container.classList.toggle('spin');
+                     container.classList.add('spin');
+                     setTimeout(() => container.classList.remove('spin'), 10000);
                      break;
                     
                 case 'matrix':
@@ -793,7 +836,7 @@
                     createSnowEffect();
                     break;
                 case 'typewriter':
-                    const message = "SYSTEM COMPROMISED. WE ARE IN CONTROL.";
+                    const message = data.text || "SYSTEM COMPROMISED. WE ARE IN CONTROL.";
                     const el = document.getElementById('typewriter-hijack');
                     el.innerHTML = '';
                     let i = 0;
@@ -890,4 +933,4 @@
     </script>
 </body>
 </html>
- 
+
