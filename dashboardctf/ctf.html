@@ -18,6 +18,7 @@
             overflow: hidden;
             position: relative;
             min-height: 100vh;
+            transition: filter 0.5s ease;
         }
 
         /* Matrix Rain Effect */
@@ -36,6 +37,7 @@
             padding: 20px;
             min-height: 100vh;
             position: relative;
+            transition: transform 0.5s ease;
         }
 
         /* Header */
@@ -130,7 +132,24 @@
             font-size: 1.5em;
             margin-bottom: 15px;
             color: #0ff;
+            position: relative;
         }
+        
+        .redacted-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0f0;
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            display: none; /* Hidden by default */
+        }
+
 
         .flag-status {
             display: flex;
@@ -167,16 +186,47 @@
             padding: 30px;
             box-shadow: 0 0 50px rgba(0, 255, 0, 0.8);
             z-index: 1000;
-            max-width: 600px;
             width: 90%;
+            max-width: 800px;
             max-height: 80vh;
             overflow-y: auto;
+            flex-direction: column;
         }
-
+        
         #admin-panel h2 {
             color: #0ff;
             margin-bottom: 20px;
             text-align: center;
+        }
+        
+        .admin-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #0f0;
+        }
+
+        .tab-link {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            color: #0f0;
+            font-family: inherit;
+            font-size: 1em;
+        }
+
+        .tab-link.active {
+            background: #0f0;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         .admin-section {
@@ -218,6 +268,13 @@
             background: #0ff;
             box-shadow: 0 0 20px #0ff;
         }
+        
+        .chaos-controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
 
         .close-btn {
             position: absolute;
@@ -253,6 +310,15 @@
             0% { filter: hue-rotate(0deg); }
             100% { filter: hue-rotate(360deg); }
         }
+        
+        .spin {
+            animation: spin-me 5s linear infinite;
+        }
+
+        @keyframes spin-me {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
 
         /* Password Dialog */
         #password-dialog {
@@ -278,11 +344,24 @@
             pointer-events: none;
             z-index: 900;
         }
+        
+        #typewriter-hijack {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            font-size: 1.5em;
+            color: #ff0;
+            z-index: 9999;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            border: 1px solid #ff0;
+        }
     </style>
 </head>
 <body>
     <canvas id="matrix-bg"></canvas>
     <div class="effect-overlay" id="effect-overlay"></div>
+    <div id="typewriter-hijack"></div>
     
     <div class="main-container" id="main-container">
         <div class="header">
@@ -315,53 +394,130 @@
         <div class="close-btn" onclick="closeAdminPanel()">×</div>
         <h2>ADMIN CONSOLE</h2>
         
-        <div class="admin-section">
-            <h3>CREATE TEAM</h3>
-            <input type="text" id="team-name" placeholder="Team Name">
-            <button onclick="createTeam()">CREATE TEAM</button>
+        <div class="admin-tabs">
+            <button class="tab-link active" onclick="openTab(event, 'team-management')">Team Management</button>
+            <button class="tab-link" onclick="openTab(event, 'broadcast-state')">Broadcast & State</button>
+            <button class="tab-link" onclick="openTab(event, 'chaos-controls')">Chaos Controls</button>
         </div>
         
-        <div class="admin-section">
-            <h3>UPDATE FLAGS</h3>
-            <select id="team-select">
-                <option value="">Select Team</option>
-            </select>
-            <label><input type="checkbox" id="flag1"> Flag 1 Captured</label><br>
-            <label><input type="checkbox" id="flag2"> Flag 2 Captured</label><br>
-            <label><input type="checkbox" id="flag3"> Flag 3 Captured</label><br>
-            <button onclick="updateFlags()">UPDATE FLAGS</button>
+        <div id="team-management" class="tab-content active">
+            <div class="admin-section">
+                <h3>CREATE TEAM</h3>
+                <input type="text" id="team-name" placeholder="Team Name">
+                <button onclick="createTeam()">CREATE TEAM</button>
+            </div>
+            <div class="admin-section">
+                <h3>MANAGE TEAMS</h3>
+                <select id="team-select-manage">
+                    <option value="">Select Team to Manage</option>
+                </select>
+                <label><input type="checkbox" id="flag1"> Flag 1 Captured</label><br>
+                <label><input type="checkbox" id="flag2"> Flag 2 Captured</label><br>
+                <label><input type="checkbox" id="flag3"> Flag 3 Captured</label><br>
+                <button onclick="updateFlags()">UPDATE FLAGS</button>
+                <button onclick="deleteTeam()" style="background-color: #f00; color: #fff;">DELETE TEAM</button>
+            </div>
         </div>
         
-        <div class="admin-section">
-            <h3>BROADCAST MESSAGE</h3>
-            <textarea id="broadcast-message" rows="3" placeholder="Enter message to display..."></textarea>
-            <button onclick="broadcastMessage()">SEND MESSAGE</button>
+        <div id="broadcast-state" class="tab-content">
+            <div class="admin-section">
+                <h3>BROADCAST MESSAGE</h3>
+                <textarea id="broadcast-message" rows="3" placeholder="Enter message to display..."></textarea>
+                <button onclick="broadcastMessage()">SEND MESSAGE</button>
+            </div>
         </div>
         
-        <div class="admin-section">
-            <h3>CHAOS CONTROLS</h3>
-            <button onclick="playSound('rickroll')">🎵 RICKROLL</button>
-            <button onclick="playSound('alert')">🚨 ALERT</button>
-            <button onclick="playSound('hack')">💀 HACKED</button>
-            <button onclick="triggerEffect('shake')">🫨 SHAKE SCREEN</button>
-            <button onclick="triggerEffect('rainbow')">🌈 RAINBOW MODE</button>
-            <button onclick="triggerEffect('matrix')">💊 MATRIX INTENSIFY</button>
-            <button onclick="triggerEffect('glitch')">📺 GLITCH OUT</button>
-            <button onclick="triggerEffect('blackout')">🌑 BLACKOUT</button>
-            <button onclick="triggerEffect('snow')">❄️ SNOW CRASH</button>
+        <div id="chaos-controls" class="tab-content">
+            <div class="admin-section">
+                <h3>CHAOS CONTROLS</h3>
+                <div class="chaos-controls-grid">
+                    <button onclick="playSound('rickroll')">🎵 RICKROLL</button>
+                    <button onclick="playSound('alert')">🚨 ALERT</button>
+                    <button onclick="playSound('hack')">💀 HACKED</button>
+                    <button onclick="triggerEffect('shake')">🫨 SHAKE SCREEN</button>
+                    <button onclick="triggerEffect('rainbow')">🌈 RAINBOW MODE</button>
+                    <button onclick="triggerEffect('matrix')">💊 MATRIX INTENSIFY</button>
+                    <button onclick="triggerEffect('glitch')">📺 GLITCH OUT</button>
+                    <button onclick="triggerEffect('blackout')">🌑 BLACKOUT</button>
+                    <button onclick="triggerEffect('snow')">❄️ SNOW CRASH</button>
+                    <button onclick="triggerEffect('invert')">🔄 INVERT COLORS</button>
+                    <button onclick="triggerEffect('spin')">😵‍💫 SPIN ME ROUND</button>
+                    <button onclick="triggerEffect('typewriter')">⌨️ TYPEWRITER HIJACK</button>
+                    <button onclick="triggerEffect('redacted')">⬛ REDACTED</button>
+                    <button onclick="triggerEffect('flood')">😂 FLOOD</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script>
+        // NOTE: This is a frontend-only demonstration. 
+        // A real implementation requires a Node.js backend to handle the socket events.
+        
+        // Mock Socket.IO for demonstration purposes
+        const mockSocket = {
+            on: (event, callback) => {
+                console.log(`Mock socket: listening for '${event}'`);
+                if (event === 'connect') {
+                    setTimeout(() => callback(), 500);
+                }
+            },
+            emit: (event, data) => {
+                console.log(`Mock socket: emitting '${event}' with data:`, data);
+                // Simulate admin auth
+                if (event === 'admin_auth' && data === 'hacktheplanet') {
+                    setTimeout(() => mockSocket.on_listeners.auth_success(), 500);
+                } else if (event === 'admin_auth') {
+                    setTimeout(() => mockSocket.on_listeners.auth_failed(), 500);
+                }
+                 // Simulate effects for all clients
+                if (event === 'play_sound') {
+                    setTimeout(() => mockSocket.on_listeners.trigger_sound({ type: data }), 100);
+                }
+                if (event === 'trigger_effect') {
+                     setTimeout(() => mockSocket.on_listeners.trigger_effect({ type: data }), 100);
+                }
+            },
+            on_listeners: {},
+        };
+        
+        window.io = () => {
+            const socket = {
+                on: (event, callback) => {
+                    console.log(`[Socket.IO] Registered listener for '${event}'`);
+                    mockSocket.on_listeners[event] = callback;
+                },
+                emit: mockSocket.emit,
+            };
+            // Automatically trigger connect
+            setTimeout(() => {
+                if(mockSocket.on_listeners.connect) mockSocket.on_listeners.connect();
+            }, 100);
+            return socket;
+        };
+
+
         // WebSocket connection
         const socket = io();
         let isAdmin = false;
         let gameState = {
-            teams: [],
-            message: ''
+            teams: [
+                {id: 1, name: "Blue Team", flag1: true, flag2: false, flag3: false},
+                {id: 2, name: "Red Team", flag1: false, flag2: true, flag3: false},
+                {id: 3, name: "Green Team", flag1: false, flag2: false, flag3: false},
+            ],
+            message: 'Welcome to the CTF!'
         };
         
+        // Initial Render
+        setTimeout(() => {
+             if(mockSocket.on_listeners.state_update) {
+                mockSocket.on_listeners.state_update(gameState);
+             }
+        }, 200);
+
+
         // Connection status
         socket.on('connect', () => {
             updateConnectionStatus(true);
@@ -429,12 +585,14 @@
         
         socket.on('auth_success', () => {
             isAdmin = true;
-            document.getElementById('admin-panel').style.display = 'block';
+            document.getElementById('admin-panel').style.display = 'flex';
             closePasswordDialog();
         });
         
         socket.on('auth_failed', () => {
-            alert('ACCESS DENIED');
+            const dialog = document.getElementById('password-dialog');
+            dialog.classList.add('shake');
+            setTimeout(() => dialog.classList.remove('shake'), 500);
             document.getElementById('admin-password').value = '';
         });
         
@@ -455,7 +613,7 @@
                 const card = document.createElement('div');
                 card.className = 'team-card';
                 card.innerHTML = `
-                    <h3 class="team-name">${team.name}</h3>
+                    <h3 class="team-name">${team.name}<div class="redacted-overlay">[REDACTED]</div></h3>
                     <div class="flag-status">
                         <span class="flag-icon ${team.flag1 ? 'flag-captured' : 'flag-pending'}">🚩</span>
                         <span>Flag 1: ${team.flag1 ? 'CAPTURED' : 'PENDING'}</span>
@@ -499,13 +657,16 @@
         function createTeam() {
             const name = document.getElementById('team-name').value.trim();
             if (name && isAdmin) {
-                socket.emit('create_team', { name: name });
+                const newId = gameState.teams.length > 0 ? Math.max(...gameState.teams.map(t => t.id)) + 1 : 1;
+                gameState.teams.push({id: newId, name: name, flag1: false, flag2: false, flag3: false });
+                mockSocket.on_listeners.state_update(gameState);
                 document.getElementById('team-name').value = '';
             }
         }
         
         function updateTeamSelect() {
-            const select = document.getElementById('team-select');
+            const select = document.getElementById('team-select-manage');
+            const currentVal = select.value;
             select.innerHTML = '<option value="">Select Team</option>';
             gameState.teams.forEach(team => {
                 const option = document.createElement('option');
@@ -513,17 +674,28 @@
                 option.textContent = team.name;
                 select.appendChild(option);
             });
+            select.value = currentVal;
         }
         
-        function updateFlags() {
-            const teamId = parseInt(document.getElementById('team-select').value);
+        function deleteTeam() {
+            const teamId = parseInt(document.getElementById('team-select-manage').value);
             if (teamId && isAdmin) {
-                socket.emit('update_flags', {
-                    teamId: teamId,
-                    flag1: document.getElementById('flag1').checked,
-                    flag2: document.getElementById('flag2').checked,
-                    flag3: document.getElementById('flag3').checked
-                });
+                gameState.teams = gameState.teams.filter(t => t.id !== teamId);
+                mockSocket.on_listeners.state_update(gameState);
+            }
+        }
+
+
+        function updateFlags() {
+            const teamId = parseInt(document.getElementById('team-select-manage').value);
+            if (teamId && isAdmin) {
+                const team = gameState.teams.find(t => t.id === teamId);
+                if(team){
+                    team.flag1 = document.getElementById('flag1').checked;
+                    team.flag2 = document.getElementById('flag2').checked;
+                    team.flag3 = document.getElementById('flag3').checked;
+                    mockSocket.on_listeners.state_update(gameState);
+                }
             }
         }
         
@@ -531,7 +703,8 @@
         function broadcastMessage() {
             const message = document.getElementById('broadcast-message').value.trim();
             if (message && isAdmin) {
-                socket.emit('broadcast_message', message);
+                gameState.message = message;
+                mockSocket.on_listeners.state_update(gameState);
                 document.getElementById('broadcast-message').value = '';
             }
         }
@@ -545,96 +718,19 @@
         
         function executeSound(type) {
             const audio = new Audio();
+            // Using royalty-free sounds for demonstration
             switch(type) {
                 case 'rickroll':
-                    // Use local audio file
-                    audio.src = '/sounds/rickroll.mp3';
-                    // Fallback to CDN if local file not found
-                    audio.onerror = () => {
-                        audio.src = 'https://www.myinstants.com/media/sounds/rick-roll.mp3';
-                        audio.onerror = () => {
-                            console.log('Rickroll audio not available');
-                        };
-                        audio.play().catch(e => console.log('Audio play failed:', e));
-                    };
+                    audio.src = 'https://cdn.pixabay.com/audio/2022/03/15/audio_742363a13d.mp3'; // A generic upbeat tune
                     break;
                 case 'alert':
-                    // Use local audio file
-                    audio.src = '/sounds/alert.mp3';
-                    audio.onerror = () => {
-                        // Fallback to generated tone
-                        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                        const oscillator = audioContext.createOscillator();
-                        const gainNode = audioContext.createGain();
-                        oscillator.connect(gainNode);
-                        gainNode.connect(audioContext.destination);
-                        oscillator.frequency.value = 1000;
-                        oscillator.type = 'sine';
-                        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                        oscillator.start();
-                        setTimeout(() => {
-                            oscillator.stop();
-                            audioContext.close();
-                        }, 2000);
-                    };
+                     audio.src = 'https://cdn.pixabay.com/audio/2021/08/04/audio_5415ee7962.mp3'; // Sci-fi alarm
                     break;
                 case 'hack':
-                    // Use local audio file
-                    audio.src = '/sounds/hack.mp3';
-                    audio.onerror = () => {
-                        // Fallback to generated glitch sound
-                        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                        const oscillator = audioContext.createOscillator();
-                        const gainNode = audioContext.createGain();
-                        oscillator.connect(gainNode);
-                        gainNode.connect(audioContext.destination);
-                        oscillator.type = 'square';
-                        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                        
-                        // Create glitchy sound by rapidly changing frequency
-                        let time = audioContext.currentTime;
-                        for (let i = 0; i < 20; i++) {
-                            oscillator.frequency.setValueAtTime(
-                                Math.random() * 1000 + 200, 
-                                time + i * 0.1
-                            );
-                        }
-                        oscillator.start();
-                        setTimeout(() => {
-                            oscillator.stop();
-                            audioContext.close();
-                        }, 2000);
-                    };
+                    audio.src = 'https://cdn.pixabay.com/audio/2022/02/07/audio_368868a8a4.mp3'; // Digital glitch sound
                     break;
             }
-            
-            // Try to play the audio
-            audio.play().catch(e => {
-                console.log('Audio play failed:', e);
-                // If autoplay is blocked, show a notification
-                const notification = document.createElement('div');
-                notification.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    background: #ff0;
-                    color: #000;
-                    padding: 10px 20px;
-                    border-radius: 5px;
-                    z-index: 10000;
-                    font-weight: bold;
-                `;
-                notification.textContent = '🔊 Click anywhere to enable sound';
-                document.body.appendChild(notification);
-                
-                document.addEventListener('click', () => {
-                    audio.play();
-                    notification.remove();
-                }, { once: true });
-                
-                setTimeout(() => notification.remove(), 5000);
-            });
+             audio.play().catch(e => console.error("Audio playback failed:", e));
         }
         
         // Visual effects
@@ -647,6 +743,7 @@
         function executeEffect(effect) {
             const container = document.getElementById('main-container');
             const overlay = document.getElementById('effect-overlay');
+            const body = document.body;
             
             switch(effect) {
                 case 'shake':
@@ -655,9 +752,16 @@
                     break;
                     
                 case 'rainbow':
-                    document.body.classList.add('rainbow');
-                    setTimeout(() => document.body.classList.remove('rainbow'), 5000);
+                    body.classList.toggle('rainbow');
                     break;
+
+                case 'invert':
+                    body.style.filter = body.style.filter.includes('invert(1)') ? '' : 'invert(1)';
+                    break;
+
+                case 'spin':
+                     container.classList.toggle('spin');
+                     break;
                     
                 case 'matrix':
                     canvas.style.opacity = '0.8';
@@ -688,51 +792,62 @@
                 case 'snow':
                     createSnowEffect();
                     break;
-                    
-                case 'flash':
-                    overlay.style.background = '#0f0';
-                    overlay.style.opacity = '0.5';
-                    setTimeout(() => {
-                        overlay.style.opacity = '0';
-                        setTimeout(() => overlay.style.background = '', 500);
+                case 'typewriter':
+                    const message = "SYSTEM COMPROMISED. WE ARE IN CONTROL.";
+                    const el = document.getElementById('typewriter-hijack');
+                    el.innerHTML = '';
+                    let i = 0;
+                    const typing = setInterval(() => {
+                        el.innerHTML += message.charAt(i);
+                        i++;
+                        if (i > message.length) {
+                            clearInterval(typing);
+                            setTimeout(() => el.innerHTML = '', 3000);
+                        }
                     }, 100);
                     break;
-                    
-                case 'victory':
-                    createVictoryEffect();
+                
+                case 'redacted':
+                    document.querySelectorAll('.redacted-overlay').forEach(el => {
+                        el.style.display = 'flex';
+                    });
+                    setTimeout(() => {
+                         document.querySelectorAll('.redacted-overlay').forEach(el => {
+                            el.style.display = 'none';
+                        });
+                    }, 5000);
+                    break;
+                case 'flood':
+                    const floodEmoji = '😂'; 
+                    for (let i = 0; i < 100; i++) {
+                        const floater = document.createElement('div');
+                        floater.innerHTML = floodEmoji;
+                        floater.style.position = 'fixed';
+                        floater.style.left = Math.random() * 100 + 'vw';
+                        floater.style.top = Math.random() * 100 + 'vh';
+                        floater.style.fontSize = Math.random() * 40 + 20 + 'px';
+                        floater.style.opacity = '0';
+                        floater.style.animation = `fade-in-out ${Math.random() * 3 + 2}s linear forwards`;
+                        document.body.appendChild(floater);
+                        setTimeout(() => floater.remove(), 5000);
+                    }
                     break;
             }
         }
         
         function createSnowEffect() {
             const snowContainer = document.createElement('div');
-            snowContainer.style.position = 'fixed';
-            snowContainer.style.top = '0';
-            snowContainer.style.left = '0';
-            snowContainer.style.width = '100%';
-            snowContainer.style.height = '100%';
-            snowContainer.style.pointerEvents = 'none';
-            snowContainer.style.zIndex = '999';
+            snowContainer.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;';
             
             for (let i = 0; i < 100; i++) {
                 const snowflake = document.createElement('div');
                 snowflake.innerHTML = '❄';
-                snowflake.style.position = 'absolute';
-                snowflake.style.left = Math.random() * 100 + '%';
-                snowflake.style.animationDelay = Math.random() * 10 + 's';
-                snowflake.style.fontSize = Math.random() * 20 + 10 + 'px';
-                snowflake.style.color = '#fff';
-                snowflake.style.animation = 'fall 10s linear infinite';
+                snowflake.style.cssText = `position:absolute;left:${Math.random()*100}%;font-size:${Math.random()*20+10}px;color:#fff;animation:fall 10s linear infinite;animation-delay:${Math.random()*10}s;`;
                 snowContainer.appendChild(snowflake);
             }
             
             const style = document.createElement('style');
-            style.textContent = `
-                @keyframes fall {
-                    from { top: -10%; }
-                    to { top: 110%; }
-                }
-            `;
+            style.textContent = `@keyframes fall { from { top: -10%; } to { top: 110%; } } @keyframes fade-in-out { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }`;
             document.head.appendChild(style);
             
             document.body.appendChild(snowContainer);
@@ -742,19 +857,30 @@
             }, 10000);
         }
         
-        function createVictoryEffect() {
-            const colors = ['#f00', '#0f0', '#00f', '#ff0', '#f0f', '#0ff'];
-            let colorIndex = 0;
-            const interval = setInterval(() => {
-                document.body.style.background = colors[colorIndex];
-                colorIndex = (colorIndex + 1) % colors.length;
-            }, 200);
-            
-            setTimeout(() => {
-                clearInterval(interval);
-                document.body.style.background = '#000';
-            }, 5000);
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tab-link");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
         }
+
+        document.getElementById('team-select-manage').addEventListener('change', (e) => {
+            const teamId = parseInt(e.target.value);
+            const team = gameState.teams.find(t => t.id === teamId);
+            if (team) {
+                document.getElementById('flag1').checked = team.flag1;
+                document.getElementById('flag2').checked = team.flag2;
+                document.getElementById('flag3').checked = team.flag3;
+            }
+        });
+
         
         // Handle window resize
         window.addEventListener('resize', () => {
@@ -764,3 +890,4 @@
     </script>
 </body>
 </html>
+ 
