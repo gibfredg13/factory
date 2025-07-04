@@ -21,28 +21,6 @@
             transition: filter 0.5s ease;
         }
 
-        /* Audio Enable Button */
-        #audio-init-button {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 10000;
-            padding: 10px 15px;
-            font-size: 1em;
-            background-color: #0f0;
-            color: #000;
-            border: 1px solid #0f0;
-            border-radius: 5px;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-        }
-        #audio-init-button:hover {
-            background-color: #0ff;
-            box-shadow: 0 0 10px #0ff;
-        }
-
-
         /* Matrix Rain Effect */
         #matrix-bg {
             position: fixed;
@@ -413,8 +391,6 @@
         </div>
     </div>
 
-    <button id="audio-init-button">🔊 Enable Audio</button>
-
     <!-- Password Dialog -->
     <div id="password-dialog">
         <h3 style="color: #0ff; margin-bottom: 15px;">RESTRICTED ACCESS</h3>
@@ -503,23 +479,6 @@
             message: 'Connecting to server...'
         };
         
-        // --- Audio Context Initialization ---
-        let audioCtx;
-        function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                // Resume context if it's in a suspended state (required by some browsers)
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
-            }
-            // Hide the button
-            document.getElementById('audio-init-button').style.display = 'none';
-        }
-
-        document.getElementById('audio-init-button').addEventListener('pointerdown', initAudio);
-
-
         // Connection status
         socket.on('connect', () => {
             updateConnectionStatus(true);
@@ -727,8 +686,9 @@
         }
         
         // --- OFFLINE SOUND GENERATION ---
+        let audioCtx;
         function getAudioContext() {
-            if (!audioCtx || audioCtx.state === 'closed') {
+            if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
             return audioCtx;
@@ -746,15 +706,6 @@
         
         function executeSound(type) {
             const ctx = getAudioContext();
-            if (!ctx) {
-                console.error("AudioContext not available.");
-                return;
-            }
-             // If context is suspended, it needs to be resumed by a user gesture.
-            if (ctx.state === 'suspended') {
-                ctx.resume();
-            }
-
             const now = ctx.currentTime;
             
             // Universal gain to prevent clipping

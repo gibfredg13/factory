@@ -2,9 +2,14 @@
 
 This is the repo for the Factory workshop.
 
+## Labs
+
+`bash startlab.sh` to start, view labs at [8088](http://127.0.0.1:8088). When pressing enter it'll automatically wipe.
+
+
 ## Dashboard Server
 
-To install dashboard `chmod +x dashboardctf/installdahs.sh` and run it 
+To install dashboard `chmod +x dashboardctf/installdahs.sh` and run it.
 
 ## copying the images to the pi
 
