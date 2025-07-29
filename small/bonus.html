@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BONUS CHALLENGE - ING Factory</title>
+    <style>
+        /* General Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #0f0;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Translation Button */
+        #translation-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #0f0;
+            color: #000;
+            border: 1px solid #0f0;
+            padding: 8px 12px;
+            cursor: pointer;
+            z-index: 100;
+            font-family: 'Courier New', monospace;
+        }
+        #translation-btn:hover {
+            background: #000;
+            color: #0f0;
+        }
+
+        /* Glitch effect for the main title */
+        @keyframes glitch {
+            0% { text-shadow: 0.05em 0 0 rgba(255,0,0,.75), -0.05em -0.025em 0 rgba(0,255,0,.75), 0.025em 0.05em 0 rgba(0,0,255,.75); }
+            15% { text-shadow: -0.05em -0.025em 0 rgba(255,0,0,.75), 0.025em 0.025em 0 rgba(0,255,0,.75), -0.05em -0.05em 0 rgba(0,0,255,.75); }
+            50% { text-shadow: 0.025em 0.05em 0 rgba(255,0,0,.75), 0.05em 0 0 rgba(0,255,0,.75), 0 -0.05em 0 rgba(0,0,255,.75); }
+            100% { text-shadow: -0.025em 0 0 rgba(255,0,0,.75), -0.025em -0.025em 0 rgba(0,255,0,.75), -0.025em -0.05em 0 rgba(0,0,255,.75); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-top: 50px;
+        }
+
+        .title {
+            font-size: 4em;
+            text-shadow: 0 0 20px #0f0;
+            margin-bottom: 20px;
+            animation: glitch 2.5s infinite;
+        }
+
+        .subtitle {
+            font-size: 1.5em;
+            color: #ff0;
+            text-shadow: 0 0 10px #ff0;
+            margin-bottom: 30px;
+        }
+
+        /* Warning Box */
+        .warning-box {
+            background: rgba(255, 0, 0, 0.1);
+            border: 2px solid #f00;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 30px auto;
+            max-width: 800px;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { border-color: #f00; box-shadow: 0 0 20px rgba(255, 0, 0, 0.5); }
+            50% { border-color: #ff0; box-shadow: 0 0 30px rgba(255, 255, 0, 0.8); }
+        }
+
+        .warning-box h2 {
+            color: #f00;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        /* Challenge Info & Hints */
+        .challenge-info {
+            background: rgba(0, 255, 0, 0.05);
+            border: 1px solid #0f0;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px auto;
+            max-width: 800px;
+        }
+
+        .challenge-info h3 {
+            color: #0ff;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .objective {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border-left: 4px solid #0ff;
+        }
+
+        .objective strong {
+            color: #ff0;
+        }
+
+        .hints {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(0, 100, 255, 0.05);
+            border: 1px dashed #00f;
+            border-radius: 5px;
+        }
+
+        .hints h4 {
+            color: #00f;
+            margin-bottom: 15px;
+        }
+
+        .hint-item {
+            margin: 10px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .hint-item:before {
+            content: ">";
+            position: absolute;
+            left: 0;
+            color: #0ff;
+        }
+
+        /* Blinking Cursor */
+        .blink {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        /* Terminal Prompt */
+        .terminal-prompt {
+            margin-top: 30px;
+            padding: 20px;
+            background: #000;
+            border: 1px solid #0f0;
+            font-family: monospace;
+        }
+
+        .prompt {
+            color: #0f0;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background: #0f0;
+            animation: blink 1s infinite;
+            vertical-align: bottom;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .title { font-size: 2.5em; }
+            .subtitle { font-size: 1.2em; }
+        }
+    </style>
+</head>
+<body>
+    
+    <button id="translation-btn">Nederlands</button>
+
+    <div class="container">
+        <div class="header">
+            <h1 class="title" data-lang-en="BONUS CHALLENGE" data-lang-nl="BONUSUITDAGING">BONUS CHALLENGE</h1>
+            <p class="subtitle" data-lang-en="ING Factory CTF - The Final Stage" data-lang-nl="ING Factory CTF - De Finale Fase">ING Factory CTF - The Final Stage</p>
+        </div>
+
+        <div class="warning-box">
+            <h2 data-lang-en="⚠️ CLASSIFIED SYSTEM ⚠️" data-lang-nl="⚠️ GECLASSIFICEERD SYSTEEM ⚠️">⚠️ CLASSIFIED SYSTEM ⚠️</h2>
+            <p data-lang-en="Your reputation precedes you. Let's see if it's earned." data-lang-nl="Je reputatie snelt je vooruit. Laten we zien of die verdiend is.">Your reputation precedes you. Let's see if it's earned.</p>
+        </div>
+
+        <div class="challenge-info">
+            <h3 data-lang-en="YOUR MISSION" data-lang-nl="JOUW MISSIE">YOUR MISSION</h3>
+            
+            <div class="objective">
+                <strong data-lang-en="OBJECTIVE:" data-lang-nl="DOELSTELLING:">OBJECTIVE:</strong> <span data-lang-en="Infiltrate the system and find the control panel." data-lang-nl="Infiltreer het systeem en vind het controlepaneel.">Infiltrate the system and find the control panel.</span>
+            </div>
+            
+            <div class="objective">
+                <strong data-lang-en="CHALLENGE:" data-lang-nl="UITDAGING:">CHALLENGE:</strong> <span data-lang-en="The path is hidden. Your knowledge of hacker lore is the key." data-lang-nl="Het pad is verborgen. Je kennis van hacker-geschiedenis is de sleutel.">The path is hidden. Your knowledge of hacker lore is the key.</span>
+            </div>
+
+            <div class="hints">
+                <h4 data-lang-en="💡 HINTS FOR THE ELITE:" data-lang-nl="💡 HINTS VOOR DE ELITE:">💡 HINTS FOR THE ELITE:</h4>
+                <div class="hint-item" data-lang-en="The control panel is not on this server. Its location is logged in the source code. Find the address to proceed." data-lang-nl="Het controlepaneel bevindt zich niet op deze server. De locatie is vastgelegd in de broncode. Vind het adres om verder te gaan.">The control panel is not on this server. Its location is logged in the source code. Find the address to proceed.</div>
+                <div class="hint-item" data-lang-en="Once you reach the destination, remember the lesson from 'The Net'. A hidden symbol, a 'Mozart's Ghost', is the key." data-lang-nl="Zodra je de bestemming bereikt, herinner je de les uit 'The Net'. Een verborgen symbool, een 'Mozart's Ghost', is de sleutel.">Once you reach the destination, remember the lesson from 'The Net'. A hidden symbol, a 'Mozart's Ghost', is the key.</div>
+                <!-- 
+                    CLUE #2: Well done, agent. You found the first comment.
+                    Now for the password to the control panel. Think of another classic 90s hacker film.
+                    What was their iconic, rebellious motto? The one about the planet?
+                    If you're not a 90s kid, a search for "famous hacker movie quotes" might just save you.
+                    The password is all lowercase, no spaces.
+                -->
+            </div>
+        </div>
+
+        <div class="terminal-prompt">
+            <span class="prompt">root@ctf-mainframe:~#</span> <span id="terminal-text"></span><span class="cursor"></span>
+        </div>
+
+        <div class="footer">
+            <p data-lang-en="The truth is in the code." data-lang-nl="De waarheid zit in de code.">The truth is in the code.</p>
+            <!-- System Endpoint: 10.0.0.1 -->
+        </div>
+    </div>
+
+    <script>
+        // --- TRANSLATION SCRIPT ---
+        const translationButton = document.getElementById('translation-btn');
+        let currentLang = 'en';
+
+        translationButton.addEventListener('click', () => {
+            currentLang = currentLang === 'en' ? 'nl' : 'en';
+            
+            document.querySelectorAll('[data-lang-en]').forEach(el => {
+                const text = el.getAttribute(`data-lang-${currentLang}`);
+                // Check if the element has children that should not be translated
+                if (el.querySelector('strong')) {
+                    // Find the text node to update
+                    const textNode = Array.from(el.childNodes).find(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '');
+                    if(textNode) textNode.textContent = ` ${text}`;
+                } else {
+                    el.innerHTML = text;
+                }
+            });
+
+            translationButton.textContent = currentLang === 'en' ? 'Nederlands' : 'English';
+        });
+
+
+        // --- TERMINAL TYPING EFFECT ---
+        const terminalText = document.getElementById('terminal-text');
+        const messages = [
+            "System integrity scan...",
+            "Firewall active.",
+            "This server is secure.",
+            "The target is located on a different system.",
+            "Find the endpoint address.",
+            "The logs contain the destination.",
+            "Check all system files for the IP.",
+            "Access to the next stage requires leaving this machine."
+        ];
+        
+        let messageIndex = 0;
+        let charIndex = 0;
+        
+        function typeMessage() {
+            if (messageIndex < messages.length) {
+                if (charIndex < messages[messageIndex].length) {
+                    terminalText.textContent += messages[messageIndex][charIndex];
+                    charIndex++;
+                    setTimeout(typeMessage, 50);
+                } else {
+                    setTimeout(() => {
+                        terminalText.textContent = '';
+                        charIndex = 0;
+                        messageIndex = (messageIndex + 1) % messages.length;
+                        typeMessage();
+                    }, 2000);
+                }
+            }
+        }
+        setTimeout(typeMessage, 1000);
+        
+        // --- CONSOLE LOG ---
+        console.log('%cYou found me. Good.', 'color: #0f0; font-size: 20px; font-weight: bold;');
+        console.log('%cThe real clues are in the page itself and its source. Happy hunting.', 'color: #ff0;');
+    </script>
+</body>
+</html>
+
