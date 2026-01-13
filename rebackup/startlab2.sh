@@ -85,7 +85,7 @@ start_http_server() {
   
   cd ./docker && npm install
   cd ../vsftpd && npm install 
-  npx concurrently "cd ../docker && npm run dev -- --host --port 8066" "cd ../vsftpd && npm run dev -- --host --port 3002"
+  npx concurrently "cd ../docker && npm run dev -- --host --port 8066" "cd ../vsftpd && npm run dev -- --host --port 3002" &
   
   WEB_SERVER_PID=$!
   echo "    Web Server started with PID: $WEB_SERVER_PID"
