@@ -24,18 +24,6 @@ export DOCKER_CLI_HINTS=false
 
 # --- Functions ---
 
-copy_files_to_tmp() {
-  echo ">>> [1/7] Copying Lab Files to /tmp..."
-  # Check if source directories exist to avoid errors
-  if [ -d "$VSFTPD_HTML" ] && [ -d "$DOCKER_HTML" ]; then
-      cp -r "$VSFTPD_HTML" "/tmp/"
-      cp -r "$DOCKER_HTML" "/tmp/"
-      cp -r "$BONUS_HTML" "/tmp/" 2>/dev/null || true # Optional bonus
-  else
-      echo "Error: Source directories ($VSFTPD_HTML or $DOCKER_HTML) not found in current folder."
-      exit 1
-  fi
-}
 
 cleanup_environment() {
   echo ">>> Cleaning up environment..."
@@ -46,22 +34,15 @@ cleanup_environment() {
       kill $WEB_SERVER_PID 2>/dev/null
   fi
 
-  # Remove local files
-  rm -f /tmp/*.html
-  rm -rf /tmp/docker /tmp/vsftpd
 
   # Force remove containers
   docker rm "$KALI_CONTAINER" --force >/dev/null 2>&1
   docker rm "$BADWEB_CONTAINER" --force >/dev/null 2>&1
-  rm -fdr /tmp/docker &
-  rm -fdr /tmp/vsftpd &
+  
   # Remove network
   docker network rm demo >/dev/null 2>&1
 }
-run_npx() {
-cd /tmp/docker && npm install
-cd /tmp/vsftpd && npm install
-}
+
 setup_environment() {
   echo ">>> [2/7] Setting up Docker Network and Containers..."
   
@@ -102,13 +83,9 @@ configure_kali_services() {
 start_http_server() {
   echo ">>> [5/7] Starting Local Web Server..."
   
-  # Install dependencies silently
-  cd /tmp/docker && npm install &
-  cd /tmp/vsftpd && npm install &
-
-  # Run concurrently in BACKGROUND (&) so the script continues
-  # Using nohup or just & ensures it doesn't block the next function
-  npx concurrently "cd /tmp/docker && npm run dev -- --host --port 8066" "cd /tmp/vsftpd && npm install && npm run dev -- --host --port 3002" 
+  cd ./docker && npm install
+  cd ../vsftpd && npm install 
+  npx concurrently "cd ../docker && npm run dev -- --host --port 8066" "cd ../vsftpd && npm run dev -- --host --port 3002"
   
   WEB_SERVER_PID=$!
   echo "    Web Server started with PID: $WEB_SERVER_PID"
@@ -167,8 +144,6 @@ main() {
   install_deps_raspberry_pi
   # 1. Prepare Environment
   cleanup_environment
-  copy_files_to_tmp      # Moved this UP so files exist for the web server
-  
   setup_environment
   
   # 2. Configure Containers
