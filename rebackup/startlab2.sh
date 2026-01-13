@@ -106,8 +106,8 @@ start_http_server() {
   # Using nohup or just & ensures it doesn't block the next function
   npx concurrently \
     
-    "cd /tmp/docker && npm install && npm run dev -- --host --port $HTTP_PORT_1" \
-    "cd /tmp/vsftpd && npm install && npm run dev -- --host --port $HTTP_PORT_2" >/dev/null 2>&1 &
+    "cd /tmp/docker && npm install && npm run dev -- --host --port 8066" \
+    "cd /tmp/vsftpd && npm install && npm run dev -- --host --port 3002" >/dev/null 2>&1 &
   
   WEB_SERVER_PID=$!
   echo "    Web Server started with PID: $WEB_SERVER_PID"
