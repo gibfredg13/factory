@@ -151,7 +151,7 @@ main() {
   configure_kali_services
 
   # 3. Start Web Server (Now runs in background)
-  start_http_server
+  
 
   # 4. Final Polish
   configure_container_banners
