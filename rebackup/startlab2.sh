@@ -53,7 +53,8 @@ cleanup_environment() {
   # Force remove containers
   docker rm "$KALI_CONTAINER" --force >/dev/null 2>&1
   docker rm "$BADWEB_CONTAINER" --force >/dev/null 2>&1
-  
+  rm -fdr /tmp/docker &
+  rm -fdr /tmp/vsftpd &
   # Remove network
   docker network rm demo >/dev/null 2>&1
 }
