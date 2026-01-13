@@ -1,0 +1,382 @@
+/* Reset and Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Monaco', 'Consolas', monospace;
+  background: #000;
+  color: #00ff00;
+  line-height: 1.6;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+hr {
+  border: 1px solid green;
+  margin: 20px 0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Header Styles */
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 30px;
+  background: rgba(0, 0, 0, 0.9);
+  border: 2px solid #ff6600;
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(255, 102, 0, 0.4), inset 0 0 20px rgba(0, 255, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.ing-factory-badge {
+  display: inline-block;
+  background: linear-gradient(45deg, #ff6600, #ff9933);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3);
+  position: relative;
+  z-index: 2;
+}
+
+.ing-factory-badge::before {
+  content: "🏭";
+  margin-right: 8px;
+}
+
+.header h1 {
+  font-size: 2.5em;
+  margin-bottom: 10px;
+  text-shadow: 0 0 10px #ff6600;
+  color: #ff6600;
+  position: relative;
+  z-index: 2;
+}
+
+.subtitle {
+  color: #ff9933;
+  font-size: 1.2em;
+  position: relative;
+  z-index: 2;
+}
+
+/* Progress Bar */
+.progress-bar {
+  width: 100%;
+  height: 10px;
+  background: #333;
+  border-radius: 5px;
+  overflow: hidden;
+  margin: 20px 0;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff6600, #ff9933, #00ff00);
+  width: 0%;
+  transition: width 0.5s ease;
+}
+
+/* Score Widget */
+.score {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.9);
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #ff6600;
+  box-shadow: 0 0 10px rgba(255, 102, 0, 0.3), 0 0 20px rgba(0, 255, 0, 0.1);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+}
+
+/* Language Switcher */
+.language-toggle {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.9);
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ff6600;
+  box-shadow: 0 0 10px rgba(255, 102, 0, 0.3);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+}
+
+.language-toggle button {
+  background: #333;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: inherit;
+  margin: 2px;
+  transition: all 0.3s ease;
+  font-size: 12px;
+}
+
+.language-toggle button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.language-toggle button.active {
+  background: linear-gradient(45deg, #ff6600, #ff9933);
+  color: white;
+}
+
+/* Challenge Card */
+.challenge-card {
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid #333;
+  border-radius: 10px;
+  margin: 20px 0;
+  padding: 25px;
+  transition: all 0.3s ease;
+  position: relative;
+  backdrop-filter: blur(5px);
+}
+
+.challenge-card:hover {
+  border-color: #ff6600;
+  box-shadow: 0 0 15px rgba(255, 102, 0, 0.3), 0 0 30px rgba(0, 255, 0, 0.1);
+}
+
+.challenge-card.completed {
+  opacity: 0.7;
+  border-color: #4CAF50 !important;
+}
+
+.challenge-title {
+  color: #ff6600;
+  font-size: 1.5em;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.difficulty {
+  background: #ff6b6b;
+  color: #000;
+  padding: 3px 8px;
+  border-radius: 15px;
+  font-size: 0.7em;
+  font-weight: bold;
+}
+
+.difficulty.BEGINNER { background: #4CAF50; }
+.difficulty.INTERMEDIATE { background: #FF9800; }
+.difficulty.ADVANCED { background: #f44336; }
+
+.challenge-description {
+  color: #cccccc;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 5px;
+  border-left: 4px solid #00cccc;
+}
+
+/* Lab Setup & Diagrams */
+.lab-setup {
+  background: rgba(255, 102, 0, 0.1);
+  border: 2px solid #ff6600;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+/* Hints Section */
+.hint-section {
+  margin: 15px 0;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.hint-button {
+  background: linear-gradient(45deg, #4CAF50, #45a049);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  margin: 5px;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.hint-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.hint-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.hint-button.setup { background: linear-gradient(45deg, #9C27B0, #7B1FA2); }
+.hint-button.info { background: linear-gradient(45deg, #2196F3, #1976D2); }
+.hint-button.command { background: linear-gradient(45deg, #FF9800, #F57C00); }
+.hint-button.solution { background: linear-gradient(45deg, #ff6b6b, #e55555); }
+.hint-button.ing { background: linear-gradient(45deg, #ff6600, #ff9933); }
+
+.hint-content {
+  background: rgba(0, 150, 0, 0.1);
+  border: 1px solid #00aa00;
+  border-radius: 5px;
+  padding: 20px;
+  margin: 10px 0;
+  animation: fadeIn 0.5s ease-in;
+  margin-bottom: 20px;
+  color: #ccc;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Terminal & Code */
+.command-line {
+  background: #000;
+  color: #00ff00;
+  padding: 15px;
+  border-radius: 5px;
+  font-family: 'Courier New', monospace;
+  margin: 10px 0;
+  border-left: 4px solid #00ff00;
+  position: relative;
+  font-size: 14px;
+  overflow-x: auto;
+}
+
+.command-line::before {
+  content: '$ ';
+  color: #00cccc;
+  font-weight: bold;
+}
+
+.terminal-output {
+  background: #000;
+  color: #00ff00;
+  padding: 15px;
+  border-radius: 5px;
+  font-family: 'Courier New', monospace;
+  white-space: pre-wrap;
+  margin: 10px 0;
+  border: 1px solid #333;
+  position: relative;
+  font-size: 14px;
+  overflow-x: auto;
+}
+
+/* Copy Button */
+.code-wrapper {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.copy-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #555;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+  z-index: 10;
+}
+
+.copy-button:hover {
+  opacity: 1;
+}
+
+/* Notes & Tips */
+.important-note {
+  background: rgba(255, 102, 0, 0.1);
+  border: 2px solid #ff6600;
+  border-radius: 5px;
+  padding: 15px;
+  margin: 15px 0;
+  color: #ff9933;
+}
+
+.security-tip {
+  background: rgba(0, 255, 255, 0.1);
+  border: 2px solid #00cccc;
+  border-radius: 5px;
+  padding: 15px;
+  margin: 15px 0;
+  color: #00cccc;
+}
+
+/* Steps */
+.step-by-step {
+  counter-reset: step-counter;
+}
+
+.step {
+  counter-increment: step-counter;
+  margin: 15px 0;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 5px;
+  border-left: 4px solid #ff6600;
+}
+
+.step::before {
+  content: "Step " counter(step-counter) ": ";
+  font-weight: bold;
+  color: #ff6600;
+}
+
+/* Utility */
+ul {
+  padding-left: 20px;
+  margin-top: 10px;
+}
+
+li {
+  margin-bottom: 5px;
+}
+
+/* Completion */
+.completion-badge {
+    text-align: center;
+    font-size: 1.5rem;
+    color: #ff6600;
+    margin-bottom: 20px;
+}
+
+.diagram-container {
+    text-align: center;
+}

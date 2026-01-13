@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BONUS CHALLENGE - ING Factory</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #0f0;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Matrix Rain Effect */
+        #matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        /* Glitch effect */
+        @keyframes glitch {
+            0% {
+                text-shadow: 0.05em 0 0 rgba(255, 0, 0, .75),
+                            -0.05em -0.025em 0 rgba(0, 255, 0, .75),
+                            0.025em 0.05em 0 rgba(0, 0, 255, .75);
+            }
+            14% {
+                text-shadow: 0.05em 0 0 rgba(255, 0, 0, .75),
+                            -0.05em -0.025em 0 rgba(0, 255, 0, .75),
+                            0.025em 0.05em 0 rgba(0, 0, 255, .75);
+            }
+            15% {
+                text-shadow: -0.05em -0.025em 0 rgba(255, 0, 0, .75),
+                            0.025em 0.025em 0 rgba(0, 255, 0, .75),
+                            -0.05em -0.05em 0 rgba(0, 0, 255, .75);
+            }
+            49% {
+                text-shadow: -0.05em -0.025em 0 rgba(255, 0, 0, .75),
+                            0.025em 0.025em 0 rgba(0, 255, 0, .75),
+                            -0.05em -0.05em 0 rgba(0, 0, 255, .75);
+            }
+            50% {
+                text-shadow: 0.025em 0.05em 0 rgba(255, 0, 0, .75),
+                            0.05em 0 0 rgba(0, 255, 0, .75),
+                            0 -0.05em 0 rgba(0, 0, 255, .75);
+            }
+            99% {
+                text-shadow: 0.025em 0.05em 0 rgba(255, 0, 0, .75),
+                            0.05em 0 0 rgba(0, 255, 0, .75),
+                            0 -0.05em 0 rgba(0, 0, 255, .75);
+            }
+            100% {
+                text-shadow: -0.025em 0 0 rgba(255, 0, 0, .75),
+                            -0.025em -0.025em 0 rgba(0, 255, 0, .75),
+                            -0.025em -0.05em 0 rgba(0, 0, 255, .75);
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-top: 50px;
+        }
+
+        .title {
+            font-size: 4em;
+            text-shadow: 0 0 20px #0f0;
+            margin-bottom: 20px;
+            animation: glitch 2.5s infinite;
+        }
+
+        .subtitle {
+            font-size: 1.5em;
+            color: #ff0;
+            text-shadow: 0 0 10px #ff0;
+            margin-bottom: 30px;
+        }
+
+        .warning-box {
+            background: rgba(255, 0, 0, 0.1);
+            border: 2px solid #f00;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 30px auto;
+            max-width: 800px;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { border-color: #f00; box-shadow: 0 0 20px rgba(255, 0, 0, 0.5); }
+            50% { border-color: #ff0; box-shadow: 0 0 30px rgba(255, 255, 0, 0.8); }
+        }
+
+        .warning-box h2 {
+            color: #f00;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .challenge-info {
+            background: rgba(0, 255, 0, 0.05);
+            border: 1px solid #0f0;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px auto;
+            max-width: 800px;
+        }
+
+        .challenge-info h3 {
+            color: #0ff;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .objective {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border-left: 4px solid #0ff;
+        }
+
+        .objective strong {
+            color: #ff0;
+        }
+
+        .hints {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(0, 100, 255, 0.05);
+            border: 1px dashed #00f;
+            border-radius: 5px;
+        }
+
+        .hints h4 {
+            color: #00f;
+            margin-bottom: 15px;
+        }
+
+        .hint-item {
+            margin: 10px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .hint-item:before {
+            content: ">";
+            position: absolute;
+            left: 0;
+            color: #0ff;
+        }
+
+        .network-scan {
+            margin: 40px auto;
+            padding: 20px;
+            background: #111;
+            border: 1px solid #0f0;
+            border-radius: 5px;
+            font-family: monospace;
+            max-width: 600px;
+        }
+
+        .scan-line {
+            margin: 5px 0;
+            opacity: 0;
+            animation: scanReveal 0.5s forwards;
+        }
+
+        @keyframes scanReveal {
+            to { opacity: 1; }
+        }
+
+        .blink {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .access-denied {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #000;
+            border: 2px solid #f00;
+            padding: 40px;
+            text-align: center;
+            display: none;
+            z-index: 1000;
+        }
+
+        .access-denied h2 {
+            color: #f00;
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .terminal-prompt {
+            margin-top: 30px;
+            padding: 20px;
+            background: #000;
+            border: 1px solid #0f0;
+            font-family: monospace;
+        }
+
+        .prompt {
+            color: #0f0;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background: #0f0;
+            animation: blink 1s infinite;
+            vertical-align: bottom;
+        }
+
+        /* Hidden elements for the challenge */
+        .hidden-comment {
+            display: none;
+        }
+
+        /* Fake login form (honeypot) */
+        .fake-login {
+            display: none;
+            position: fixed;
+            bottom: -100px;
+            right: -100px;
+            opacity: 0.01;
+        }
+
+        /* ASCII Art */
+        .ascii-art {
+            text-align: center;
+            font-size: 0.8em;
+            line-height: 1.2;
+            color: #0f0;
+            margin: 30px 0;
+            white-space: pre;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5em;
+            }
+            .subtitle {
+                font-size: 1.2em;
+            }
+            .ascii-art {
+                font-size: 0.6em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrix-bg"></canvas>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="title">BONUS CHALLENGE</h1>
+            <p class="subtitle">ING Factory CTF - Final Test</p>
+        </div>
+
+        <div class="warning-box">
+            <h2>⚠️ UNAUTHORIZED ACCESS DETECTED ⚠️</h2>
+            <p>This system is protected. Only elite hackers may proceed.</p>
+        </div>
+
+        <div class="challenge-info">
+            <h3>YOUR MISSION</h3>
+            
+            <div class="objective">
+                <strong>OBJECTIVE:</strong> Access the CTF Dashboard Control Panel
+            </div>
+            
+            <div class="objective">
+                <strong>CHALLENGE:</strong> Use your skills from previous lessons to:
+                <br>1. Crack the WiFi network
+                <br>2. Find the web server
+                <br>3. Discover the hidden admin access
+                <br>4. Obtain the password
+                <br>5. Access the dashboard
+            </div>
+
+            <div class="hints">
+                <h4>💡 HINTS FOR THE WORTHY:</h4>
+                <div class="hint-item">Network SSID: ING_Factory_CTF</div>
+                <div class="hint-item">90's movie The Net , whats "Mozarts Ghost" ?</div>
+                <div class="hint-item">In the movie Hackers, Whats the movie motto ?</div>
+                <div class="hint-item">Check the page source... hackers always do</div>
+                <div class="hint-item">Sometimes passwords are hidden in plain sight</div>
+            </div>
+        </div>
+
+        <div class="network-scan">
+            <div class="scan-line" style="animation-delay: 0.5s">$ nmap -sn 192.168.1.0/24</div>
+            <div class="scan-line" style="animation-delay: 1s">Starting Nmap scan...</div>
+            <div class="scan-line" style="animation-delay: 1.5s">Host 192.168.1.100 is up (0.0031s latency)</div>
+            <div class="scan-line" style="animation-delay: 2s">MAC Address: B8:27:EB:XX:XX:XX (Raspberry Pi Foundation)</div>
+            <div class="scan-line" style="animation-delay: 2.5s">Nmap done: 256 IP addresses scanned<span class="blink">_</span></div>
+        </div>
+
+        <div class="ascii-art">
+    _____ _______ ______   _____           _                   
+   / ____|__   __|  ____| |  __ \         | |                  
+  | |       | |  | |__    | |  | | __ _ ___| |__   _____  ____ _ _ __ __| |
+  | |       | |  |  __|   | |  | |/ _` / __| '_ \ / _ \ / _` | '__/ _` |
+  | |____   | |  | |      | |__| | (_| \__ \ | | | |_) | (_| | | | (_| |
+   \_____|  |_|  |_|      |_____/ \__,_|___/_| |_|_.__/ \__,_|_|  \__,_|
+        </div>
+
+        <div class="terminal-prompt">
+            <span class="prompt">root@ctf:~#</span> <span id="terminal-text"></span><span class="cursor"></span>
+        </div>
+
+        <div class="footer">
+            <p>Good luck, hacker. May the source be with you.</p>
+            <p style="color: #333;"><!-- Password hint: It's what every hacker wants to do to the planet --></p>
+        </div>
+    </div>
+
+    <!-- Hidden elements for the challenge -->
+    <div class="hidden-comment">
+        <!-- 
+            Well done finding this! The real challenge awaits at /ctf.html
+            But you'll need the password... think about famous hacker movies from the 90s
+            What did they want to hack? The ______?
+        -->
+    </div>
+
+    <!-- Fake login form (honeypot) -->
+    <form class="fake-login" action="/admin" method="post">
+        <input type="text" name="username" value="admin">
+        <input type="password" name="password" value="hacktheplanet">
+    </form>
+
+    <!-- Another hint in a data attribute -->
+    <div data-hint="pi-symbol-top-right" style="display:none;"></div>
+
+    <script>
+        // Matrix rain effect
+        const canvas = document.getElementById('matrix-bg');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%+-/~{[|`]}πhacktheplanet";
+        const matrixArray = matrix.split("");
+        const fontSize = 10;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+        
+        for(let x = 0; x < columns; x++) {
+            drops[x] = 1;
+        }
+        
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#0F0';
+            ctx.font = fontSize + 'px monospace';
+            
+            for(let i = 0; i < drops.length; i++) {
+                const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                
+                if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        
+        setInterval(drawMatrix, 35);
+        
+        // Terminal typing effect
+        const terminalText = document.getElementById('terminal-text');
+        const messages = [
+            "Scanning network...",
+            "Found target: 192.168.1.100",
+            "Detecting services...",
+            "HTTP server found on port 80",
+            "Searching for vulnerabilities...",
+            "Hidden admin panel detected",
+            "Attempting bypass...",
+            "Access denied. Password required.",
+            "Hint: Check the source, Luke.",
+            "ING Factory - IDEAS worth Building",
+            "In the Movie The Net how did she access the backdoor ?"
+        ];
+        
+        let messageIndex = 0;
+        let charIndex = 0;
+        
+        function typeMessage() {
+            if (messageIndex < messages.length) {
+                if (charIndex < messages[messageIndex].length) {
+                    terminalText.textContent += messages[messageIndex][charIndex];
+                    charIndex++;
+                    setTimeout(typeMessage, 50);
+                } else {
+                    setTimeout(() => {
+                        terminalText.textContent = '';
+                        charIndex = 0;
+                        messageIndex++;
+                        if (messageIndex >= messages.length) {
+                            messageIndex = 0;
+                        }
+                        typeMessage();
+                    }, 2000);
+                }
+            }
+        }
+        
+        setTimeout(typeMessage, 1000);
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+        
+        // Easter egg for console hackers
+        console.log('%c WELCOME, HACKER!', 'color: #0f0; font-size: 20px; font-weight: bold;');
+        console.log('%c You\'re on the right track. Keep looking...', 'color: #ff0;');
+        console.log('%c The password is closer than you think.', 'color: #0ff;');
+        console.log('%c Hint: It\'s a famous hacker phrase from the 90s', 'color: #f0f;');
+        
+        
+        // Another hint in the console
+        window.ctfHint = {
+            message: "The admin panel uses a mathematical symbol",
+            symbol: "π",
+            location: "top-right corner",
+            password: "it's what hackers do to the planet"
+        };
+    </script>
+</body>
+</html>
