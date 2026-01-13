@@ -105,7 +105,7 @@ start_http_server() {
   # Run concurrently in BACKGROUND (&) so the script continues
   # Using nohup or just & ensures it doesn't block the next function
   npx concurrently \
-    "sudo apt upgrade -y && sudo apt update -y && sudo apt install npx"
+    "sudo apt upgrade -y && sudo apt update -y && sudo apt install nodejs npm -y"
     "cd /tmp/docker && npm run dev -- --host --port $HTTP_PORT_1" \
     "cd /tmp/vsftpd && npm run dev -- --host --port $HTTP_PORT_2" >/dev/null 2>&1 &
   
