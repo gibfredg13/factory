@@ -4,8 +4,8 @@ import { DockerDiagram, NetworkScanDiagram, ExploitDiagram } from './components/
 
 // Hardcoded lab values for consistency
 const LAB_VARS = {
-  HOST_IP: "172.17.0.1",
-  KALI_IP: "172.17.0.2",
+  HOST_IP: "127.0.0.1",
+  KALI_IP: "172.29.0.5",
   PORT: "2375"
 };
 
