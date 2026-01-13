@@ -115,7 +115,7 @@ start_http_server() {
 }
 
 install_deps_raspberry_pi() {
-    "sudo apt update -y && sudo apt upgrade -y && sudo apt update -y && sudo apt install nodejs npm -y" &
+    sudo apt update -y && sudo apt upgrade -y && sudo apt update -y && sudo apt install nodejs npm -y &
 }
 # --- Banner & Flag Logic ---
 
