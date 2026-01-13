@@ -58,7 +58,10 @@ cleanup_environment() {
   # Remove network
   docker network rm demo >/dev/null 2>&1
 }
-
+run_npx() {
+cd /tmp/docker && npm install
+cd /tmp/vsftpd && npm install
+}
 setup_environment() {
   echo ">>> [2/7] Setting up Docker Network and Containers..."
   
@@ -100,15 +103,12 @@ start_http_server() {
   echo ">>> [5/7] Starting Local Web Server..."
   
   # Install dependencies silently
-  (cd /tmp/docker && npm install >/dev/null 2>&1)
-  (cd /tmp/vsftpd && npm install >/dev/null 2>&1)
+  cd /tmp/docker && npm install &
+  cd /tmp/vsftpd && npm install &
 
   # Run concurrently in BACKGROUND (&) so the script continues
   # Using nohup or just & ensures it doesn't block the next function
-  npx concurrently \
-    
-    "cd /tmp/docker && npm install && npm run dev -- --host --port 8066" \
-    "cd /tmp/vsftpd && npm install && npm run dev -- --host --port 3002" >/dev/null 2>&1 &
+  npx concurrently "cd /tmp/docker && npm run dev -- --host --port 8066" "cd /tmp/vsftpd && npm install && npm run dev -- --host --port 3002" 
   
   WEB_SERVER_PID=$!
   echo "    Web Server started with PID: $WEB_SERVER_PID"
@@ -168,6 +168,7 @@ main() {
   # 1. Prepare Environment
   cleanup_environment
   copy_files_to_tmp      # Moved this UP so files exist for the web server
+  
   setup_environment
   
   # 2. Configure Containers
