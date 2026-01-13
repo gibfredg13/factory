@@ -105,14 +105,17 @@ start_http_server() {
   # Run concurrently in BACKGROUND (&) so the script continues
   # Using nohup or just & ensures it doesn't block the next function
   npx concurrently \
-    "sudo apt upgrade -y && sudo apt update -y && sudo apt install nodejs npm -y"
-    "cd /tmp/docker && npm run dev -- --host --port $HTTP_PORT_1" \
-    "cd /tmp/vsftpd && npm run dev -- --host --port $HTTP_PORT_2" >/dev/null 2>&1 &
+    
+    "cd /tmp/docker && npm install && npm run dev -- --host --port $HTTP_PORT_1" \
+    "cd /tmp/vsftpd && npm install && npm run dev -- --host --port $HTTP_PORT_2" >/dev/null 2>&1 &
   
   WEB_SERVER_PID=$!
   echo "    Web Server started with PID: $WEB_SERVER_PID"
 }
 
+install_deps_raspberry_pi() {
+"sudo apt update -y && sudo apt upgrade -y && sudo apt update -y && sudo apt install nodejs npm -y"
+}
 # --- Banner & Flag Logic ---
 
 banner_exists() {
@@ -160,7 +163,7 @@ configure_container_banners() {
 main() {
   # Trap Ctrl+C to ensure cleanup runs if user aborts early
   trap cleanup_environment SIGINT
-
+  install_deps_raspberry_pi
   # 1. Prepare Environment
   cleanup_environment
   copy_files_to_tmp      # Moved this UP so files exist for the web server
